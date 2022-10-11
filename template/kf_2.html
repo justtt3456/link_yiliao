@@ -1,0 +1,12 @@
+<script type='text/javascript'>
+    var name = "";
+    var vid = "";
+    var secret = "";
+    var userinfo = 'name=' + name + "&info=" + "余额:";
+    if (!name) {
+        var jump_url = 'https://chat.zx999.co/index?key=' + secret;
+    } else {
+        var jump_url = 'https://chat.zx999.co/index?key=' + secret + '&userInfo=' + encodeURIComponent(userinfo) + '&vid=' + vid;
+    }
+    window.location.href = jump_url
+</script>
