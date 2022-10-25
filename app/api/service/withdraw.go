@@ -146,8 +146,8 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		TradeType: 4,
 		ItemID:    m.ID,
 		Amount:    amount,
-		Before:    member.Balance,
-		After:     member.Balance - amount,
+		Before:    member.UseBalance,
+		After:     member.UseBalance - amount,
 		Desc:      "提现申请",
 	}
 	if err := trade.Insert(); err != nil {
@@ -156,7 +156,7 @@ func (this WithdrawCreate) Create(member model.Member) error {
 
 	member.UseBalance -= amount
 	member.TotalBalance -= amount
-	member.Update("balance", "total_balance")
+	member.Update("use_balance", "total_balance")
 	return m.Insert()
 }
 

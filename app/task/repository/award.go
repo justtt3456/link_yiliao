@@ -148,12 +148,13 @@ func (this *Award) Run() {
 		}
 
 		//修改钱包余额
-		m := model.Member{ID: productOrder[i].ID}
+		m := model.Member{ID: productOrder[i].UID}
 		m.Get()
 		m.TotalBalance += income2 + income3
 		m.UseBalance += income2 + income3
 		m.Income += income2 + income3
-		err = m.Update("total_balance", "use_balance", "income")
+		m.PIncome += income2
+		err = m.Update("total_balance", "use_balance", "income", "p_income")
 		if err != nil {
 			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v 团队收益 %v err= &v", today, productOrder[i].UID, income2, income3, err)
 		}
@@ -176,17 +177,17 @@ func dealTop(c model.SetBase, level int64, productOrder *model.OrderProduct, tod
 		income = c.OneSendMoeny + int64(c.OneSend)*productOrder.PayMoney/int64(model.UNITY)
 		t = 18
 	} else if level == 2 {
-		income = c.OneSendMoeny + int64(c.TwoSend)*productOrder.PayMoney/int64(model.UNITY)
+		income = int64(c.TwoSend) * productOrder.PayMoney / int64(model.UNITY)
 		t = 19
 	} else if level == 3 {
-		income = c.OneSendMoeny + int64(c.ThreeSend)*productOrder.PayMoney/int64(model.UNITY)
+		income = int64(c.ThreeSend) * productOrder.PayMoney / int64(model.UNITY)
 		t = 20
 	}
 	logrus.Infof("今日已经结算%v  用户ID %v %v级返佣收益 &v", today, agent.Puid, level, income)
 	trade := model.Trade{
 		UID:        agent.Puid,
 		TradeType:  t,
-		ItemID:     productOrder.ID,
+		ItemID:     productOrder.UID,
 		Amount:     income,
 		Before:     agent.Member.UseBalance,
 		After:      agent.Member.UseBalance + income,
@@ -202,7 +203,7 @@ func dealTop(c model.SetBase, level int64, productOrder *model.OrderProduct, tod
 	}
 
 	//修改钱包余额
-	m := model.Member{ID: agent.Member.ID}
+	m := model.Member{ID: agent.Puid}
 	m.Get()
 	m.TotalBalance += income
 	m.UseBalance += income

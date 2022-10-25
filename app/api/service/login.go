@@ -26,6 +26,9 @@ func (this LoginService) DoLogin(c *gin.Context) (*response.Member, error) {
 	if this.Username == "" {
 		return nil, errors.New(lang.Lang("Username cannot be empty"))
 	}
+	if !common.IsMobile(this.Username, global.Language) {
+		return nil, errors.New("手机格式不正确")
+	}
 	if this.Password == "" {
 		return nil, errors.New(lang.Lang("Password cannot be empty"))
 	}
@@ -72,6 +75,9 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if this.Username == "" {
 		return nil, errors.New(lang.Lang("Username cannot be empty"))
 	}
+	if !common.IsMobile(this.Username, global.Language) {
+		return nil, errors.New("手机格式不正确")
+	}
 	if this.Password == "" {
 		return nil, errors.New(lang.Lang("Password cannot be empty"))
 	}
@@ -84,6 +90,11 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	}
 	if this.InviteCode == "" {
 		return nil, errors.New(lang.Lang("Invitation code cannot be empty"))
+	}
+	//验证码
+	key = fmt.Sprintf("reg_%v", this.Username)
+	if this.Code != global.REDIS.Get(key).Val() {
+		return nil, errors.New("验证码错误")
 	}
 	//if this.Code == "" {
 	//	return nil, errors.New("验证码不能为空")

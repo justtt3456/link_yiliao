@@ -78,3 +78,51 @@ func PostJson(
 	body, err = ioutil.ReadAll(resp.Body)
 	return
 }
+
+//get请求
+func GetParam(
+	urlPath string,
+	getParam map[string]string,
+	header map[string]string,
+	cookies map[string]string,
+) (body []byte, err error) {
+	client := &http.Client{}
+	//创建Get请求参数
+	req, _ := http.NewRequest(http.MethodGet, urlPath, nil)
+	//设置请求参数
+	if len(getParam) > 0 {
+		param := req.URL.Query()
+		for k, v := range getParam {
+			param.Add(k, v)
+		}
+		//url encode
+		req.URL.RawQuery = param.Encode()
+	}
+	req.Header.Add("content-type", POST_METHOD_1)
+	//设置头部信息
+	if len(header) > 0 {
+		for k, v := range header {
+			req.Header.Add(k, v)
+		}
+	}
+	//设置cookie
+	if len(cookies) > 0 {
+		for k, v := range cookies {
+			c := &http.Cookie{
+				Name:  k,
+				Value: v,
+			}
+			req.AddCookie(c)
+		}
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	body, err = ioutil.ReadAll(resp.Body)
+	if resp.StatusCode == 200 {
+		return body, nil
+	}
+	return body, err
+}

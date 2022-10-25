@@ -54,3 +54,12 @@ type MemberTeamReq struct {
 	UserId   int  `json:"user_id"` //用户id
 	Level    *int `json:"level"`   //用户层级（手动输入即可  1代表1级）
 }
+
+type SendCouponReq struct {
+	Ids      string `json:"ids"`       //用户ID  用,隔开
+	CouponId int64  `json:"coupon_id"` //券的ID
+}
+
+type GetCodeReq struct {
+	Mobile      string `json:"mobile"`       //手机号
+}

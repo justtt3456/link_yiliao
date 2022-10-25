@@ -24,3 +24,18 @@ func otherMobile(mobile string) bool {
 	}
 	return parseInt > 0
 }
+
+func IsIdCard(card string)bool  {
+	regRuler := "(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)"
+	reg := regexp.MustCompile(regRuler)
+	return reg.MatchString(card)
+}
+
+func IsEmail(email string) bool{
+	result, _ := regexp.MatchString(`^([\w\.\_\-]{2,10})@(\w{1,}).([a-z]{2,4})$`, email)
+	if result {
+		return true
+	} else {
+		return false
+	}
+}

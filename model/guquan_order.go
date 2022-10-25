@@ -12,6 +12,7 @@ type OrderGuquan struct {
 	Pid          int    `gorm:"column:pid"`                        //关联商品种类id
 	PayMoney     int64  `gorm:"column:pay_money"`                  //购买付款金额 =手数
 	AfterBalance int64  `gorm:"column:after_balance"`              //购买后余额
+	Rate         int    `gorm:"column:rate"`                       //中签率
 	CreateTime   int64  `gorm:"column:create_time;autoCreateTime"` //创建时间
 	UpdateTime   int64  `gorm:"column:update_time;autoUpdateTime"` //系统开奖时间
 	Member       Member `gorm:"foreignKey:UID;"`                   //BeLongsTo 关联用户 自身外键UID

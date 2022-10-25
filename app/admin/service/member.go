@@ -5,9 +5,13 @@ import (
 	"finance/app/admin/swag/request"
 	"finance/app/admin/swag/response"
 	"finance/common"
+	"finance/global"
 	"finance/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -27,6 +31,8 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
 	res := make([]response.MemberInfo, 0)
 	for _, v := range list {
+		p := model.MemberRelation{UID: v.ID, Level: 1}
+		p.Get2()
 		i := response.MemberInfo{
 			ID:               v.ID,
 			Username:         v.Username,
@@ -56,6 +62,8 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 			DisableBetTime:   v.DisableBetTime,
 			IsBuy:            v.IsBuy,
 			Code:             v.Code,
+			TopId:            p.Puid,
+			TopName:          p.Member2.Username,
 		}
 		res = append(res, i)
 	}
@@ -351,6 +359,34 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	if len(list) == 0 {
 		return res
 	}
+	//总投资，团队总可用 可提，团队总收益
+	child := model.MemberRelation{}
+	where1 := "puid = ?"
+	args2 := []interface{}{this.UserId}
+	users, _ := child.GetByPuidAll(where1, args2)
+	//总投资
+	var childIds []int
+	for i := range users {
+		childIds = append(childIds, users[i].Member.ID)
+	}
+	where3 := "uid in (?) "
+	args3 := []interface{}{childIds}
+	product := model.OrderProduct{}
+	totalSumProduct := product.Sum(where3, args3, "pay_money")
+
+	m1 := model.Member{}
+	where4 := "id in (?) "
+	args4 := []interface{}{childIds}
+	//总可用
+	totalSumBalance := m1.Sum(where4, args4, "balance")
+	//总可提
+	totalSumUseBalance := m1.Sum(where4, args4, "use_balance")
+	//总总收益
+	totalSumIncome := m1.Sum(where4, args4, "income")
+	res.TotalSumBalance = float64(totalSumProduct) / model.UNITY
+	res.TotalSumBalance = float64(totalSumBalance) / model.UNITY
+	res.TotalSumUseBalance = float64(totalSumUseBalance) / model.UNITY
+	res.TotalSumIncome = float64(totalSumIncome) / model.UNITY
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
 	for i := range list {
@@ -385,5 +421,44 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 			IsBuy:            list[i].Member.IsBuy,
 		})
 	}
+	res.List = items
 	return res
+}
+
+type SendCoupon struct {
+	request.SendCouponReq
+}
+
+func (this SendCoupon) Send() (error) {
+	s := strings.Split(this.Ids, ",")
+	if len(s) == 0 {
+		return errors.New("用户ID不能为空")
+	}
+	if this.CouponId == 0 {
+		return errors.New("优惠券ID不能为空")
+	}
+	c := model.Coupon{ID: this.CouponId}
+	if !c.Get() {
+		return errors.New("优惠券ID不存在,请先创建")
+	}
+
+	for _, v := range s {
+		id, _ := strconv.Atoi(v)
+		memberCoupon := model.MemberCoupon{
+			Uid:      int64(id),
+			CouponId: this.CouponId,
+			IsUse:    1,
+		}
+		memberCoupon.Insert()
+	}
+
+	return nil
+}
+
+type GetCode struct {
+	request.GetCodeReq
+}
+
+func (this *GetCode)GetCode()(string)  {
+	return global.REDIS.Get(fmt.Sprintf("reg_%v", this.Mobile)).Val()
 }

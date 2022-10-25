@@ -26,7 +26,7 @@ type Withdraw struct {
 	TotalAmount    int64          `gorm:"column:total_amount"`               //提现总额
 	UsdtAmount     int64          `gorm:"column:usdt_amount"`                //提现总额
 	Description    string         `gorm:"column:description"`                //审核备注
-	Operator       int            `gorm:"column:operator"`                   //操作管理员
+	Operator1       int            `gorm:"column:operator"`                   //操作管理员
 	ViewStatus     int            `gorm:"column:view_status"`                //已读状态，0=未读，1=已读
 	Status         int            `gorm:"column:status"`                     //提现状态，0为未审核，1为已审核，2为已拒绝
 	SuccessTime    int64          `gorm:"column:success_time"`               //成功时间
@@ -36,7 +36,7 @@ type Withdraw struct {
 	CreateTime     int64          `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime     int64          `gorm:"column:update_time;autoUpdateTime"` //
 	Member         Member         `gorm:"foreignKey:UID"`
-	Admin          Admin          `gorm:"foreignKey:Operator"`
+	Admin          Admin          `gorm:"foreignKey:Operator1"`
 	Payment        Payment        `gorm:"foreignKey:PaymentID"`
 	WithdrawMethod WithdrawMethod `gorm:"foreignKey:WithdrawType"`
 }

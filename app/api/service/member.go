@@ -5,6 +5,7 @@ import (
 	"finance/app/api/swag/request"
 	"finance/app/api/swag/response"
 	"finance/common"
+	"finance/global"
 	"finance/lang"
 	"finance/model"
 	"fmt"
@@ -96,6 +97,14 @@ func (this MemberVerified) Verified(member model.Member) error {
 	if this.Mobile == "" {
 		return errors.New(lang.Lang("Phone number can not be blank"))
 	}
+
+	if !common.IsMobile(this.Mobile, global.Language) {
+		return errors.New("手机格式不正确")
+	}
+	if !common.IsIdCard(this.IDNumber) {
+		return errors.New("身份证格式不正确")
+	}
+
 	//if this.Frontend == "" {
 	//	return errors.New(lang.Lang("The front of the ID card cannot be blank"))
 	//}
@@ -106,7 +115,9 @@ func (this MemberVerified) Verified(member model.Member) error {
 		return errors.New(lang.Lang("Real name authentication already exists"))
 	}
 	ex := model.MemberVerified{
-		UID: member.ID,
+		UID:      member.ID,
+		IDNumber: this.IDNumber,
+		Mobile:   this.Mobile,
 	}
 	if ex.Get() {
 		if ex.Status != model.StatusRollback {
@@ -114,6 +125,8 @@ func (this MemberVerified) Verified(member model.Member) error {
 		}
 		//删除驳回认证
 		ex.Remove()
+
+		return errors.New("该身份证和手机号已绑定其他账号")
 	}
 	m := model.MemberVerified{
 		UID:      member.ID,
@@ -152,13 +165,28 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 	if len(list) == 0 {
 		return nil, errors.New("无数据")
 	}
+	where2 := "trade_type in (?) and uid = ?"
+	args2 := []interface{}{[]int{18, 19, 20}, member.ID}
+	trade := model.Trade{}
+	income2 := trade.Sum(where2, args2, "amount")
+	res.TotalIncome = float64(income2) / model.UNITY
 	res.Page = FormatPage(page)
 	for i := range list {
+		where1 := "trade_type in (?) and uid = ?"
+		args1 := []interface{}{[]int{18, 19, 20}, member.ID}
+		if list[i].Member.ID != member.ID {
+			where1 += " and item_id = ?"
+			args1 = append(args1, list[i].Member.ID)
+		}
+		trade := model.Trade{}
+		income := trade.Sum(where1, args1, "amount")
+
 		res.List = append(res.List, response.MyTeam{
 			ID:       list[i].Member.ID,
 			Username: list[i].Member.Username,
 			Level:    int(list[i].Level),
 			RegTime:  list[i].Member.RegTime,
+			Income:   float64(income) / model.UNITY,
 		})
 	}
 	return &res, nil

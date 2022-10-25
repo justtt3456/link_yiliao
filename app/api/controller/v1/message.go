@@ -26,3 +26,19 @@ func (this MessageController) PageList(c *gin.Context) {
 	this.Json(c, 0, "ok", s.PageList(*member))
 	return
 }
+
+// @Summary 站内信已读
+// @Tags 站内信
+// @Param token header string false "用户令牌"
+// @Param object body request.Msg true "查询参数"
+// @Success 200 {object} response.Response
+// @Router /message/read [post]
+func (this MessageController) Read(c *gin.Context) {
+	s := service.MessageRead{}
+	if err := c.ShouldBindJSON(&s); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", s.Read())
+	return
+}

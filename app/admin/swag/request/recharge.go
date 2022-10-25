@@ -22,7 +22,7 @@ type RechargeListRequest struct {
 	PageSize  int    `json:"page_size"`
 }
 type RechargeUpdateRequest struct {
-	ID          int    `json:"id"`
+	Ids         string `json:"ids"`
 	Status      int    `json:"status"`
 	Description string `json:"description"`
 }

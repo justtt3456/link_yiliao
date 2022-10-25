@@ -48,6 +48,8 @@ type Member struct {
 	IsBuy            int    `gorm:"column:is_buy"`                  //1=有效 2=无效
 	IsOneShiming     int    `gorm:"column:is_one_shiming"`          //1=是 2=不是
 	Income           int64  `gorm:"column:income"`                  //总收益
+	PIncome          int64  `gorm:"column:p_income"`                //产品收益
+	WillIncome       int64  `gorm:"column:wll_income"`              //待收益
 	Guquan           int64  `gorm:"column:guquan"`                  //股权
 }
 
@@ -108,6 +110,7 @@ func (this *Member) Info() *response.Member {
 			})
 		}
 	}
+	msg := Message{UID: this.ID, Status: 1, IsRead: 1}
 	return &response.Member{
 		ID:                  this.ID,
 		Username:            this.Username,
@@ -139,6 +142,8 @@ func (this *Member) Info() *response.Member {
 		Coupon:              coupons,
 		Income:              float64(this.Income) / UNITY,
 		Guquan:              this.Guquan,
+		Message:             msg.Count(),
+		WillIncome:          float64(this.WillIncome-this.PIncome) / UNITY,
 	}
 }
 
@@ -189,4 +194,14 @@ func (this *Member) Count(where string, args []interface{}) int64 {
 		return 0
 	}
 	return t
+}
+
+func (this *Member) Sum(where string, args []interface{}, field string) int64 {
+	var total int64
+	tx := global.DB.Model(this).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
+	if tx.Error != nil {
+		logrus.Error(tx.Error)
+		return 0
+	}
+	return total
 }

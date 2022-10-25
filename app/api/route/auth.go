@@ -63,6 +63,7 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	//站内信
 	msg := v1.MessageController{}
 	r.GET("message/page_list", msg.PageList)
+	r.POST("message/read", msg.Read)
 	//首页
 	index := v1.IndexController{}
 	r.GET("index", index.Index)
@@ -73,4 +74,8 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	Trade := v1.TradeController{}
 	r.GET("trade/page_list", Trade.PageList)
 	r.GET("trade/income_list", Trade.IncomeList)
+
+	//签到
+	sign := v1.SignController{}
+	r.GET("sign/sign", sign.Sign)
 }

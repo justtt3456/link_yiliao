@@ -6,8 +6,12 @@ type MemberListResponse struct {
 	Data MemberListData `json:"data"`
 }
 type MemberListData struct {
-	List []MemberInfo `json:"list"`
-	Page Page         `json:"page"`
+	List               []MemberInfo `json:"list"`
+	TotalSumProduct    float64      `json:"total_sum_product"`
+	TotalSumBalance    float64      `json:"total_sum_balance"`
+	TotalSumUseBalance float64      `json:"total_sum_use_balance"`
+	TotalSumIncome     float64      `json:"total_sum_income"`
+	Page               Page         `json:"page"`
 }
 type MemberInfo struct {
 	ID               int     `json:"id"`                 //
@@ -41,6 +45,8 @@ type MemberInfo struct {
 	DisableBetTime   int64   `json:"disable_bet_time"`   //禁止投注时间
 	Code             string  `json:"code"`               //邀请码
 	IsBuy            int     `json:"is_buy"`             //1=有效 2=无效
+	TopId            int     `json:"top_id"`             //上级ID
+	TopName          string  `json:"top_name"`           //上级名字
 }
 
 type Bank struct {

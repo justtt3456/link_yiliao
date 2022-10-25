@@ -7,6 +7,8 @@ import (
 	"finance/common"
 	"finance/model"
 	"github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 )
 
 type RechargeService struct {
@@ -56,32 +58,41 @@ func (this RechargeService) PageList() response.RechargeData {
 	}
 }
 
-func (this RechargeService) Update(admin model.Admin) error {
-	if this.ID == 0 {
+type RechargeUpdate struct {
+	request.RechargeUpdateRequest
+}
+
+func (this RechargeUpdate) Update(admin model.Admin) error {
+	if this.Ids == "" {
 		return errors.New("参数错误")
 	}
-	m := model.Recharge{
-		ID: this.ID,
+	ids := strings.Split(this.Ids, ",")
+	for _, v := range ids {
+		id, _ := strconv.Atoi(v)
+		m := model.Recharge{
+			ID: id,
+		}
+		if !m.Get() {
+			return errors.New("记录不存在")
+		}
+		if m.Status != model.StatusReview {
+			return errors.New("当前状态无法修改")
+		}
+		member := model.Member{ID: m.UID}
+		if !member.Get() {
+			return errors.New("用户不存在")
+		}
+		if this.Status == model.StatusAccept {
+			r := RechargeHandle{}
+			r.Recharge(member, m.ID, m.Amount, 1, 3, 1)
+		}
+		m.Status = this.Status
+		m.Description = this.Description
+		m.Operator = admin.ID
+		//更新状态 说明 操作者
+		m.Update("status", "description", "operator")
 	}
-	if !m.Get() {
-		return errors.New("记录不存在")
-	}
-	if m.Status != model.StatusReview {
-		return errors.New("当前状态无法修改")
-	}
-	member := model.Member{ID: m.UID}
-	if !member.Get() {
-		return errors.New("用户不存在")
-	}
-	if this.Status == model.StatusAccept {
-		r := RechargeHandle{}
-		r.Recharge(member, m.ID, m.Amount, 1, 3, 1)
-	}
-	m.Status = this.Status
-	m.Description = this.Description
-	m.Operator = admin.ID
-	//更新状态 说明 操作者
-	return m.Update("status", "description", "operator")
+	return nil
 }
 
 func (this RechargeService) getWhere() (string, []interface{}) {

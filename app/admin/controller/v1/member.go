@@ -144,7 +144,7 @@ func (this MemberController) Remove(c *gin.Context) {
 // @Param token header string false "用户令牌"
 // @Param object body request.MemberTeamReq false "查询参数"
 // @Success 200 {object} response.MemberListData
-// @Router /member/team [get]
+// @Router /member/team [post]
 func (this MemberController) Team(c *gin.Context) {
 	s := service.MemberTeam{}
 	if err := c.ShouldBindJSON(&s); err != nil {
@@ -283,5 +283,39 @@ func (this MemberController) RemoveVerified(c *gin.Context) {
 		return
 	}
 	this.Json(c, 0, "ok", nil)
+	return
+}
+
+// @Summary 赠送优惠券
+// @Tags 用户
+// @Param token header string false "用户令牌"
+// @Param object body request.SendCouponReq false "查询参数"
+// @Success 200 {object} response.Response
+// @Router /member/sendCoupon [post]
+func (this MemberController) SendCoupon(c *gin.Context) {
+	s := service.SendCoupon{}
+	if err := c.ShouldBindJSON(&s); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+
+	this.Json(c, 0, "ok", s.Send())
+	return
+}
+
+// @Summary 赠送优惠券
+// @Tags 用户
+// @Param token header string false "用户令牌"
+// @Param object body request.GetCodeReq false "查询参数"
+// @Success 200 {object} response.Response
+// @Router /member/getCode [post]
+func (this MemberController) GetCode(c *gin.Context) {
+	s := service.GetCode{}
+	if err := c.ShouldBindJSON(&s); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+
+	this.Json(c, 0, "ok", s.GetCode())
 	return
 }

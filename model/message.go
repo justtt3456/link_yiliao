@@ -13,6 +13,7 @@ type Message struct {
 	Title      string `gorm:"column:title"`          //标题
 	Content    string `gorm:"column:content"`        //内容
 	Status     int    `gorm:"column:status"`
+	IsRead     int    `gorm:"column:is_read"`
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //创建日期
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //修改时间
 }
@@ -82,4 +83,15 @@ func (this *Message) Remove() error {
 		return res.Error
 	}
 	return nil
+}
+
+func (this *Message) Count() (int64) {
+
+	var total int64
+	count := global.DB.Model(this).Where(this).Count(&total)
+	if count.Error != nil {
+		logrus.Error(count.Error)
+		return 0
+	}
+	return total
 }

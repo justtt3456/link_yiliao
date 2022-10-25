@@ -35,7 +35,7 @@ func (this RechargeController) PageList(c *gin.Context) {
 // @Success 200 {object} response.Response
 // @Router /recharge/update [post]
 func (this RechargeController) Update(c *gin.Context) {
-	s := service.RechargeService{}
+	s := service.RechargeUpdate{}
 	err := c.ShouldBindJSON(&s)
 	if err != nil {
 		this.Json(c, 10001, err.Error(), nil)

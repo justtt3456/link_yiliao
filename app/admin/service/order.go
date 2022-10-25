@@ -73,6 +73,8 @@ func (this OrderListService) GuQuanPageList() *response.BuyGuquanResp {
 	items := make([]response.BuyGuquan, 0)
 	for i := range list {
 		items = append(items, response.BuyGuquan{
+			Id:         list[i].ID,
+			Rate:       float64(list[i].Rate) / model.UNITY,
 			Username:   list[i].Member.Username,
 			Uid:        list[i].Member.ID,
 			Num:        list[i].PayMoney / int64(model.UNITY) / list[i].Guquan.Price / int64(model.UNITY),
@@ -115,16 +117,16 @@ func (this OrderUpdate) Update() error {
 	if this.ID == 0 {
 		return errors.New("参数错误")
 	}
-	if this.CtlType == 0 {
+	if this.Rate < 0 || this.Rate > 1 {
 		return errors.New("参数错误")
 	}
-	order := model.OrderProduct{
+	order := model.OrderGuquan{
 		ID: this.ID,
 	}
 
 	if !order.Get() {
 		return errors.New("订单不存在")
 	}
-
-	return order.Update("ctl_type", "draw_result")
+	order.Rate = int(this.Rate * model.UNITY)
+	return order.Update("rate")
 }

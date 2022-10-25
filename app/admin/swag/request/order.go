@@ -12,5 +12,5 @@ type OrderListRequest struct {
 
 type OrderUpdate struct {
 	ID      int `json:"id"`
-	CtlType int `json:"ctl_type"` //1赢 2输
+	Rate float64 `json:"rate"` //中签率
 }

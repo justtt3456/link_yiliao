@@ -150,6 +150,7 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 			NotifyUrl:   p.NotifyURL,
 		}
 		res, err := extends.OrderXinMeng(payOrder)
+		fmt.Println("hhahaadsdadasdadas",res)
 		if err != nil {
 			return nil, err
 		}
@@ -257,11 +258,29 @@ func (this RechargeMethod) List() *response.RechargeMethodData {
 func (this RechargeMethod) formatList(lists []model.RechargeMethod) []response.RechargeMethod {
 	res := make([]response.RechargeMethod, 0)
 	for _, v := range lists {
+		ress := make([]map[string]interface{}, 0)
+		if v.Code == "bank" {
+			m := model.SetBank{
+				Status: model.StatusOk,
+			}
+			list := m.List(true)
+			for _, v := range list {
+				item := map[string]interface{}{
+					"id":          v.ID,
+					"bank_name":   v.BankName,
+					"card_number": v.CardNumber,
+					"real_name":   v.RealName,
+					"branch_bank": v.BranchBank,
+				}
+				ress = append(ress, item)
+			}
+		}
 		i := response.RechargeMethod{
 			ID:   v.ID,
 			Name: v.Name,
 			Code: v.Code,
 			Icon: v.Icon,
+			Info: ress,
 		}
 		res = append(res, i)
 	}

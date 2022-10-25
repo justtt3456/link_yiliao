@@ -1,7 +1,7 @@
 package request
 
 type ManualRequest struct {
-	UID        int     `json:"uid"`
+	UIDs       string  `json:"uids"`
 	Amount     float64 `json:"amount" `
 	IsFrontend int     `json:"is_frontend" ` //1=展示  2=不展示
 	Handle     int     `json:"handle"`       //操作 1上分可用余额  2下分可用余额  3下分可提现余额

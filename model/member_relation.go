@@ -7,10 +7,11 @@ import (
 )
 
 type MemberRelation struct {
-	UID    int    `gorm:"column:uid"`   //查询祖先
-	Puid   int    `gorm:"column:puid"`  //查询后代
-	Level  int64  `gorm:"column:level"` //代理层级
-	Member Member `gorm:"foreignKey:uid"`
+	UID     int    `gorm:"column:uid"`   //查询祖先
+	Puid    int    `gorm:"column:puid"`  //查询后代
+	Level   int64  `gorm:"column:level"` //代理层级
+	Member  Member `gorm:"foreignKey:uid"`
+	Member2 Member `gorm:"foreignKey:puid"`
 }
 
 func (m *MemberRelation) TableName() string {
@@ -20,6 +21,16 @@ func (m *MemberRelation) TableName() string {
 func (this *MemberRelation) Get() bool {
 	//取数据库
 	res := global.DB.Model(this).Joins("Member").Where(this).First(this)
+	if res.Error != nil {
+		logrus.Error(res.Error)
+		return false
+	}
+	return true
+}
+
+func (this *MemberRelation) Get2() bool {
+	//取数据库
+	res := global.DB.Model(this).Joins("Member2").Where(this).First(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return false

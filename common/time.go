@@ -5,6 +5,13 @@ import (
 	"strings"
 	"time"
 )
+const YMDS = "2006-01-02 15:04:05"
+var zone, _ = time.LoadLocation("Asia/Shanghai")
+
+//获取当前时间的年月日 时分秒
+func GetTimeYMDS() string {
+	return time.Now().In(zone).Format(YMDS)
+}
 
 func GetTodayZero() int64 {
 	t := time.Now()

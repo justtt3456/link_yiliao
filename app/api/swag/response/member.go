@@ -37,6 +37,8 @@ type Member struct {
 	Coupon              []Coupon `json:"coupon"`                //用户有的优惠券
 	Income              float64  `json:"income"`                //总收益
 	Guquan              int64    `json:"guquan"`                //股权
+	Message             int64    `json:"message"`               //站内信总条数
+	WillIncome          float64  `json:"will_income"`           //待收益
 }
 
 type Coupon struct {
@@ -46,13 +48,15 @@ type Coupon struct {
 }
 
 type MyTeam struct {
-	ID       int    `json:"id"`       //
-	Username string `json:"username"` //用户名
-	Level    int    `json:"level"`    //层级
-	RegTime  int64  `json:"reg_time"` //注册时间
+	ID       int     `json:"id"`       //
+	Username string  `json:"username"` //用户名
+	Level    int     `json:"level"`    //层级
+	RegTime  int64   `json:"reg_time"` //注册时间
+	Income   float64 `json:"income"`   //收益
 }
 
 type MyTeamList struct {
-	List []MyTeam `json:"list"`
-	Page Page     `json:"page"`
+	List        []MyTeam `json:"list"`
+	TotalIncome float64  `json:"total_income"`
+	Page        Page     `json:"page"`
 }

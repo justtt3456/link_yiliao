@@ -17,3 +17,8 @@ type Login struct {
 type Help struct {
 	Category int `json:"category" form:"category"` //1公司简介2推荐奖励
 }
+
+type SendCode struct {
+	Username string `json:"username"` //用户名（手机号）
+	Type     int    `json:"type"`   //1=注册
+}

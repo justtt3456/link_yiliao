@@ -10,3 +10,7 @@ type Pagination struct {
 type GetProduct struct {
 	Id int `form:"id"`
 }
+
+type Msg struct {
+	Id int `json:"id"`
+}

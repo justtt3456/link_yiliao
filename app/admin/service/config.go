@@ -189,6 +189,9 @@ func (this ConfigBankCreate) Create() error {
 	if this.CardNumber == "" {
 		return errors.New("收款卡号不能为空")
 	}
+	if this.BranchBank == "" {
+		return errors.New("支行不能为空")
+	}
 	m := model.SetBank{
 		BankName:   this.BankName,
 		CardNumber: this.CardNumber,
@@ -216,6 +219,9 @@ func (this ConfigBankUpdate) Update() error {
 	}
 	if this.CardNumber == "" {
 		return errors.New("收款卡号不能为空")
+	}
+	if this.BranchBank == "" {
+		return errors.New("支行不能为空")
 	}
 	m := model.SetBank{
 		ID: this.ID,

@@ -303,6 +303,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			UID:          member.ID,
 			Pid:          p.ID,
 			PayMoney:     amount,
+			IsReturnTop:  1,
 			AfterBalance: member.Balance - amount,
 			CreateTime:   time.Now().Unix(),
 			UpdateTime:   time.Now().Unix(),
@@ -427,6 +428,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				member.TotalBalance += MemberCoupon.Coupon.Price
 			}
 		}
+		member.WillIncome += amount * int64(p.Dayincome*p.TimeLimit) / int64(model.UNITY)
 
 	case 2:
 		//股权
@@ -449,6 +451,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			UID:          member.ID,
 			Pid:          int(p.ID),
 			PayMoney:     amount,
+			Rate:         int(model.UNITY),
 			AfterBalance: member.Balance - amount,
 			CreateTime:   time.Now().Unix(),
 			UpdateTime:   time.Now().Unix(),
@@ -512,7 +515,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		return errors.New("购买类型不存在")
 	}
 
-	return member.Update("balance", "total_balance", "use_balance", "is_buy", "income")
+	return member.Update("balance", "total_balance", "use_balance", "is_buy", "income", "wll_income", "guquan")
 }
 
 type BuyProducList struct {
@@ -567,15 +570,15 @@ func (this BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 	if guquan.OpenTime >= now {
 		res.Status = "待回收"
 	}
-	if guquan.PreEndTime <= now {
+	if guquan.PreEndTime >= now {
 		res.Status = "待发行"
 	}
 
 	res.Num = money / int64(model.UNITY)
 	res.Price = float64(guquan.Price) / model.UNITY
 	res.CreateTime = m.CreateTime
-	weiMoney := (money * int64(int(model.UNITY)-guquan.LuckyRate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
-	huiMoney := (money * int64(guquan.LuckyRate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
+	weiMoney := (money * int64(int(model.UNITY)-m.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
+	huiMoney := (money * int64(m.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
 	res.TotalPrice = float64(weiMoney+huiMoney) / model.UNITY
 	return &res
 

@@ -48,12 +48,14 @@ type BuyListResp struct {
 }
 
 type BuyGuquan struct {
+	Id         int     `json:"id"`          //id
 	Username   string  `json:"username"`    //用户名
 	Uid        int     `json:"uid"`         //用户ID
 	Num        int64   `json:"num"`         //股权数据量
 	Price      float64 `json:"price"`       //股权单价
 	CreateTime int64   `json:"create_time"` //获得时间
 	TotalPrice float64 `json:"total_price"` //股权总价值
+	Rate       float64 `json:"rate"`        //中签率
 }
 type BuyGuquanResp struct {
 	List []BuyGuquan `json:"list"`

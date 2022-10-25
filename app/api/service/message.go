@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"finance/app/api/swag/request"
 	"finance/app/api/swag/response"
 	"finance/model"
@@ -32,4 +33,18 @@ func (this Message) PageList(member model.Member) response.MessageData {
 		res = append(res, item)
 	}
 	return response.MessageData{List: res, Page: FormatPage(page)}
+}
+type MessageRead struct {
+	request.Msg
+}
+func (this MessageRead)Read()(error)  {
+	if this.Id == 0 {
+		return errors.New("ID不能为空")
+	}
+	m := model.Message{ID:this.Id}
+	if !m.Get() {
+		return errors.New("信息不存在")
+	}
+	m.IsRead = 2
+	return m.Update("is_read")
 }

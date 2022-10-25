@@ -7,6 +7,8 @@ import (
 	"finance/common"
 	"finance/model"
 	"github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 )
 
 type Manual struct {
@@ -14,116 +16,79 @@ type Manual struct {
 }
 
 func (this Manual) Recharge(admin model.Admin, t int, isfront int) error {
-	if this.UID == 0 {
-		return errors.New("用户错误")
-	}
-	if this.Amount == 0 {
-		return errors.New("金额错误")
-	}
-	member := model.Member{ID: this.UID}
-	if !member.Get() {
-		return errors.New("用户不存在")
+	s := strings.Split(this.UIDs, ",")
+	for _, v := range s {
+		id, _ := strconv.Atoi(v)
+		if id == 0 {
+			return errors.New("用户错误")
+		}
+		if this.Amount == 0 {
+			return errors.New("金额错误")
+		}
+		member := model.Member{ID: id}
+		if !member.Get() {
+			return errors.New("用户不存在")
+		}
+
+		h := RechargeHandle{}
+		err := h.Recharge(member, 0, int64(this.Amount*model.UNITY), 2, 14, isfront)
+		if err != nil {
+			return err
+		}
 	}
 
-	h := RechargeHandle{}
-	return h.Recharge(member, 0, int64(this.Amount*model.UNITY), 2, 14, isfront)
+	return nil
+
 }
 func (this Manual) Withdraw(admin model.Admin, isfront int) error {
-	if this.UID == 0 {
-		return errors.New("用户错误")
-	}
-	if this.Amount == 0 {
-		return errors.New("金额错误")
-	}
-	user := model.Member{ID: this.UID}
-	if !user.Get() {
-		return errors.New("用户不存在")
-	}
-	if this.Handle == 2 && user.Balance < int64(this.Amount*model.UNITY) {
-		return errors.New("用户可用余额不足")
-	}
-	if this.Handle == 3 && user.UseBalance < int64(this.Amount*model.UNITY) {
-		return errors.New("用户可提余额不足")
+	s := strings.Split(this.UIDs, ",")
+	for _, v := range s {
+		id, _ := strconv.Atoi(v)
+		if id == 0 {
+			return errors.New("用户错误")
+		}
+		if this.Amount == 0 {
+			return errors.New("金额错误")
+		}
+		user := model.Member{ID: id}
+		if !user.Get() {
+			return errors.New("用户不存在")
+		}
+		if this.Handle == 2 && user.Balance < int64(this.Amount*model.UNITY) {
+			return errors.New("用户可用余额不足")
+		}
+		if this.Handle == 3 && user.UseBalance < int64(this.Amount*model.UNITY) {
+			return errors.New("用户可提余额不足")
+		}
+
+		//账单
+		trade := model.Trade{
+			UID:        user.ID,
+			TradeType:  15,
+			ItemID:     0,
+			Amount:     int64(this.Amount * model.UNITY),
+			IsFrontend: isfront,
+		}
+		if this.Handle == 2 {
+			trade.Before = user.Balance
+			trade.After = user.Balance - int64(this.Amount*model.UNITY)
+			trade.Desc = "人工扣款可用余额"
+			user.Balance -= int64(this.Amount * model.UNITY)
+
+		} else {
+			trade.Before = user.UseBalance
+			trade.After = user.UseBalance - int64(this.Amount*model.UNITY)
+			trade.Desc = "人工扣款可提现余额"
+			user.UseBalance -= int64(this.Amount * model.UNITY)
+
+		}
+		user.TotalBalance -= int64(this.Amount * model.UNITY)
+		user.Update("balance", "use_balance", "total_balance")
+		trade.Insert()
 	}
 
-	//账单
-	trade := model.Trade{
-		UID:        user.ID,
-		TradeType:  15,
-		ItemID:     0,
-		Amount:     int64(this.Amount * model.UNITY),
-		IsFrontend: isfront,
-	}
-	if this.Handle == 2 {
-		trade.Before = user.Balance
-		trade.After = user.Balance - int64(this.Amount*model.UNITY)
-		trade.Desc = "人工扣款可用余额"
-		user.Balance -= int64(this.Amount * model.UNITY)
+	return nil
 
-	} else {
-		trade.Before = user.UseBalance
-		trade.After = user.UseBalance - int64(this.Amount*model.UNITY)
-		trade.Desc = "人工扣款可提现余额"
-		user.UseBalance -= int64(this.Amount * model.UNITY)
-
-	}
-	user.TotalBalance -= int64(this.Amount * model.UNITY)
-	user.Update("balance", "use_balance", "total_balance")
-	return trade.Insert()
-}
-func (this Manual) Freeze(admin model.Admin, isfront int) error {
-	if this.UID == 0 {
-		return errors.New("用户错误")
-	}
-	if this.Amount == 0 {
-		return errors.New("金额错误")
-	}
-	user := model.Member{ID: this.UID}
-	if !user.Get() {
-		return errors.New("用户不存在")
-	}
-	if user.Balance < int64(this.Amount*100) {
-		return errors.New("用户余额不足")
-	}
-	//人工操作记录
-	m := model.Manual{
-		UID:      user.ID,
-		Username: user.Username,
-		Type:     model.ManualTypeFreeze,
-		Amount:   int64(this.Amount * 100),
-		AdminID:  admin.ID,
-	}
-	if err := m.Insert(); err != nil {
-		return err
-	}
-	h := FreezeHandle{}
-	return h.Freeze(user, m.ID, this.Amount, isfront)
-}
-func (this Manual) Unfreeze(admin model.Admin, isfront int) error {
-	if this.UID == 0 {
-		return errors.New("用户错误")
-	}
-	if this.Amount == 0 {
-		return errors.New("金额错误")
-	}
-	user := model.Member{ID: this.UID}
-	if !user.Get() {
-		return errors.New("用户不存在")
-	}
-
-	//人工操作记录
-	m := model.Manual{
-		UID:      user.ID,
-		Username: user.Username,
-		Type:     model.ManualTypeUnfreeze,
-		Amount:   int64(this.Amount * 100),
-		AdminID:  admin.ID,
-	}
-	if err := m.Insert(); err != nil {
-		return err
-	}
-	h := FreezeHandle{}
-	return h.Unfreeze(user, m.ID, this.Amount, isfront)
 }
 
 type ManualList struct {

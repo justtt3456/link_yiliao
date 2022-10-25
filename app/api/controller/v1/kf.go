@@ -24,7 +24,7 @@ func (this KfController) Redirect(c *gin.Context) {
 		return
 	}
 	if param.ID == 0 {
-		param.ID = 1
+		param.ID = 2
 		//c.String(http.StatusOK, lang.Lang("Parameter error"))
 	}
 	//if param.UID == 0 {

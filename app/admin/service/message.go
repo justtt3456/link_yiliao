@@ -69,6 +69,7 @@ func (this MessageCreate) Create() error {
 		Title:   this.Title,
 		Content: this.Content,
 		Status:  this.Status,
+		IsRead:  1,
 	}
 	return m.Insert()
 }

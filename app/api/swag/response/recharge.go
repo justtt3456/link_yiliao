@@ -41,8 +41,9 @@ type RechargeMethodData struct {
 	List []RechargeMethod `json:"list"`
 }
 type RechargeMethod struct {
-	ID   int    `json:"id"`   //
-	Name string `json:"name"` //
-	Code string `json:"code"` //
-	Icon string `json:"icon"` //
+	ID   int               `json:"id"`   //
+	Name string            `json:"name"` //
+	Code string            `json:"code"` //
+	Icon string            `json:"icon"` //
+	Info []map[string]interface{} `json:"info"` //
 }

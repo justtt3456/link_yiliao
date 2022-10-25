@@ -44,3 +44,25 @@ func (this OrderController) GuQuanPageList(c *gin.Context) {
 	this.Json(c, 0, "ok", list)
 	return
 }
+
+//  @Summary 修改中签率
+//  @Tags 订单
+//  @Param token header string false "用户令牌"
+//  @Param object body request.OrderUpdate false "查询参数"
+//  @Success 200 {object} response.Response
+//  @Router /order/guquan_update [post]
+func (this OrderController) Update(c *gin.Context) {
+	s := service.OrderUpdate{}
+	err := c.ShouldBindJSON(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	err = s.Update()
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", nil)
+	return
+}

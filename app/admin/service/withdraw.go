@@ -7,6 +7,8 @@ import (
 	"finance/common"
 	"finance/model"
 	"github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 )
 
 type WithdrawListService struct {
@@ -42,7 +44,7 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 			TotalAmount:  float64(v.TotalAmount) / model.UNITY,
 			UsdtAmount:   float64(v.UsdtAmount) / model.UNITY,
 			Description:  v.Description,
-			Operator:     v.Operator,
+			Operator:     v.Operator1,
 			ViewStatus:   v.ViewStatus,
 			Status:       v.Status,
 			SuccessTime:  v.SuccessTime,
@@ -64,50 +66,59 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 }
 
 func (this WithdrawUpdateService) Update() error {
-	if this.ID == 0 {
+	if this.Ids == "" {
 		return errors.New("参数错误")
 	}
-	m := model.Withdraw{
-		ID: this.ID,
-	}
-	if !m.Get() {
-		return errors.New("记录不存在")
-	}
-	if m.Status != model.StatusReview {
-		return errors.New("当前记录不允许操作")
-	}
-	user := model.Member{ID: m.UID}
-	if !user.Get() {
-		return errors.New("用户不存在")
-	}
-	switch this.Status {
-	case model.StatusRollback:
-		//生成账单
-		trade := model.Trade{
-			UID:       m.UID,
-			TradeType: 4,
-			ItemID:    m.ID,
-			Amount:    m.TotalAmount,
-			Before:    user.Balance,
-			After:     user.Balance + m.TotalAmount,
-			Desc:      "提现驳回",
+	ids := strings.Split(this.Ids, ",")
+	for _, v := range ids {
+		id, _ := strconv.Atoi(v)
+		m := model.Withdraw{
+			ID: id,
 		}
-		if err := trade.Insert(); err != nil {
-			return err
+		if !m.Get() {
+			return errors.New("记录不存在")
 		}
-		//回滚余额
-		user.UseBalance += m.TotalAmount
-		user.TotalBalance += m.TotalAmount
-		if err := user.Update("balance", "total_balance"); err != nil {
-			return err
+		if m.Status != model.StatusReview {
+			return errors.New("当前记录不允许操作")
 		}
-	case model.StatusAccept:
+		user := model.Member{ID: m.UID}
+		if !user.Get() {
+			return errors.New("用户不存在")
+		}
+		switch this.Status {
+		case model.StatusRollback:
+			//生成账单
+			trade := model.Trade{
+				UID:       m.UID,
+				TradeType: 4,
+				ItemID:    m.ID,
+				Amount:    m.TotalAmount,
+				Before:    user.Balance,
+				After:     user.Balance + m.TotalAmount,
+				Desc:      "提现驳回",
+			}
+			if err := trade.Insert(); err != nil {
+				return err
+			}
+			//回滚余额
+			user.UseBalance += m.TotalAmount
+			user.TotalBalance += m.TotalAmount
+			if err := user.Update("balance", "total_balance"); err != nil {
+				return err
+			}
+		case model.StatusAccept:
+		}
+		m.Status = this.Status
+		m.Operator1 = this.Operator
+		m.Description = this.Description
+		//更新状态 说明 操作者
+		err := m.Update("status", "description", "operator")
+		if err != nil {
+			return  err
+		}
 	}
-	m.Status = this.Status
-	m.Operator = this.Operator
-	m.Description = this.Description
-	//更新状态 说明 操作者
-	return m.Update("status", "description", "operator")
+
+	return nil
 }
 
 func (this WithdrawListService) getWhere() (string, []interface{}) {

@@ -68,6 +68,8 @@ func Run() {
 	ga.POST("member/update_status", member.UpdateStatus)
 	ga.POST("member/remove", member.Remove)
 	ga.POST("member/team", member.Team)
+	ga.POST("member/sendCoupon", member.SendCoupon)
+	ga.POST("member/getCode", member.GetCode)
 
 	//用户银行卡
 	ga.GET("member/bankcard/list", member.BankCardList)
@@ -184,6 +186,7 @@ func Run() {
 	order := v1.OrderController{}
 	ga.GET("order/product_list", order.PageList)
 	ga.GET("order/guquan_list", order.GuQuanPageList)
+	ga.POST("order/guquan_update", order.Update)
 
 	//公司简介和用户须知
 	help := v1.HelpController{}

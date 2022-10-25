@@ -25,7 +25,7 @@ func (this *Guquan) Do() {
 		if len(orders) > 0 {
 			for i := range orders {
 				//未中签的钱 + 返回的钱
-				weiMoney := (orders[i].PayMoney * int64(int(model.UNITY)-orders[i].Guquan.LuckyRate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(orders[i].Guquan.ReturnRate)) / int64(model.UNITY)
+				weiMoney := (orders[i].PayMoney * int64(int(model.UNITY)-orders[i].Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(orders[i].Guquan.ReturnRate)) / int64(model.UNITY)
 
 				logrus.Infof("发行返回的钱  用户ID%v  收益%v", orders[i].UID, weiMoney)
 
@@ -67,7 +67,7 @@ func (this *Guquan) Do() {
 		if len(orders) > 0 {
 			for i := range orders {
 				//回购 + 返回的钱
-				huiMoney := (orders[i].PayMoney * int64(orders[i].Guquan.LuckyRate) / int64(model.UNITY)) * int64(orders[i].Guquan.ReturnLuckyRate) / int64(model.UNITY)
+				huiMoney := (orders[i].PayMoney * int64(orders[i].Rate) / int64(model.UNITY)) * int64(orders[i].Guquan.ReturnLuckyRate) / int64(model.UNITY)
 
 				logrus.Infof("发行返回的钱  用户ID%v  收益%v", orders[i].UID, huiMoney)
 
