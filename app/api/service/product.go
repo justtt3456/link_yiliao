@@ -304,6 +304,13 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		if int(this.Amount) > p.MoreBuy {
 			return errors.New(fmt.Sprintf("购买金额必须小于%v！", p.MoreBuy))
 		}
+		money := model.OrderProduct{}
+		wheres := "uid = ?";
+		agrss := []interface{}{member.ID}
+		pmoney := money.Sum(wheres,agrss,"pay_money")
+		if int(float64((pmoney+int64(this.Amount*model.UNITY)))/model.UNITY) > p.MoreBuy{
+			return errors.New(fmt.Sprintf("您购买的产品已达到上限%v", p.MoreBuy))
+		}
 		if p.OtherPrice < int64(this.Amount*model.UNITY) {
 			return errors.New("项目可投余额不足")
 		}
