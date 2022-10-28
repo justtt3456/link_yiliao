@@ -29,6 +29,8 @@ type Product struct {
 	IsManjian       int             `gorm:"column:is_manjian"`     //1=有满减  2=无满减
 	BuyTimeLimit    int             `gorm:"column:buy_time_limit"` //产品限时多少天
 	Progress        int             `gorm:"column:progress"`       //项目进度
+	Type            int             `gorm:"column:type"`           //1=到期返本金 2=延迟反本金
+	DelayTime       int             `gorm:"column:delay_time"`     //延迟多少天
 	ProductCategory ProductCategory `gorm:"foreignKey:Category"`
 }
 

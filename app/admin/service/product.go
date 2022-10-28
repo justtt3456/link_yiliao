@@ -44,6 +44,8 @@ func (this ProductList) PageList() response.ProductData {
 			IsFinish:     v.IsFinish,
 			IsManjian:    v.IsManjian,
 			BuyTimeLimit: v.BuyTimeLimit,
+			DelayTime:    v.DelayTime,
+			Type:         v.Type,
 			Progress:     float64(v.Progress) / model.UNITY,
 		}
 		res = append(res, i)
@@ -119,6 +121,14 @@ func (this ProductCreate) Create() error {
 	if this.BuyTimeLimit == 0 {
 		return errors.New("产品限时多少天不能为空")
 	}
+	if this.Type == 0 {
+		return errors.New("延期类型不能为空")
+	}
+	if this.Type == 2 {
+		if this.DelayTime <= 0 {
+			return errors.New("延期时间必须大于0")
+		}
+	}
 
 	ex := model.Product{
 		Name: this.Name,
@@ -143,6 +153,8 @@ func (this ProductCreate) Create() error {
 		IsFinish:     this.IsFinish,
 		IsManjian:    this.IsManjian,
 		BuyTimeLimit: this.BuyTimeLimit,
+		Type:         this.Type,
+		DelayTime:    this.DelayTime,
 		Progress:     int(this.Progress * model.UNITY),
 	}
 	return m.Insert()
@@ -175,8 +187,8 @@ func (this ProductUpdate) Update() error {
 	if this.TotalPrice == 0 {
 		return errors.New("项目规模不能为空")
 	}
-	if this.OtherPrice == 0 {
-		return errors.New("可投余额不能为空")
+	if this.OtherPrice < 0 {
+		return errors.New("可投余额不能小于0")
 	}
 	if this.MoreBuy == 0 {
 		this.MoreBuy = 99999
@@ -201,6 +213,14 @@ func (this ProductUpdate) Update() error {
 	if this.BuyTimeLimit == 0 {
 		return errors.New("产品限时多少天不能为空")
 	}
+	if this.Type == 0 {
+		return errors.New("延期类型不能为空")
+	}
+	if this.Type == 2 {
+		if this.DelayTime <= 0 {
+			return errors.New("延期时间必须大于0")
+		}
+	}
 	m := model.Product{
 		ID: this.ID,
 	}
@@ -224,6 +244,8 @@ func (this ProductUpdate) Update() error {
 	m.IsManjian = this.IsManjian
 	m.BuyTimeLimit = this.BuyTimeLimit
 	m.Tag = this.Tag
+	m.Type = this.Type
+	m.DelayTime = this.DelayTime
 	m.Progress = int(this.Progress * model.UNITY)
 
 	return m.Update("name", "progress", "buy_time_limit", "category", "create_time", "status", "tag", "time_limit", "is_recommend", "day_income", "price", "total_price", "other_price", "more_buy", "desc", "is_finish", "is_manjian")

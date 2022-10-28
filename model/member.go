@@ -110,7 +110,9 @@ func (this *Member) Info() *response.Member {
 			})
 		}
 	}
-	msg := Message{UID: this.ID, Status: 1, IsRead: 1}
+	where := "uid = ? or uid = ? and status = ? and is_read = ?"
+	args := []interface{}{this.ID, -1, StatusOk, 1}
+	msg := Message{}
 	return &response.Member{
 		ID:                  this.ID,
 		Username:            this.Username,
@@ -142,7 +144,7 @@ func (this *Member) Info() *response.Member {
 		Coupon:              coupons,
 		Income:              float64(this.Income) / UNITY,
 		Guquan:              this.Guquan,
-		Message:             msg.Count(),
+		Message:             msg.Count(where, args),
 		WillIncome:          float64(this.WillIncome-this.PIncome) / UNITY,
 	}
 }

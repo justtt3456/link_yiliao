@@ -85,10 +85,10 @@ func (this *Message) Remove() error {
 	return nil
 }
 
-func (this *Message) Count() (int64) {
+func (this *Message) Count(where string, args []interface{}) (int64) {
 
 	var total int64
-	count := global.DB.Model(this).Where(this).Count(&total)
+	count := global.DB.Model(this).Where(where, args...).Count(&total)
 	if count.Error != nil {
 		logrus.Error(count.Error)
 		return 0

@@ -58,6 +58,8 @@ func (this ProductList) PageList() response.ProductListData {
 			IsFinish:     v.IsFinish,
 			IsManjian:    v.IsManjian,
 			BuyTimeLimit: v.BuyTimeLimit,
+			Type:         v.Type,
+			DelayTime:    v.DelayTime,
 			Progress:     float64(v.Progress) / model.UNITY,
 		}
 		if v.IsManjian == 1 {
@@ -108,6 +110,8 @@ func (this RecommendList) PageList() response.ProductListData {
 			IsFinish:     v.IsFinish,
 			IsManjian:    v.IsManjian,
 			BuyTimeLimit: v.BuyTimeLimit,
+			Type:         v.Type,
+			DelayTime:    v.DelayTime,
 			Progress:     float64(v.Progress) / model.UNITY,
 		}
 		if v.IsManjian == 1 {
@@ -296,6 +300,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 		if int64(this.Amount*model.UNITY) < p.Price {
 			return errors.New(fmt.Sprintf("购买金额必须大于%v！", float64(p.Price)/model.UNITY))
+		}
+		if int(this.Amount) > p.MoreBuy {
+			return errors.New(fmt.Sprintf("购买金额必须小于%v！", p.MoreBuy))
+		}
+		if p.OtherPrice < int64(this.Amount*model.UNITY) {
+			return errors.New("项目可投余额不足")
 		}
 
 		//购买

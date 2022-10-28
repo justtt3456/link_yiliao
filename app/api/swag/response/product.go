@@ -32,6 +32,8 @@ type Product struct {
 	IsManjian     int             `json:"is_manjian"`      //1=有满送活动  2=无满送活动
 	BuyTimeLimit  int             `json:"buy_time_limit"`  //产品限时多少天
 	Progress      float64         `json:"progress"`        //进度百分比
+	Type         int     `json:"type"`           //1=到期返本金 2=延迟反本金
+	DelayTime    int     `json:"delay_time"`     //延迟多少天
 	CreateTime    int64           `json:"create_time"`     //创建时间
 	ManSongActive []ManSongActive `json:"man_song_active"` //满送活动
 }

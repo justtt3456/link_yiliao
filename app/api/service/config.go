@@ -84,5 +84,9 @@ func (this Config) Get() response.Config {
 		}
 		res.Lang = langSlice
 	}
+	guquan := model.Guquan{}
+	if guquan.Get(true) {
+		res.IsOpen = true
+	}
 	return res
 }

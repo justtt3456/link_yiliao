@@ -26,6 +26,8 @@ type ProductCreate struct {
 	IsManjian    int     `json:"is_manjian"`     //1=有满减  2=无满减
 	BuyTimeLimit int     `json:"buy_time_limit"` //产品限时多少天
 	Progress     float64 `json:"progress"`       //项目进度  例如1%  请填写 0.01
+	Type         int     `json:"type"`           //1=到期返本金 2=延迟反本金
+	DelayTime    int     `json:"delay_time"`     //延迟多少天
 }
 type ProductUpdate struct {
 	ID           int     `json:"id"`             //
@@ -46,6 +48,8 @@ type ProductUpdate struct {
 	IsManjian    int     `json:"is_manjian"`     //1=有满减  2=无满减
 	BuyTimeLimit int     `json:"buy_time_limit"` //产品限时多少天
 	Progress     float64 `json:"progress"`       //项目进度  例如1%  请填写 0.01
+	Type         int     `json:"type"`           //1=到期返本金 2=延迟反本金
+	DelayTime    int     `json:"delay_time"`     //延迟多少天
 }
 type ProductUpdateStatus struct {
 	ID     int `json:"id"`

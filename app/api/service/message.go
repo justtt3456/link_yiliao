@@ -19,8 +19,8 @@ func (this Message) PageList(member model.Member) response.MessageData {
 		this.PageSize = response.DefaultPageSize
 	}
 	m := model.Message{}
-	where := "uid = ? and status = ?"
-	args := []interface{}{member.ID, model.StatusOk}
+	where := "uid = ? or uid = ? and status = ?"
+	args := []interface{}{member.ID, -1,model.StatusOk}
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.Message, 0)
 	for _, v := range list {

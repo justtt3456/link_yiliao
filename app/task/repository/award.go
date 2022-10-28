@@ -40,7 +40,44 @@ func (this *Award) Run() {
 	}
 	for i := range productOrder {
 		//判断收益是否结束
-		overtime := productOrder[i].CreateTime + int64(productOrder[i].Product.TimeLimit)*3600*24
+		overtime := common.GetTimeByYMD(productOrder[i].CreateTime) + int64(productOrder[i].Product.TimeLimit+1)*3600*24+2*3600
+		starttime := common.GetTimeByYMD(productOrder[i].CreateTime) + 26*3600
+		var capital int64
+		var desc string
+		//是否需要返回本金
+		if productOrder[i].Product.Type == 1 {
+			//时间到了就反
+			desc = "到期返回本金"
+			if overtime == now {
+				capital = productOrder[i].PayMoney
+			}
+		} else {
+			//延期返回本金
+			desc = "延期返回本金"
+			if overtime+int64(productOrder[i].Product.DelayTime*3600*24) == now {
+				capital = productOrder[i].PayMoney
+			}
+		}
+		if capital > 0 {
+
+			//存入收益列表
+			trade := model.Trade{
+				UID:        productOrder[i].UID,
+				TradeType:  16,
+				ItemID:     productOrder[i].ID,
+				Amount:     capital,
+				Before:     productOrder[i].Member.UseBalance + capital,
+				After:      productOrder[i].Member.UseBalance + capital,
+				Desc:       desc,
+				CreateTime: time.Now().Unix(),
+				UpdateTime: time.Now().Unix(),
+				IsFrontend: 1,
+			}
+			_ = trade.Insert()
+		}
+		if starttime > now {
+			continue
+		}
 		if overtime < now {
 			continue
 		}
@@ -150,10 +187,10 @@ func (this *Award) Run() {
 		//修改钱包余额
 		m := model.Member{ID: productOrder[i].UID}
 		m.Get()
-		m.TotalBalance += income2 + income3
-		m.UseBalance += income2 + income3
-		m.Income += income2 + income3
-		m.PIncome += income2
+		m.TotalBalance += income2 + income3 + capital
+		m.UseBalance += income2 + income3 + capital
+		m.Income += income2 + income3 + capital
+		m.PIncome += income2 + capital
 		err = m.Update("total_balance", "use_balance", "income", "p_income")
 		if err != nil {
 			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v 团队收益 %v err= &v", today, productOrder[i].UID, income2, income3, err)

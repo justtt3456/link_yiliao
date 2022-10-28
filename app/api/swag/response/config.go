@@ -6,10 +6,11 @@ type ConfigResponse struct {
 	Data Config `json:"data"`
 }
 type Config struct {
-	Base  Base   `json:"base"`
-	Funds Funds  `json:"funds"`
-	Kf    []Kf   `json:"kf"`
-	Lang  []Lang `json:"lang"`
+	Base   Base   `json:"base"`
+	Funds  Funds  `json:"funds"`
+	Kf     []Kf   `json:"kf"`
+	Lang   []Lang `json:"lang"`
+	IsOpen bool   `json:"is_open"`
 }
 type Base struct {
 	AppName      string  `json:"app_name"`      //网站应用名称

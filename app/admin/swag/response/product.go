@@ -29,6 +29,8 @@ type Product struct {
 	IsManjian    int     `json:"is_manjian"`     //1=有满减  2=无满减
 	BuyTimeLimit int     `json:"buy_time_limit"` //产品限时多少天
 	Progress     float64 `json:"progress"`       //进度百分比
+	Type         int     `json:"type"`           //1=到期返本金 2=延迟反本金
+	DelayTime    int     `json:"delay_time"`     //延迟多少天
 }
 
 type ProductRemoteListResponse struct {
