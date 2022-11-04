@@ -64,21 +64,34 @@ func (this *Award) Run() {
 			}
 		}
 
+		memberModel := model.Member{ID: productOrder[i].UID}
 		if capital > 0 {
+			//获取当前余额
+			memberModel.Get()
 			//存入收益列表
 			trade := model.Trade{
 				UID:        productOrder[i].UID,
 				TradeType:  16,
 				ItemID:     productOrder[i].ID,
 				Amount:     capital,
-				Before:     productOrder[i].Member.UseBalance + capital,
-				After:      productOrder[i].Member.UseBalance + capital,
+				Before:     memberModel.UseBalance,
+				After:      memberModel.UseBalance + capital,
 				Desc:       desc,
-				CreateTime: time.Now().Unix(),
-				UpdateTime: time.Now().Unix(),
+				CreateTime: now,
+				UpdateTime: now,
 				IsFrontend: 1,
 			}
 			_ = trade.Insert()
+
+			//更改用户余额
+			memberModel.TotalBalance += capital
+			memberModel.UseBalance += capital
+			memberModel.Income += capital
+			memberModel.PIncome += capital
+			err := memberModel.Update("total_balance", "use_balance", "income", "p_income")
+			if err != nil {
+				logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, capital, err)
+			}
 		}
 
 		//当前还没有到开始收益时间
@@ -95,22 +108,34 @@ func (this *Award) Run() {
 		logrus.Infof("今日已经结算%v  用户ID %v 收益 &v", today, productOrder[i].UID, income)
 		income2 := int64(income * model.UNITY)
 
+		//获取当前余额
+		memberModel.Get()
 		//存入收益列表
 		trade := model.Trade{
 			UID:        productOrder[i].UID,
 			TradeType:  16,
 			ItemID:     productOrder[i].ID,
 			Amount:     income2,
-			Before:     productOrder[i].Member.UseBalance,
-			After:      productOrder[i].Member.UseBalance + income2,
+			Before:     memberModel.UseBalance,
+			After:      memberModel.UseBalance + income2,
 			Desc:       "产品每日收益",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
+			CreateTime: now,
+			UpdateTime: now,
 			IsFrontend: 1,
 		}
 		err := trade.Insert()
 		if err != nil {
 			logrus.Errorf("存入账单失败  今日%v  用户ID %v err= &v", today, productOrder[i].UID, err)
+		}
+
+		//更改用户余额
+		memberModel.TotalBalance += income2
+		memberModel.UseBalance += income2
+		memberModel.Income += income2
+		memberModel.PIncome += income2
+		err = memberModel.Update("total_balance", "use_balance", "income", "p_income")
+		if err != nil {
+			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, income2, err)
 		}
 
 		//是否应该返还上3级代理  佣金
@@ -125,14 +150,6 @@ func (this *Award) Run() {
 			dealTop(c, 3, productOrder[i], today)
 		}
 
-		//查看团队代理人数  并且发放奖励
-		//var team = map[int]int{
-		//	100:  75,
-		//	500:  99,
-		//	1000: 137,
-		//	3000: 169,
-		//	5000: 202,
-		//}
 		teams := model.MemberRelation{}
 		where := "puid = ? and Member.is_buy = 1"
 		args := []interface{}{productOrder[i].UID}
@@ -151,50 +168,44 @@ func (this *Award) Run() {
 			omoney := o.Sum(where1, args1, "pay_money")
 			totoalMoney = omoney
 		}
-		if count >= 100 && count < 500 {
 
+		if count >= 100 && count < 500 {
 			income3 = totoalMoney * 750 / int64(model.UNITY)
 		} else if count >= 500 && count < 1000 {
-
 			income3 = totoalMoney * 990 / int64(model.UNITY)
 		} else if count >= 1000 && count < 3000 {
-
 			income3 = totoalMoney * 1370 / int64(model.UNITY)
 		} else if count >= 3000 && count < 5000 {
-
 			income3 = totoalMoney * 1690 / int64(model.UNITY)
 		} else if count >= 5000 {
-
 			income3 = totoalMoney * 2020 / int64(model.UNITY)
 		}
 
 		if income3 > 0 {
+			//获取当前余额
+			memberModel.Get()
 			//存入收益列表
 			trade := model.Trade{
 				UID:        productOrder[i].UID,
 				TradeType:  21,
 				ItemID:     int(count),
 				Amount:     income3,
-				Before:     productOrder[i].Member.UseBalance + income2,
-				After:      productOrder[i].Member.UseBalance + income2 + income3,
+				Before:     memberModel.UseBalance,
+				After:      memberModel.UseBalance + income3,
 				Desc:       "团队收益",
-				CreateTime: time.Now().Unix(),
-				UpdateTime: time.Now().Unix(),
+				CreateTime: now,
+				UpdateTime: now,
 				IsFrontend: 1,
 			}
 			_ = trade.Insert()
-		}
 
-		//修改钱包余额
-		m := model.Member{ID: productOrder[i].UID}
-		m.Get()
-		m.TotalBalance += income2 + income3 + capital
-		m.UseBalance += income2 + income3 + capital
-		m.Income += income2 + income3 + capital
-		m.PIncome += income2 + capital
-		err = m.Update("total_balance", "use_balance", "income", "p_income")
-		if err != nil {
-			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v 团队收益 %v err= &v", today, productOrder[i].UID, income2, income3, err)
+			memberModel.TotalBalance += income3
+			memberModel.UseBalance += income3
+			memberModel.Income += income3
+			err = memberModel.Update("total_balance", "use_balance", "income")
+			if err != nil {
+				logrus.Errorf("修改余额失败  今日%v  用户ID %v 团队收益 %v err= &v", today, productOrder[i].UID, income3, err)
+			}
 		}
 	}
 }
@@ -205,6 +216,7 @@ func dealTop(c model.SetBase, level int64, productOrder *model.OrderProduct, tod
 		UID:   productOrder.UID,
 		Level: level,
 	}
+	//当代理不存在时
 	if !agent.Get() {
 		return
 	}
@@ -222,34 +234,36 @@ func dealTop(c model.SetBase, level int64, productOrder *model.OrderProduct, tod
 		t = 20
 	}
 	logrus.Infof("今日已经结算%v  用户ID %v %v级返佣收益 &v", today, agent.Puid, level, income)
+
+	memberModel := model.Member{ID: agent.Puid}
+	//获取代理当前余额
+	memberModel.Get()
+
 	trade := model.Trade{
 		UID:        agent.Puid,
 		TradeType:  t,
 		ItemID:     productOrder.UID,
 		Amount:     income,
-		Before:     agent.Member.UseBalance,
-		After:      agent.Member.UseBalance + income,
+		Before:     memberModel.UseBalance,
+		After:      memberModel.UseBalance + income,
 		Desc:       fmt.Sprintf("%v级返佣", level),
 		CreateTime: time.Now().Unix(),
 		UpdateTime: time.Now().Unix(),
 		IsFrontend: 1,
 	}
 	err := trade.Insert()
-
 	if err != nil {
 		logrus.Errorf("%v级返佣收益存入账单失败  今日%v  用户ID %v err= &v", level, today, productOrder.UID, err)
 	}
 
-	//修改钱包余额
-	m := model.Member{ID: agent.Puid}
-	m.Get()
-	m.TotalBalance += income
-	m.UseBalance += income
-	m.Income += income
-	err = m.Update("total_balance", "use_balance", "income")
+	memberModel.TotalBalance += income
+	memberModel.UseBalance += income
+	memberModel.Income += income
+	err = memberModel.Update("total_balance", "use_balance", "income")
 	if err != nil {
 		logrus.Errorf("%v级返佣收益修改余额失败  今日%v  用户ID %v 收益 %v  err= &v", level, today, productOrder.UID, income, err)
 	}
+
 	//修改产品状态
 	productOrder.IsReturnTop = 2
 	err = productOrder.Update("is_return_top")
