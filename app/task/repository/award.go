@@ -65,7 +65,6 @@ func (this *Award) Run() {
 		}
 
 		if capital > 0 {
-
 			//存入收益列表
 			trade := model.Trade{
 				UID:        productOrder[i].UID,
