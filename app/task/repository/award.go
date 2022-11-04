@@ -17,31 +17,36 @@ const prefixdayincome = "prefixdayincome"
 
 func (this *Award) Run() {
 	now := time.Now().Unix()
+
 	//加一层保险看看今天是否已经结算
 	today := common.GetTodayZero()
 	s := global.REDIS.Get(prefixdayincome + fmt.Sprint(today))
-
 	if s.Val() != "" {
 		logrus.Errorf("今日已经结算%v", today)
 		return
 	}
-	global.REDIS.Set(prefixdayincome+fmt.Sprint(today), "111", -1)
+	global.REDIS.Set(prefixdayincome+fmt.Sprint(today), now, -1)
+
 	//获取代理返佣配置
 	c := model.SetBase{}
 	if !c.Get() {
 		logrus.Errorf("基础配置表  未配置")
 		return
 	}
+
 	//产品收益
 	o := model.OrderProduct{}
 	productOrder := o.GetAll(today)
 	if len(productOrder) == 0 {
 		return
 	}
+
 	for i := range productOrder {
 		//判断收益是否结束
-		overtime := common.GetTimeByYMD(productOrder[i].CreateTime) + int64(productOrder[i].Product.TimeLimit+1)*3600*24+2*3600
-		starttime := common.GetTimeByYMD(productOrder[i].CreateTime) + 26*3600
+		createDayTime := common.GetTimeByYMD(productOrder[i].CreateTime)
+		overtime := createDayTime + int64(productOrder[i].Product.TimeLimit+1)*3600*24 + 2*3600
+		starttime := createDayTime + 26*3600
+
 		var capital int64
 		var desc string
 		//是否需要返回本金
@@ -58,6 +63,7 @@ func (this *Award) Run() {
 				capital = productOrder[i].PayMoney
 			}
 		}
+
 		if capital > 0 {
 
 			//存入收益列表
@@ -75,12 +81,16 @@ func (this *Award) Run() {
 			}
 			_ = trade.Insert()
 		}
+
+		//当前还没有到开始收益时间
 		if starttime > now {
 			continue
 		}
+		//当前已经过了收益的结束时间
 		if overtime < now {
 			continue
 		}
+
 		//计算收益
 		income := float64(productOrder[i].PayMoney*int64(productOrder[i].Product.Dayincome)) / model.UNITY / model.UNITY
 		logrus.Infof("今日已经结算%v  用户ID %v 收益 &v", today, productOrder[i].UID, income)
@@ -100,20 +110,16 @@ func (this *Award) Run() {
 			IsFrontend: 1,
 		}
 		err := trade.Insert()
-
 		if err != nil {
 			logrus.Errorf("存入账单失败  今日%v  用户ID %v err= &v", today, productOrder[i].UID, err)
 		}
 
 		//是否应该返还上3级代理  佣金
 		if productOrder[i].IsReturnTop == 1 {
-
 			//1级代理佣金计算
-
 			dealTop(c, 1, productOrder[i], today)
 
 			//2级代理佣金计算
-
 			dealTop(c, 2, productOrder[i], today)
 
 			//3级代理佣金计算
@@ -144,11 +150,7 @@ func (this *Award) Run() {
 			where1 := "uid in (?) "
 			args1 := []interface{}{uids}
 			omoney := o.Sum(where1, args1, "pay_money")
-			//g := model.OrderGuquan{}
-			//gmoney := o.Sum2(where1, args1, "pay_money")
-
 			totoalMoney = omoney
-
 		}
 		if count >= 100 && count < 500 {
 
