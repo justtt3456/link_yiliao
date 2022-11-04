@@ -17,7 +17,7 @@ func GetTimeYMDS() string {
 }
 
 func GetTimeByYMD(t int64) int64 {
-	t2, _ := time.ParseInLocation(time.Unix(t, 0).In(zone).Format(YMD), "2021-02-07", zone)
+	t2, _ := time.ParseInLocation(YMD, time.Unix(t, 0).In(zone).Format(YMD), zone)
 	return t2.Unix()
 }
 
