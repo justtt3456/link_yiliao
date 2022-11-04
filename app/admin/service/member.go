@@ -287,25 +287,27 @@ func (this MemberVerifiedUpdate) Update() error {
 	c := model.SetBase{}
 	c.Get()
 	if member.IsOneShiming == 1 && this.Status == 2 {
-		//第一次实名通过的时候送奖金
-		member.IsOneShiming = 2
-		member.UseBalance += int64(c.VerifiedSend)
-		member.TotalBalance += int64(c.VerifiedSend)
-		member.Income += int64(c.VerifiedSend)
 		//加入账变记录
 		trade := model.Trade{
 			UID:        member.ID,
 			TradeType:  8,
 			Amount:     int64(c.VerifiedSend),
-			Before:     member.UseBalance - int64(c.VerifiedSend),
-			After:      member.UseBalance,
+			Before:     member.UseBalance,
+			After:      member.UseBalance + int64(c.VerifiedSend),
 			Desc:       "实名认证礼金",
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
 			IsFrontend: 1,
 		}
 		trade.Insert()
+
+		//第一次实名通过的时候送奖金
+		member.IsOneShiming = 2
+		member.UseBalance += int64(c.VerifiedSend)
+		member.TotalBalance += int64(c.VerifiedSend)
+		member.Income += int64(c.VerifiedSend)
 	}
+
 	member.IsReal = this.Status
 	member.RealName = m.RealName
 	member.Mobile = m.Mobile
