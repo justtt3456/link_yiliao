@@ -139,16 +139,16 @@ func (this *Award) Run() {
 		}
 
 		//是否应该返还上3级代理  佣金
-		if productOrder[i].IsReturnTop == 1 {
-			//1级代理佣金计算
-			dealTop(c, 1, productOrder[i], today)
-
-			//2级代理佣金计算
-			dealTop(c, 2, productOrder[i], today)
-
-			//3级代理佣金计算
-			dealTop(c, 3, productOrder[i], today)
-		}
+		//if productOrder[i].IsReturnTop == 1 {
+		//	//1级代理佣金计算
+		//	dealTop(c, 1, productOrder[i], today)
+		//
+		//	//2级代理佣金计算
+		//	dealTop(c, 2, productOrder[i], today)
+		//
+		//	//3级代理佣金计算
+		//	dealTop(c, 3, productOrder[i], today)
+		//}
 
 		teams := model.MemberRelation{}
 		where := "puid = ? and Member.is_buy = 1"
@@ -210,64 +210,64 @@ func (this *Award) Run() {
 	}
 }
 
-func dealTop(c model.SetBase, level int64, productOrder *model.OrderProduct, today int64) {
-	//1级代理佣金计算  18=一级返佣 19=二级返佣 20=三级返佣
-	agent := model.MemberRelation{
-		UID:   productOrder.UID,
-		Level: level,
-	}
-	//当代理不存在时
-	if !agent.Get() {
-		return
-	}
-
-	var income int64
-	var t int
-	if level == 1 {
-		income = c.OneSendMoeny + int64(c.OneSend)*productOrder.PayMoney/int64(model.UNITY)
-		t = 18
-	} else if level == 2 {
-		income = int64(c.TwoSend) * productOrder.PayMoney / int64(model.UNITY)
-		t = 19
-	} else if level == 3 {
-		income = int64(c.ThreeSend) * productOrder.PayMoney / int64(model.UNITY)
-		t = 20
-	}
-	logrus.Infof("今日已经结算%v  用户ID %v %v级返佣收益 &v", today, agent.Puid, level, income)
-
-	memberModel := model.Member{ID: agent.Puid}
-	//获取代理当前余额
-	memberModel.Get()
-
-	trade := model.Trade{
-		UID:        agent.Puid,
-		TradeType:  t,
-		ItemID:     productOrder.UID,
-		Amount:     income,
-		Before:     memberModel.UseBalance,
-		After:      memberModel.UseBalance + income,
-		Desc:       fmt.Sprintf("%v级返佣", level),
-		CreateTime: time.Now().Unix(),
-		UpdateTime: time.Now().Unix(),
-		IsFrontend: 1,
-	}
-	err := trade.Insert()
-	if err != nil {
-		logrus.Errorf("%v级返佣收益存入账单失败  今日%v  用户ID %v err= &v", level, today, productOrder.UID, err)
-	}
-
-	memberModel.TotalBalance += income
-	memberModel.UseBalance += income
-	memberModel.Income += income
-	err = memberModel.Update("total_balance", "use_balance", "income")
-	if err != nil {
-		logrus.Errorf("%v级返佣收益修改余额失败  今日%v  用户ID %v 收益 %v  err= &v", level, today, productOrder.UID, income, err)
-	}
-
-	//修改产品状态
-	productOrder.IsReturnTop = 2
-	err = productOrder.Update("is_return_top")
-	if err != nil {
-		logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
-	}
-}
+//func dealTop(c model.SetBase, level int64, productOrder *model.OrderProduct, today int64) {
+//	//1级代理佣金计算  18=一级返佣 19=二级返佣 20=三级返佣
+//	agent := model.MemberRelation{
+//		UID:   productOrder.UID,
+//		Level: level,
+//	}
+//	//当代理不存在时
+//	if !agent.Get() {
+//		return
+//	}
+//
+//	var income int64
+//	var t int
+//	if level == 1 {
+//		income = c.OneSendMoeny + int64(c.OneSend)*productOrder.PayMoney/int64(model.UNITY)
+//		t = 18
+//	} else if level == 2 {
+//		income = int64(c.TwoSend) * productOrder.PayMoney / int64(model.UNITY)
+//		t = 19
+//	} else if level == 3 {
+//		income = int64(c.ThreeSend) * productOrder.PayMoney / int64(model.UNITY)
+//		t = 20
+//	}
+//	logrus.Infof("今日已经结算%v  用户ID %v %v级返佣收益 &v", today, agent.Puid, level, income)
+//
+//	memberModel := model.Member{ID: agent.Puid}
+//	//获取代理当前余额
+//	memberModel.Get()
+//
+//	trade := model.Trade{
+//		UID:        agent.Puid,
+//		TradeType:  t,
+//		ItemID:     productOrder.UID,
+//		Amount:     income,
+//		Before:     memberModel.UseBalance,
+//		After:      memberModel.UseBalance + income,
+//		Desc:       fmt.Sprintf("%v级返佣", level),
+//		CreateTime: time.Now().Unix(),
+//		UpdateTime: time.Now().Unix(),
+//		IsFrontend: 1,
+//	}
+//	err := trade.Insert()
+//	if err != nil {
+//		logrus.Errorf("%v级返佣收益存入账单失败  今日%v  用户ID %v err= &v", level, today, productOrder.UID, err)
+//	}
+//
+//	memberModel.TotalBalance += income
+//	memberModel.UseBalance += income
+//	memberModel.Income += income
+//	err = memberModel.Update("total_balance", "use_balance", "income")
+//	if err != nil {
+//		logrus.Errorf("%v级返佣收益修改余额失败  今日%v  用户ID %v 收益 %v  err= &v", level, today, productOrder.UID, income, err)
+//	}
+//
+//	//修改产品状态
+//	productOrder.IsReturnTop = 2
+//	err = productOrder.Update("is_return_top")
+//	if err != nil {
+//		logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
+//	}
+//}
