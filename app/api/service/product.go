@@ -9,6 +9,7 @@ import (
 	"finance/model"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
@@ -144,6 +145,21 @@ func (this GetProduct) GetOne() response.Product {
 		})
 	}
 
+	//获取当前项目进度
+	startProgress := float64(m.Progress) / model.UNITY
+	progress := 0.00
+	if m.TotalPrice >= m.OtherPrice {
+		usedAmount := m.TotalPrice - m.OtherPrice
+		trueProgress, _ := strconv.ParseFloat(fmt.Sprintf("%.3f", float64(usedAmount)/float64(m.TotalPrice)), 64)
+		if startProgress > trueProgress {
+			progress = startProgress
+		} else {
+			progress = trueProgress
+		}
+	} else {
+		progress = 1.00
+	}
+
 	res := response.Product{
 		ID:           m.ID,
 		Name:         m.Name,
@@ -163,7 +179,7 @@ func (this GetProduct) GetOne() response.Product {
 		IsFinish:     m.IsFinish,
 		IsManjian:    m.IsManjian,
 		BuyTimeLimit: m.BuyTimeLimit,
-		Progress:     float64(m.Progress) / model.UNITY,
+		Progress:     progress,
 	}
 	if res.IsManjian == 1 {
 		res.ManSongActive = act
