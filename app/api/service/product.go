@@ -718,13 +718,14 @@ type BuyGuquanList struct {
 func (this BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 	var res response.BuyGuquanResp
 	m := model.OrderGuquan{UID: member.ID}
-	m.Get()
-	guquan := model.Guquan{}
-	guquan.Get(true)
 	money, err := m.Sum()
 	if err != nil || money == 0 {
 		return nil
 	}
+
+	guquan := model.Guquan{}
+	guquan.Get(true)
+
 	now := time.Now().Unix()
 	if guquan.ReturnTime >= now {
 		res.Status = "完成"
