@@ -715,7 +715,7 @@ type BuyGuquanList struct {
 	request.Request
 }
 
-func (this BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
+func (this *BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 	var res response.BuyGuquanResp
 	m := model.OrderGuquan{UID: member.ID}
 	money, err := m.Sum()
@@ -745,4 +745,56 @@ func (this BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 	res.TotalPrice = float64(weiMoney+huiMoney) / model.UNITY
 	return &res
 
+}
+
+type BuyGuquanPageList struct {
+	request.Pagination
+}
+
+// 获取用户购买股权列表
+func (this *BuyGuquanPageList) PageList(member *model.Member) *response.BuyGuquanPageListResp {
+	//参数分析
+	if this.Page == 0 {
+		this.Page = 1
+	}
+	if this.PageSize == 0 {
+		this.PageSize = response.DefaultPageSize
+	}
+
+	//获取列表
+	orderModel := model.OrderGuquan{UID: member.ID}
+	list, page := orderModel.PageList("uid=?", []interface{}{member.ID}, this.Page, this.PageSize)
+
+	//获取股权信息
+	guquan := model.Guquan{}
+	guquan.Get(true)
+
+	now := time.Now().Unix()
+	Status := ""
+	if guquan.ReturnTime >= now {
+		Status = "完成"
+	}
+	if guquan.OpenTime >= now {
+		Status = "待回收"
+	}
+	if guquan.PreEndTime >= now {
+		Status = "待发行"
+	}
+
+	res := make([]response.BuyGuquanList, 0)
+	for _, v := range list {
+		weiMoney := (v.PayMoney * int64(int(model.UNITY)-v.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
+		huiMoney := (v.PayMoney * int64(v.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
+		i := response.BuyGuquanList{
+			ID:         v.ID,
+			Num:        v.PayMoney / int64(model.UNITY),
+			Price:      float64(guquan.Price) / model.UNITY,
+			CreateTime: v.CreateTime,
+			TotalPrice: float64(weiMoney+huiMoney) / model.UNITY,
+			Status:     Status,
+		}
+		res = append(res, i)
+	}
+
+	return &response.BuyGuquanPageListResp{List: res, Page: FormatPage(page)}
 }

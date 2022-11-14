@@ -114,3 +114,17 @@ type BuyGuquanResp struct {
 	TotalPrice float64 `json:"total_price"` //股权总价值
 	Status     string  `json:"status"`      //发行中  回购中  完成
 }
+
+type BuyGuquanPageListResp struct {
+	List []BuyGuquanList `json:"list"`
+	Page Page            `json:"page"`
+}
+
+type BuyGuquanList struct {
+	ID         int     `json:"id"`          //订单ID
+	Num        int64   `json:"num"`         //股权数据量
+	Price      float64 `json:"price"`       //股权单价
+	CreateTime int64   `json:"create_time"` //获得时间
+	TotalPrice float64 `json:"total_price"` //股权总价值
+	Status     string  `json:"status"`      //发行中  回购中  完成
+}
