@@ -97,6 +97,12 @@ func (this MemberVerified) Verified(member model.Member) error {
 	if this.Mobile == "" {
 		return errors.New(lang.Lang("Phone number can not be blank"))
 	}
+	if this.Frontend == "" {
+		return errors.New(lang.Lang("The front of the ID card cannot be blank"))
+	}
+	if this.Backend == "" {
+		return errors.New(lang.Lang("The back of the ID card cannot be blank"))
+	}
 
 	if !common.IsMobile(this.Mobile, global.Language) {
 		return errors.New("手机格式不正确")
@@ -105,12 +111,6 @@ func (this MemberVerified) Verified(member model.Member) error {
 		return errors.New("身份证格式不正确")
 	}
 
-	//if this.Frontend == "" {
-	//	return errors.New(lang.Lang("The front of the ID card cannot be blank"))
-	//}
-	//if this.Backend == "" {
-	//	return errors.New(lang.Lang("The back of the ID card cannot be blank"))
-	//}
 	if member.IsReal == model.StatusAccept {
 		return errors.New(lang.Lang("Real name authentication already exists"))
 	}
