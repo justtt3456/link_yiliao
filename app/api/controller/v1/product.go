@@ -139,10 +139,10 @@ func (this ProductController) BuyList(c *gin.Context) {
 // @Summary 用户购买的股权数据
 // @Tags 产品
 // @Param token header string false "用户令牌"
-// @Param object query request.Request false "查询参数"
-// @Success 200 {object} response.BuyGuquanResp
+// @Param object query request.BuyGuquanPageList false "查询参数"
+// @Success 200 {object} response.BuyGuquanPageListResp
 // @Router /product/buy_guquan_list [get]
-func (this ProductController) BuyGuquanList(c *gin.Context) {
+func (this *ProductController) BuyGuquanList(c *gin.Context) {
 	s := service.BuyGuquanPageList{}
 	err := c.ShouldBindQuery(&s)
 	if err != nil {
@@ -151,5 +151,23 @@ func (this ProductController) BuyGuquanList(c *gin.Context) {
 	}
 	member := this.MemberInfo(c)
 	this.Json(c, 0, "ok", s.PageList(member))
+	return
+}
+
+// @Summary 获取用户股权证书内容
+// @Tags 产品
+// @Param token header string false "用户令牌"
+// @Param object query request.StockCertificate false "查询参数"
+// @Success 200 {object} response.StockCertificateResp
+// @Router /product/stock_certificate [get]
+func (this *ProductController) StockCertificate(c *gin.Context) {
+	s := service.StockCertificate{}
+	err := c.ShouldBindQuery(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	member := this.MemberInfo(c)
+	this.Json(c, 0, "ok", s.GetInfo(member))
 	return
 }

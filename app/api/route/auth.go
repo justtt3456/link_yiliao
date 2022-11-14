@@ -40,6 +40,8 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	r.POST("product/buy", product.Buy)
 	r.GET("product/buy_list", product.BuyList)
 	r.GET("product/buy_guquan_list", product.BuyGuquanList)
+	//获取股权证书内容
+	r.GET("product/stock_certificate", product.StockCertificate)
 
 	//充值
 	recharge := v1.RechargeController{}

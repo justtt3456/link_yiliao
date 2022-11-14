@@ -798,3 +798,55 @@ func (this *BuyGuquanPageList) PageList(member *model.Member) *response.BuyGuqua
 
 	return &response.BuyGuquanPageListResp{List: res, Page: FormatPage(page)}
 }
+
+type StockCertificate struct {
+	request.StockCertificate
+}
+
+func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCertificateResp {
+	//参数分析
+	if this.Id == 0 {
+		return nil
+	}
+	fmt.Println("id:", this.Id)
+	//获取股权信息
+	guquan := model.Guquan{}
+	guquan.Get(true)
+
+	now := time.Now().Unix()
+	if guquan.ReturnTime >= now {
+		//return nil
+	}
+
+	//获取订单信息
+	orderModel := model.OrderGuquan{ID: this.Id, UID: member.ID}
+	if !orderModel.Get() {
+		return nil
+	}
+
+	//获取用户信息
+	memberVerfiy := model.MemberVerified{UID: orderModel.UID}
+	memberVerfiy.Get()
+
+	//合同起始时
+	startDate := time.Unix(int64(guquan.OpenTime), 0).Format("2006年01月02日")
+	endDate := time.Unix(int64(guquan.ReturnTime), 0).Format("2006年01月02日")
+	days := int(guquan.ReturnTime-guquan.OpenTime) / 86400
+	createDate := time.Unix(int64(orderModel.CreateTime), 0).Format("2006年01月02日")
+
+	weiMoney := (orderModel.PayMoney * int64(int(model.UNITY)-orderModel.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
+	huiMoney := (orderModel.PayMoney * int64(orderModel.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
+
+	return &response.StockCertificateResp{
+		ID:          orderModel.ID,
+		RealName:    memberVerfiy.RealName,
+		IdCardNo:    memberVerfiy.IDNumber,
+		StartDate:   startDate,
+		EndDate:     endDate,
+		CreateDate:  createDate,
+		Days:        days,
+		Price:       float64(guquan.Price) / model.UNITY,
+		Quantity:    orderModel.PayMoney / int64(model.UNITY),
+		TotalAmount: float64(weiMoney+huiMoney) / model.UNITY,
+	}
+}

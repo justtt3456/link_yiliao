@@ -14,3 +14,7 @@ type GetProduct struct {
 type Msg struct {
 	Id int `json:"id"`
 }
+
+type StockCertificate struct {
+	Id int `form:"id"`
+}
