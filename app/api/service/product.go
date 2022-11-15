@@ -838,15 +838,17 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	huiMoney := (orderModel.PayMoney * int64(orderModel.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
 
 	return &response.StockCertificateResp{
-		ID:          orderModel.ID,
-		RealName:    memberVerfiy.RealName,
-		IdCardNo:    memberVerfiy.IDNumber,
-		StartDate:   startDate,
-		EndDate:     endDate,
-		CreateDate:  createDate,
-		Days:        days,
-		Price:       float64(guquan.Price) / model.UNITY,
-		Quantity:    orderModel.PayMoney / int64(model.UNITY),
-		TotalAmount: float64(weiMoney+huiMoney) / model.UNITY,
+		ID:               orderModel.ID,
+		RealName:         memberVerfiy.RealName,
+		IdCardNo:         memberVerfiy.IDNumber,
+		StartDate:        startDate,
+		EndDate:          endDate,
+		CreateDate:       createDate,
+		Days:             days,
+		Price:            float64(guquan.Price) / model.UNITY,
+		Quantity:         orderModel.PayMoney / int64(model.UNITY),
+		Profit:           int64(guquan.ReturnLuckyRate) / int64(model.UNITY),
+		RepurchaseAmount: float64(huiMoney) / model.UNITY,
+		TotalAmount:      float64(weiMoney+huiMoney) / model.UNITY,
 	}
 }
