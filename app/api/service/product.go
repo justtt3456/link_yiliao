@@ -771,13 +771,11 @@ func (this *BuyGuquanPageList) PageList(member *model.Member) *response.BuyGuqua
 
 	now := time.Now().Unix()
 	Status := ""
-	if guquan.ReturnTime >= now {
+	if now >= guquan.ReturnTime {
 		Status = "完成"
-	}
-	if guquan.OpenTime >= now {
+	} else if now >= guquan.OpenTime {
 		Status = "待回收"
-	}
-	if guquan.PreEndTime >= now {
+	} else {
 		Status = "待发行"
 	}
 
@@ -814,8 +812,8 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	guquan.Get(true)
 
 	now := time.Now().Unix()
-	if guquan.ReturnTime >= now {
-		//return nil
+	if now >= guquan.ReturnTime {
+		return nil
 	}
 
 	//获取订单信息
