@@ -834,8 +834,11 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	days := int(guquan.ReturnTime-guquan.OpenTime) / 86400
 	createDate := time.Unix(int64(orderModel.CreateTime), 0).Format("2006年01月02日")
 
-	weiMoney := (orderModel.PayMoney * int64(int(model.UNITY)-orderModel.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
 	huiMoney := (orderModel.PayMoney * int64(orderModel.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
+	//原始股权总金额
+	sourceAmount := float64(orderModel.PayMoney) / float64(model.UNITY) * float64(guquan.Price) / float64(model.UNITY)
+	//回购利润
+	profit := float64(guquan.ReturnLuckyRate)*100/model.UNITY - 100
 
 	return &response.StockCertificateResp{
 		ID:               orderModel.ID,
@@ -847,8 +850,8 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 		Days:             days,
 		Price:            float64(guquan.Price) / model.UNITY,
 		Quantity:         orderModel.PayMoney / int64(model.UNITY),
-		Profit:           int64(guquan.ReturnLuckyRate) / int64(model.UNITY),
+		Profit:           profit,
 		RepurchaseAmount: float64(huiMoney) / model.UNITY,
-		TotalAmount:      float64(weiMoney+huiMoney) / model.UNITY,
+		TotalAmount:      sourceAmount,
 	}
 }

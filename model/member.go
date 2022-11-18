@@ -145,7 +145,7 @@ func (this *Member) Info() *response.Member {
 		Income:              float64(this.Income) / UNITY,
 		Guquan:              this.Guquan,
 		Message:             msg.Count(where, args),
-		WillIncome:          float64(this.WillIncome-this.PIncome) / UNITY,
+		WillIncome:          float64(this.WillIncome) / UNITY,
 	}
 }
 

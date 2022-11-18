@@ -139,7 +139,7 @@ type StockCertificateResp struct {
 	Days             int     `json:"days"`              //合同天数
 	Price            float64 `json:"price"`             //单价
 	Quantity         int64   `json:"quantity"`          //股权数量
-	Profit           int64   `json:"profit"`            //回购利润
+	Profit           float64 `json:"profit"`            //回购利润
 	RepurchaseAmount float64 `json:"repurchase_amount"` //回购金额
 	TotalAmount      float64 `json:"total_amount"`      //总金额
 }
