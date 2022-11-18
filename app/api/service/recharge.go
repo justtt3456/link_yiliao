@@ -71,6 +71,9 @@ func (this RechargeCreate) checkError() error {
 		//if !bank.Get() {
 		//	return errors.New(lang.Lang("Receiving account does not exist"))
 		//}
+		if this.ImageUrl == "" {
+			return errors.New(lang.Lang("credential image must be required!"))
+		}
 	case "paymentAlipay":
 		if this.ChannelID == 0 {
 			return errors.New(lang.Lang("Payment channel cannot be empty"))
@@ -150,7 +153,6 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 			NotifyUrl:   p.NotifyURL,
 		}
 		res, err := extends.OrderXinMeng(payOrder)
-		fmt.Println("hhahaadsdadasdadas",res)
 		if err != nil {
 			return nil, err
 		}
@@ -181,6 +183,7 @@ func (this RechargeCreate) create(member model.Member, to string, usdtAmount int
 		UsdtAmount: usdtAmount,
 		PaymentID:  payment,
 		Status:     model.StatusReview,
+		ImageUrl:   this.ImageUrl,
 	}
 	err := recharge.Insert()
 	return recharge, err

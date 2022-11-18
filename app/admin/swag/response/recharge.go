@@ -31,4 +31,5 @@ type RechargeInfo struct {
 	PaymentName string  `json:"payment_name"`
 	SuccessTime int64   `json:"success_time"` //成功时间
 	TradeSn     string  `json:"trade_sn"`     //三方订单号
+	ImageUrl    string  `json:"img_url"`      //凭证图片网址
 }

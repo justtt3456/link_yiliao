@@ -103,4 +103,5 @@ var ja_JP map[string]string = map[string]string{
 	"The back of the ID card cannot be blank":  "ID の裏側は空にできません",
 	"Real name authentication already exists":  "実名認証は既に存在します",
 	"Closed on weekends":                       "週末は休業",
+	"credential image must be required!":       "支払い伝票の画像を空にすることはできません!",
 }

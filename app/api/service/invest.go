@@ -28,7 +28,6 @@ func (this InvestIndex) Index(member model.Member) *response.InvestIndexData {
 	income := model.InvestLog{}
 	where := "uid = ?"
 	args := []interface{}{member.ID}
-	//sum := income.Sum(where, args, "income")
 	yesterday := income.YesterdayIncome(member.ID)
 	m := response.InvestMember{
 		Balance:         float64(member.InvestAmount+member.InvestFreeze) / model.UNITY,

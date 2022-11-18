@@ -103,4 +103,5 @@ var vi_VN map[string]string = map[string]string{
 	"The back of the ID card cannot be blank":  "mặt sau của ID không thể trống rỗng",
 	"Real name authentication already exists":  "Xác thực tên thật đã tồn tại",
 	"Closed on weekends":                       "Đóng cửa vào cuối tuần",
+	"credential image must be required!":       "Không được để trống hình ảnh chứng từ thanh toán!",
 }

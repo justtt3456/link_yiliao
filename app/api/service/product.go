@@ -134,6 +134,7 @@ func (this GetProduct) GetOne() response.Product {
 		Status: 1,
 	}
 	m.Get()
+
 	act := make([]response.ManSongActive, 0)
 	acts := model.FullDelivery{}
 	FullDelivery := acts.List()
@@ -180,6 +181,7 @@ func (this GetProduct) GetOne() response.Product {
 		IsManjian:    m.IsManjian,
 		BuyTimeLimit: m.BuyTimeLimit,
 		Progress:     progress,
+		Type:         m.Type,
 	}
 	if res.IsManjian == 1 {
 		res.ManSongActive = act

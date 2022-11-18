@@ -104,4 +104,5 @@ var zh_hk map[string]string = map[string]string{
 	"Real name authentication already exists":                      "實名認證已存在",
 	"Minimum purchase %d":                                          "最低購買%d",
 	"Closed on weekends":                                           "週末休市中",
+	"credential image must be required!":                           "支付憑證圖片不能為空!",
 }

@@ -49,6 +49,7 @@ func (this RechargeService) PageList() response.RechargeData {
 			PaymentName: v.Payment.PayName,
 			SuccessTime: v.SuccessTime,
 			TradeSn:     v.TradeSn,
+			ImageUrl:    v.ImageUrl,
 		}
 		sli = append(sli, item)
 	}

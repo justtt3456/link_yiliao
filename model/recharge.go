@@ -33,6 +33,7 @@ type Recharge struct {
 	RechargeMethod RechargeMethod `gorm:"foreignKey:Type"`
 	Payment        Payment        `gorm:"foreignKey:PaymentID"`
 	Admin          Admin          `gorm:"foreignKey:Operator"`
+	ImageUrl       string         `gorm:"column:img_url"` //凭证图片网址
 }
 
 // TableName sets the insert table name for this struct type
