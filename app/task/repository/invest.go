@@ -41,7 +41,7 @@ func (this Invest) Do() {
 
 }
 
-//发放余额宝奖励
+// 发放余额宝奖励
 func (this Invest) sendIncome(member model.Member) {
 	in := model.InvestOrder{}
 	inWhere := "uid = ? and type = ? and unfreeze_status = ? and income_time <= ?"
@@ -49,7 +49,7 @@ func (this Invest) sendIncome(member model.Member) {
 	amount := in.Sum(inWhere, inArgs, "amount")
 	invest := model.Invest{}
 	invest.Get()
-	income := (member.InvestAmount + amount) * int64(invest.Ratio) / 365 / int64(model.UNITY)
+	income := (member.InvestAmount + amount) * int64(invest.Ratio) / int64(model.UNITY) / 100
 	member.InvestAmount += income
 	member.InvestIncome += income
 	member.TotalBalance += income
