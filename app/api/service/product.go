@@ -278,14 +278,15 @@ type ProductBuy struct {
 }
 
 func (this *ProductBuy) Buy(member *model.Member) error {
+	//实名认证
 	if member.IsReal != 2 {
 		return errors.New("请实名认证！")
 	}
-
+	//金额分析
 	if this.Amount <= 0 {
 		return errors.New("购买金额必须大于0！")
 	}
-
+	//交易密码验证
 	if common.Md5String(this.TransferPwd+member.WithdrawSalt) != member.WithdrawPassword {
 		return errors.New("交易密码错误")
 	}
@@ -301,6 +302,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			isSendRigster = true
 		}
 	}
+
 	//基础配置表
 	config := model.SetBase{}
 	config.Get()
@@ -311,6 +313,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	}
 	memberModel.Get()
 
+	//金额分析
 	amount := int64(this.Amount * model.UNITY)
 	if amount > memberModel.Balance {
 		return errors.New("余额不足,请先充值！")
@@ -328,9 +331,10 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		if int(this.Amount) > p.MoreBuy {
 			return errors.New(fmt.Sprintf("购买金额必须小于%v！", p.MoreBuy))
 		}
+
 		money := model.OrderProduct{}
-		wheres := "uid = ?"
-		agrss := []interface{}{member.ID}
+		wheres := "uid = ? and pid=?"
+		agrss := []interface{}{member.ID, this.Id}
 		pmoney := money.Sum(wheres, agrss, "pay_money")
 		if int(float64((pmoney+int64(this.Amount*model.UNITY)))/model.UNITY) > p.MoreBuy {
 			return errors.New(fmt.Sprintf("您购买的产品已达到上限%v", p.MoreBuy))

@@ -114,20 +114,22 @@ func (this MemberVerified) Verified(member model.Member) error {
 	if member.IsReal == model.StatusAccept {
 		return errors.New(lang.Lang("Real name authentication already exists"))
 	}
+	//同一个身份证号只可以认证一次
 	ex := model.MemberVerified{
-		UID:      member.ID,
 		IDNumber: this.IDNumber,
-		Mobile:   this.Mobile,
 	}
+	//当身份证号已存在时
 	if ex.Get() {
-		if ex.Status != model.StatusRollback {
-			return errors.New(lang.Lang("Real name authentication already exists"))
+		if ex.UID != member.ID {
+			return errors.New("该身份证已绑定其他账号")
 		}
-		//删除驳回认证
-		ex.Remove()
 
-		return errors.New("该身份证和手机号已绑定其他账号")
+		if ex.Status == model.StatusRollback {
+			//删除驳回认证
+			ex.Remove()
+		}
 	}
+
 	m := model.MemberVerified{
 		UID:      member.ID,
 		RealName: this.RealName,
