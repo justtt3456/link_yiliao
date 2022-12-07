@@ -787,7 +787,9 @@ func (this *BuyGuquanPageList) PageList(member *model.Member) *response.BuyGuqua
 
 	res := make([]response.BuyGuquanList, 0)
 	for _, v := range list {
+		//未中签回购金额
 		weiMoney := (v.PayMoney * int64(int(model.UNITY)-v.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
+		//中签回购金额
 		huiMoney := (v.PayMoney * int64(v.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
 		i := response.BuyGuquanList{
 			ID:         v.ID,
@@ -812,15 +814,14 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	if this.Id == 0 {
 		return nil
 	}
-	fmt.Println("id:", this.Id)
 	//获取股权信息
 	guquan := model.Guquan{}
 	guquan.Get(true)
 
-	now := time.Now().Unix()
-	if now >= guquan.ReturnTime {
-		return nil
-	}
+	//now := time.Now().Unix()
+	//if now >= guquan.ReturnTime {
+	//	return nil
+	//}
 
 	//获取订单信息
 	orderModel := model.OrderGuquan{ID: this.Id, UID: member.ID}
@@ -838,24 +839,53 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	days := int(guquan.ReturnTime-guquan.OpenTime) / 86400
 	createDate := time.Unix(int64(orderModel.CreateTime), 0).Format("2006年01月02日")
 
+	//中签回购金额
 	huiMoney := (orderModel.PayMoney * int64(orderModel.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
+	//未中签回购金额
+	weiMoney := (orderModel.PayMoney * int64(int(model.UNITY)-orderModel.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
+
 	//原始股权总金额
 	sourceAmount := float64(orderModel.PayMoney) / float64(model.UNITY) * float64(guquan.Price) / float64(model.UNITY)
-	//回购利润
-	profit := float64(guquan.ReturnLuckyRate)*100/model.UNITY - 100
+	//中签回购利润
+	winProfit := float64(guquan.ReturnLuckyRate)*100/model.UNITY - 100
+	//未中签加购利润
+	notWinProfit := float64(guquan.ReturnRate) * 100 / model.UNITY
+
+	//总股权数量
+	totalQuantity := orderModel.PayMoney / int64(model.UNITY)
+	//中签股权数量
+	winQuantity := orderModel.PayMoney * int64(orderModel.Rate) / (int64(model.UNITY) * int64(model.UNITY))
+	//未中签股权数量
+	notWinQuantity := totalQuantity - winQuantity
 
 	return &response.StockCertificateResp{
-		ID:               orderModel.ID,
-		RealName:         memberVerfiy.RealName,
-		IdCardNo:         memberVerfiy.IDNumber,
-		StartDate:        startDate,
-		EndDate:          endDate,
-		CreateDate:       createDate,
-		Days:             days,
-		Price:            float64(guquan.Price) / model.UNITY,
-		Quantity:         orderModel.PayMoney / int64(model.UNITY),
-		Profit:           profit,
-		RepurchaseAmount: float64(huiMoney) / model.UNITY,
-		TotalAmount:      sourceAmount,
+		ID:         orderModel.ID,
+		RealName:   memberVerfiy.RealName,
+		IdCardNo:   memberVerfiy.IDNumber,
+		StartDate:  startDate,
+		EndDate:    endDate,
+		CreateDate: createDate,
+		Days:       days,
+
+		//股权总数
+		Quantity: orderModel.PayMoney / int64(model.UNITY),
+		//原订单价格
+		Price: float64(guquan.Price) / model.UNITY,
+		//原始股权总金额
+		TotalAmount: sourceAmount,
+
+		//中签股权数
+		WinQuantity: winQuantity,
+		//中签回购利润
+		WinProfit: winProfit,
+		//中签股权回购总金额
+		WinRepurchaseAmount: float64(huiMoney) / model.UNITY,
+
+		//未中签股权数
+		NotWinQuantity: notWinQuantity,
+		//未中签回购利润
+		NotWinProfit: notWinProfit,
+		//未中签回购金额
+		NotWinRepurchaseAmount: float64(weiMoney) / model.UNITY,
 	}
 }

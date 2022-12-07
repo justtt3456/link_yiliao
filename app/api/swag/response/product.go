@@ -130,16 +130,20 @@ type BuyGuquanList struct {
 }
 
 type StockCertificateResp struct {
-	ID               int     `json:"id"`                //订单ID
-	RealName         string  `json:"real_name"`         //会员真实姓名
-	IdCardNo         string  `json:"id_card_no"`        //会员身份证号
-	StartDate        string  `json:"start_date"`        //合同开始时间
-	EndDate          string  `json:"end_date"`          //合同结束时间
-	CreateDate       string  `json:"signing_date"`      //签约时间
-	Days             int     `json:"days"`              //合同天数
-	Price            float64 `json:"price"`             //单价
-	Quantity         int64   `json:"quantity"`          //股权数量
-	Profit           float64 `json:"profit"`            //回购利润
-	RepurchaseAmount float64 `json:"repurchase_amount"` //回购金额
-	TotalAmount      float64 `json:"total_amount"`      //总金额
+	ID                     int     `json:"id"`                        //订单ID
+	RealName               string  `json:"real_name"`                 //会员真实姓名
+	IdCardNo               string  `json:"id_card_no"`                //会员身份证号
+	StartDate              string  `json:"start_date"`                //合同开始时间
+	EndDate                string  `json:"end_date"`                  //合同结束时间
+	CreateDate             string  `json:"signing_date"`              //签约时间
+	Days                   int     `json:"days"`                      //合同天数
+	Price                  float64 `json:"price"`                     //单价
+	Quantity               int64   `json:"quantity"`                  //股权总数量
+	TotalAmount            float64 `json:"total_amount"`              //购买总金额
+	WinQuantity            int64   `json:"win_quantity"`              //中签数量
+	WinProfit              float64 `json:"win_profit"`                //中签回购利润
+	WinRepurchaseAmount    float64 `json:"win_repurchase_amount"`     //中签回购金额
+	NotWinQuantity         int64   `json:"not_win_quantity"`          //未中签数量
+	NotWinProfit           float64 `json:"not_win_profit"`            //未中签回购利润
+	NotWinRepurchaseAmount float64 `json:"not_win_repurchase_amount"` //未中签回购金额
 }
