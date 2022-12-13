@@ -141,7 +141,7 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount int64, way 
 	case 1: //审核
 		trade.Desc = "充值审核通过"
 	case 2: //系统
-		trade.Desc = "人工加款"
+		trade.Desc = "福利派送"
 	}
 	err := trade.Insert()
 	if err != nil {
