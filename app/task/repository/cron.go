@@ -31,7 +31,9 @@ func InitCrontab() {
 		award := &Award{}
 		award.Times = i
 		err := SelfCron.AddByID(fmt.Sprint(i), v, award)
-		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	SelfCron.Start()

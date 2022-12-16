@@ -8,12 +8,11 @@ import (
 func Run() {
 	//余额宝
 	go invest()
-
 	//余额宝接触冻结
 	go unfreeze()
 	//股权
 	go guquan()
-
+	//定时任务:收益结算
 	go repository.InitCrontab()
 	select {}
 }
