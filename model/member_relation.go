@@ -65,7 +65,7 @@ func (this *MemberRelation) InsertAll(result []MemberRelation) error {
 	return nil
 }
 
-//查询祖先
+// 查询祖先
 func (this *MemberRelation) GetByUid() ([]MemberRelation, error) {
 	var res []MemberRelation
 	err := global.DB.Model(this).Where("uid = ?", this.UID).Find(&res)
@@ -76,7 +76,7 @@ func (this *MemberRelation) GetByUid() ([]MemberRelation, error) {
 	return res, nil
 }
 
-//查询后代
+// 查询后代
 func (this *MemberRelation) GetByPuid(where string, args []interface{}, page, pageSize int) ([]MemberRelation, common.Page) {
 	res := make([]MemberRelation, 0)
 	pageUtil := common.Page{
@@ -100,7 +100,7 @@ func (this *MemberRelation) GetByPuid(where string, args []interface{}, page, pa
 	return res, pageUtil
 }
 
-//查询后代
+// 查询后代
 func (this *MemberRelation) GetByPuidAll(where string, args []interface{}) ([]*MemberRelation, int64) {
 
 	res := make([]*MemberRelation, 0)
@@ -119,4 +119,25 @@ func (this *MemberRelation) GetByPuidAll(where string, args []interface{}) ([]*M
 		}
 	}
 	return res, total
+}
+
+// 根据下线会员ID获取团队代理ID列表
+func (this *MemberRelation) GetTeamLeaderIds(userIds []int) []int {
+	res := make([]*MemberRelation, 0)
+	var proxyIds []int
+
+	tx := global.DB.Model(this).Select("DISTINCT puid").Where("uid in ?", userIds).Where("level > 0").Find(&res)
+	if tx.Error != nil {
+		logrus.Error(tx.Error)
+		return proxyIds
+	}
+	//当查询记录为空虹
+	if len(res) == 0 {
+		return proxyIds
+	}
+
+	for _, lines := range res {
+		proxyIds = append(proxyIds, lines.Puid)
+	}
+	return proxyIds
 }
