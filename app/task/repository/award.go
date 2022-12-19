@@ -36,7 +36,7 @@ func (this *Award) Run() {
 
 	//产品收益
 	o := model.OrderProduct{}
-	productOrder := o.GetAll(today)
+	productOrder := o.GetValidOrderList(today)
 	if len(productOrder) == 0 {
 		return
 	}
@@ -65,6 +65,7 @@ func (this *Award) Run() {
 		}
 
 		memberModel := model.Member{ID: productOrder[i].UID}
+		orderModel := model.OrderProduct{ID: productOrder[i].ID}
 		if capital > 0 {
 			//获取当前余额
 			memberModel.Get()
@@ -91,6 +92,13 @@ func (this *Award) Run() {
 			err := memberModel.Update("total_balance", "use_balance", "income", "p_income")
 			if err != nil {
 				logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, capital, err)
+			}
+
+			//更改订单状态:是否已返还投资本金
+			orderModel.IsReturnCapital = 1
+			err = orderModel.Update("is_return_capital")
+			if err != nil {
+				logrus.Errorf("修改产品订单返还本金状态失败  今日%v  订单ID %v err= &v", today, productOrder[i].ID, err)
 			}
 		}
 
@@ -137,46 +145,91 @@ func (this *Award) Run() {
 		if err != nil {
 			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, income2, err)
 		}
+	}
 
-		//团队注册人数分析(每月一日执行)
-		if time.Unix(today, 0).Day() == 1 {
+	// 团队收益结算
+	this.TeamIncome()
+}
+
+// 团队收益结算
+func (this *Award) TeamIncome() {
+	now := time.Now().Unix()
+	today := common.GetTodayZero()
+
+	//执行时间:每月1日执行
+	if time.Unix(today, 0).Day() == 1 {
+		year, month, _ := time.Now().Date()
+		thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+		//上个月开始与结束时间
+		teamStartTime := thisMonth.AddDate(0, -1, 0).Unix()
+		teamEndTime := thisMonth.Unix() - 1
+
+		//获取团队代理ID列表
+		orderModel := model.OrderProduct{}
+		userIds := orderModel.GetOrderUserIds(teamStartTime, teamEndTime)
+		if len(userIds) == 0 {
+			return
+		}
+
+		teamModel := model.MemberRelation{}
+		proxyIds := teamModel.GetTeamLeaderIds(userIds)
+		if len(proxyIds) == 0 {
+			return
+		}
+
+		for _, proxyId := range proxyIds {
+			//获取下线会员总人数
 			teams := model.MemberRelation{}
-			where := "puid = ? and Member.is_buy = 1"
-			args := []interface{}{productOrder[i].UID}
+			where := "c_member_relation.puid = ? and c_member_relation.level > 0 and Member.is_buy = 1"
+			args := []interface{}{proxyId}
 			users, count := teams.GetByPuidAll(where, args)
+
 			var totoalMoney int64
 			var income3 int64
 			var uids []int
-			if count >= 100 {
-				for i := range users {
+			//当下线有效会员总人数少于最低要求时
+			if count < 100 {
+				continue
+			}
+
+			for i := range users {
+				if users[i].Level <= 3 {
 					uids = append(uids, users[i].Member.ID)
 				}
-				//获取下级所有总价值
-				o := model.OrderProduct{}
-				where1 := "uid in (?) "
-				args1 := []interface{}{uids}
-				omoney := o.Sum(where1, args1, "pay_money")
-				totoalMoney = omoney
+			}
+			//当没有3级内下线会员时则跳过
+			if len(uids) == 0 {
+				continue
+			}
+
+			//获取下级所有总价值
+			o := model.OrderProduct{}
+			where1 := "uid in (?) and create_time >= ? and create_time <= ? and is_return_team = 0"
+			args1 := []interface{}{uids, teamStartTime, teamEndTime}
+			totoalMoney = o.Sum(where1, args1, "pay_money")
+			if totoalMoney == 0 {
+				continue
 			}
 
 			if count >= 100 && count < 500 {
-				income3 = totoalMoney * 750 / int64(model.UNITY)
+				income3 = totoalMoney * 75 / int64(model.UNITY)
 			} else if count >= 500 && count < 1000 {
-				income3 = totoalMoney * 990 / int64(model.UNITY)
+				income3 = totoalMoney * 99 / int64(model.UNITY)
 			} else if count >= 1000 && count < 3000 {
-				income3 = totoalMoney * 1370 / int64(model.UNITY)
+				income3 = totoalMoney * 137 / int64(model.UNITY)
 			} else if count >= 3000 && count < 5000 {
-				income3 = totoalMoney * 1690 / int64(model.UNITY)
+				income3 = totoalMoney * 169 / int64(model.UNITY)
 			} else if count >= 5000 {
-				income3 = totoalMoney * 2020 / int64(model.UNITY)
+				income3 = totoalMoney * 202 / int64(model.UNITY)
 			}
 
 			if income3 > 0 {
+				memberModel := model.Member{ID: proxyId}
 				//获取当前余额
 				memberModel.Get()
 				//存入收益列表
 				trade := model.Trade{
-					UID:        productOrder[i].UID,
+					UID:        proxyId,
 					TradeType:  21,
 					ItemID:     int(count),
 					Amount:     income3,
@@ -189,14 +242,21 @@ func (this *Award) Run() {
 				}
 				_ = trade.Insert()
 
+				//更改账户余额
 				memberModel.TotalBalance += income3
 				memberModel.UseBalance += income3
 				memberModel.Income += income3
-				err = memberModel.Update("total_balance", "use_balance", "income")
+				err := memberModel.Update("total_balance", "use_balance", "income")
 				if err != nil {
-					logrus.Errorf("修改余额失败  今日%v  用户ID %v 团队收益 %v err= &v", today, productOrder[i].UID, income3, err)
+					logrus.Errorf("修改余额失败  今日%v  用户ID %v 团队收益 %v err= &v", today, proxyId, income3, err)
 				}
 			}
 		}
+
+		//更改订单团队结算状态
+		orderModel2 := model.OrderProduct{IsReturnTeam: 1}
+		where2 := "create_time >= ? and create_time <= ? and is_return_team = 0"
+		args2 := []interface{}{teamStartTime, teamEndTime}
+		_ = orderModel2.UpdateTeamSettleStatus(where2, args2)
 	}
 }
