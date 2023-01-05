@@ -1,7 +1,7 @@
 package route
 
 import (
-	//_ "finance/app/api/docs"
+	_ "finance/app/api/docs"
 	"finance/app/api/middleware"
 	"finance/global"
 	"fmt"
