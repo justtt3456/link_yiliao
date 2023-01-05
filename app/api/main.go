@@ -12,10 +12,10 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// @title api
-// @version 2.0
-// @host 52.76.81.121:8000
-// @BasePath /api/v1
+//	@title		api
+//	@version	2.0
+//	@host		52.76.81.121:8000
+//	@BasePath	/api/v1
 func main() {
 	//初始化viper
 	global.VP = global.Viper()

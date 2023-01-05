@@ -14,12 +14,12 @@ type SignController struct {
 	controller.AuthController
 }
 
-// @Summary 签到
-// @Tags 签到
-// @Param token header string false "用户令牌"
-// @Param object query request.Request false "查询参数"
-// @Success 200 {object} response.Response
-// @Router /sign/sign [get]
+//	@Summary	签到
+//	@Tags		签到
+//	@Param		token	header		string			false	"用户令牌"
+//	@Param		object	query		request.Request	false	"查询参数"
+//	@Success	200		{object}	response.Response
+//	@Router		/sign/sign [get]
 func (this SignController) Sign(c *gin.Context) {
 	member := this.MemberInfo(c)
 	today := common.GetTodayZero()

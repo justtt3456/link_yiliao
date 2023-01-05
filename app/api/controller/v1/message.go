@@ -10,12 +10,12 @@ type MessageController struct {
 	controller.AuthController
 }
 
-// @Summary 站内信列表
-// @Tags 站内信
-// @Param object query request.Pagination false "查询参数"
-// @Param token header string false "用户令牌"
-// @Success 200 {object} response.MessageResponse
-// @Router /message/page_list [get]
+//	@Summary	站内信列表
+//	@Tags		站内信
+//	@Param		object	query		request.Pagination	false	"查询参数"
+//	@Param		token	header		string				false	"用户令牌"
+//	@Success	200		{object}	response.MessageResponse
+//	@Router		/message/page_list [get]
 func (this MessageController) PageList(c *gin.Context) {
 	s := service.Message{}
 	if err := c.ShouldBindQuery(&s); err != nil {
@@ -27,12 +27,12 @@ func (this MessageController) PageList(c *gin.Context) {
 	return
 }
 
-// @Summary 站内信已读
-// @Tags 站内信
-// @Param token header string false "用户令牌"
-// @Param object body request.Msg true "查询参数"
-// @Success 200 {object} response.Response
-// @Router /message/read [post]
+//	@Summary	站内信已读
+//	@Tags		站内信
+//	@Param		token	header		string		false	"用户令牌"
+//	@Param		object	body		request.Msg	true	"查询参数"
+//	@Success	200		{object}	response.Response
+//	@Router		/message/read [post]
 func (this MessageController) Read(c *gin.Context) {
 	s := service.MessageRead{}
 	if err := c.ShouldBindJSON(&s); err != nil {

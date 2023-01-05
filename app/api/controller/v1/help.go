@@ -14,11 +14,11 @@ type HelpController struct {
 	controller.Controller
 }
 
-// @Summary 公司简介和推荐奖励
-// @Tags 公司简介和推荐奖励
-// @Param object query request.Help false "查询参数"
-// @Success 200 {object} response.HelpListResponse
-// @Router /help/list [get]
+//	@Summary	公司简介和推荐奖励
+//	@Tags		公司简介和推荐奖励
+//	@Param		object	query		request.Help	false	"查询参数"
+//	@Success	200		{object}	response.HelpListResponse
+//	@Router		/help/list [get]
 func (this HelpController) List(c *gin.Context) {
 	var param request.Help
 	err := c.ShouldBindQuery(&param)

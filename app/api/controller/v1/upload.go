@@ -15,14 +15,14 @@ type UploadController struct {
 	controller.AuthController
 }
 
-// @Summary 图片上传
-// @Tags 上传
-// @Accept multipart/form-data
-// @Produce multipart/form-data
-// @Param token header string false "用户令牌"
-// @Param file formData file true "文件"
-// @Success 200 {object} response.UploadResponse
-// @Router /upload/image [post]
+//	@Summary	图片上传
+//	@Tags		上传
+//	@Accept		multipart/form-data
+//	@Produce	multipart/form-data
+//	@Param		token	header		string	false	"用户令牌"
+//	@Param		file	formData	file	true	"文件"
+//	@Success	200		{object}	response.UploadResponse
+//	@Router		/upload/image [post]
 func (this UploadController) UploadImage(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {

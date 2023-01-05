@@ -10,11 +10,11 @@ type ConfigController struct {
 	controller.Controller
 }
 
-// @Summary 配置项
-// @Tags 首页
-// @Param object query request.Request false "查询参数"
-// @Success 200 {object} response.ConfigResponse
-// @Router /config [get]
+//	@Summary	配置项
+//	@Tags		首页
+//	@Param		object	query		request.Request	false	"查询参数"
+//	@Success	200		{object}	response.ConfigResponse
+//	@Router		/config [get]
 func (this ConfigController) List(c *gin.Context) {
 	s := service.Config{}
 	err := c.ShouldBindQuery(&s)

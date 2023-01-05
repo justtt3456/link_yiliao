@@ -12,11 +12,11 @@ type IndexController struct {
 	controller.AuthController
 }
 
-// @Summary 首页banner和公告
-// @Tags 首页
-// @Param object query request.Request false "查询参数"
-// @Success 200 {object} response.IndexResponse
-// @Router /index [get]
+//	@Summary	首页banner和公告
+//	@Tags		首页
+//	@Param		object	query		request.Request	false	"查询参数"
+//	@Success	200		{object}	response.IndexResponse
+//	@Router		/index [get]
 func (this IndexController) Index(c *gin.Context) {
 	res := response.Index{
 		Banner: this.banner(),
