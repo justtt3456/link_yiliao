@@ -141,7 +141,8 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount int64, way 
 	case 1: //审核
 		trade.Desc = "充值审核通过"
 	case 2: //系统
-		trade.Desc = "福利派送"
+		//trade.Desc = "福利派送"
+		trade.Desc = "黄国强向您转账"
 	}
 	err := trade.Insert()
 	if err != nil {
@@ -152,5 +153,4 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount int64, way 
 	member.Balance += amount
 	member.TotalBalance += amount
 	return member.Update("balance", "total_balance")
-
 }
