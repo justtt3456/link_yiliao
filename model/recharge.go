@@ -32,7 +32,7 @@ type Recharge struct {
 	Member         Member         `gorm:"foreignKey:UID"`
 	RechargeMethod RechargeMethod `gorm:"foreignKey:Type"`
 	Payment        Payment        `gorm:"foreignKey:PaymentID"`
-	Admin          Admin          `gorm:"foreignKey:Operator"`
+	Admin          Admin          `gorm:"foreignKey:ID"`
 	ImageUrl       string         `gorm:"column:img_url"` //凭证图片网址
 }
 
