@@ -103,7 +103,7 @@ func (this WithdrawUpdateService) Update() error {
 			//回滚余额
 			user.UseBalance += m.TotalAmount
 			user.TotalBalance += m.TotalAmount
-			if err := user.Update("balance", "total_balance"); err != nil {
+			if err := user.Update("use_balance", "total_balance"); err != nil {
 				return err
 			}
 		case model.StatusAccept:
@@ -114,7 +114,7 @@ func (this WithdrawUpdateService) Update() error {
 		//更新状态 说明 操作者
 		err := m.Update("status", "description", "operator")
 		if err != nil {
-			return  err
+			return err
 		}
 	}
 
