@@ -139,7 +139,7 @@ func (this ProductController) BuyList(c *gin.Context) {
 // @Summary 用户购买的股权数据
 // @Tags 产品
 // @Param token header string false "用户令牌"
-// @Param object query request.BuyGuquanPageList false "查询参数"
+// @Param object query request.Request false "查询参数"
 // @Success 200 {object} response.BuyGuquanPageListResp
 // @Router /product/buy_guquan_list [get]
 func (this *ProductController) BuyGuquanList(c *gin.Context) {
