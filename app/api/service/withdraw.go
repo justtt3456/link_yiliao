@@ -72,12 +72,19 @@ type WithdrawCreate struct {
 }
 
 func (this WithdrawCreate) Create(member model.Member) error {
+	//用户提现状态
 	if member.FundsStatus != model.StatusOk {
 		return errors.New(lang.Lang("The current account has been frozen!"))
 	}
+	//提金额
+	if this.TotalAmount <= 0 {
+		return errors.New(lang.Lang("The withdrawal amount format is incorrect"))
+	}
+	//提现方式
 	if this.Method == 0 {
 		return errors.New(lang.Lang("Wrong withdrawal method"))
 	}
+	//银行卡ID
 	if this.ID == 0 {
 		return errors.New(lang.Lang("Bank card does not exist"))
 	}

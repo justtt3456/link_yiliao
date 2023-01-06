@@ -236,13 +236,17 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 			logrus.Errorf("可用转可提 记录失败%v", err)
 		}
 	case 2:
+		//当前余额分析
+		if amount > member.UseBalance {
+			return errors.New("可用提现金额不足!")
+		}
 		trade := model.Trade{UID: member.ID, TradeType: 6}
 		count, err := trade.CountByToday()
 		if err != nil {
 			return err
 		}
 		if count >= c.DayTurnMoneyNum {
-			return errors.New(fmt.Sprintf("每日只能转%v", c.DayTurnMoneyNum))
+			return errors.New(fmt.Sprintf("每日只能转账%v次", c.DayTurnMoneyNum))
 		}
 
 		member.UseBalance -= amount

@@ -105,4 +105,5 @@ var zh_cn map[string]string = map[string]string{
 	"Minimum purchase %d":                                          "最低购买%d",
 	"Closed on weekends":                                           "周末休市中",
 	"credential image must be required!":                           "支付凭证图片不能为空!",
+	"The withdrawal amount format is incorrect":                    "提现金额格式不正确",
 }

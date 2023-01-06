@@ -105,4 +105,5 @@ var zh_hk map[string]string = map[string]string{
 	"Minimum purchase %d":                                          "最低購買%d",
 	"Closed on weekends":                                           "週末休市中",
 	"credential image must be required!":                           "支付憑證圖片不能為空!",
+	"The withdrawal amount format is incorrect":                    "提現金額格式不正確",
 }
