@@ -392,6 +392,8 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
 	for i := range list {
+		p := model.MemberRelation{UID: list[i].Member.ID, Level: 1}
+		p.Get2()
 		items = append(items, response.MemberInfo{
 			ID:               list[i].Member.ID,
 			Username:         list[i].Member.Username,
@@ -421,6 +423,8 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 			DisableBetTime:   list[i].Member.DisableBetTime,
 			Code:             list[i].Member.Code,
 			IsBuy:            list[i].Member.IsBuy,
+			TopId:            p.Puid,
+			TopName:          p.Member2.Username,
 		})
 	}
 	res.List = items
@@ -431,7 +435,7 @@ type SendCoupon struct {
 	request.SendCouponReq
 }
 
-func (this SendCoupon) Send() (error) {
+func (this SendCoupon) Send() error {
 	s := strings.Split(this.Ids, ",")
 	if len(s) == 0 {
 		return errors.New("用户ID不能为空")
@@ -461,6 +465,6 @@ type GetCode struct {
 	request.GetCodeReq
 }
 
-func (this *GetCode)GetCode()(string)  {
+func (this *GetCode) GetCode() string {
 	return global.REDIS.Get(fmt.Sprintf("reg_%v", this.Mobile)).Val()
 }
