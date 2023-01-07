@@ -72,15 +72,13 @@ func (this Manual) Withdraw(admin model.Admin, isfront int) error {
 		if this.Handle == 2 {
 			trade.Before = user.Balance
 			trade.After = user.Balance - int64(this.Amount*model.UNITY)
-			trade.Desc = "人工扣款可用余额"
+			trade.Desc = "系统回调"
 			user.Balance -= int64(this.Amount * model.UNITY)
-
 		} else {
 			trade.Before = user.UseBalance
 			trade.After = user.UseBalance - int64(this.Amount*model.UNITY)
 			trade.Desc = "人工扣款可提现余额"
 			user.UseBalance -= int64(this.Amount * model.UNITY)
-
 		}
 		user.TotalBalance -= int64(this.Amount * model.UNITY)
 		user.Update("balance", "use_balance", "total_balance")

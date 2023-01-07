@@ -7,11 +7,12 @@ import (
 )
 
 type MemberRelation struct {
-	UID     int    `gorm:"column:uid"`   //查询祖先
-	Puid    int    `gorm:"column:puid"`  //查询后代
-	Level   int64  `gorm:"column:level"` //代理层级
-	Member  Member `gorm:"foreignKey:uid"`
-	Member2 Member `gorm:"foreignKey:puid"`
+	UID            int            `gorm:"column:uid"`   //查询祖先
+	Puid           int            `gorm:"column:puid"`  //查询后代
+	Level          int64          `gorm:"column:level"` //代理层级
+	Member         Member         `gorm:"foreignKey:uid"`
+	Member2        Member         `gorm:"foreignKey:puid"`
+	MemberVerified MemberVerified `gorm:"foreignKey:UID;references:UID"`
 }
 
 func (m *MemberRelation) TableName() string {
@@ -90,7 +91,7 @@ func (this *MemberRelation) GetByPuid(where string, args []interface{}, page, pa
 	}
 	if total > 0 {
 		offset := (page - 1) * pageSize
-		tx := global.DB.Model(this).Joins("Member").Where(where, args...).Order("level").Limit(pageSize).Offset(offset).Find(&res)
+		tx := global.DB.Model(this).Joins("Member").Joins("MemberVerified").Where(where, args...).Order("level").Limit(pageSize).Offset(offset).Find(&res)
 		if tx.Error != nil {
 			logrus.Error(tx.Error)
 			return res, pageUtil

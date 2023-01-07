@@ -57,7 +57,6 @@ func (this ManualController) Handle(c *gin.Context) {
 		}
 		this.Json(c, 0, "ok", nil)
 		return
-
 	}
 
 	this.Json(c, 10001, "参数错误", nil)

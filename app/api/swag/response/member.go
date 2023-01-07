@@ -48,11 +48,12 @@ type Coupon struct {
 }
 
 type MyTeam struct {
-	ID       int     `json:"id"`       //
-	Username string  `json:"username"` //用户名
-	Level    int     `json:"level"`    //层级
-	RegTime  int64   `json:"reg_time"` //注册时间
-	Income   float64 `json:"income"`   //收益
+	ID       int     `json:"id"`        //
+	Username string  `json:"username"`  //用户名
+	Level    int     `json:"level"`     //层级
+	RegTime  int64   `json:"reg_time"`  //注册时间
+	Income   float64 `json:"income"`    //收益
+	RealName string  `json:"real_name"` //实名姓名
 }
 
 type MyTeamList struct {
