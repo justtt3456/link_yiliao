@@ -106,4 +106,7 @@ var zh_cn map[string]string = map[string]string{
 	"Closed on weekends":                                           "周末休市中",
 	"credential image must be required!":                           "支付凭证图片不能为空!",
 	"The withdrawal amount format is incorrect":                    "提现金额格式不正确",
+	"The phone format is incorrect":                                "手机格式不正确",
+	"The ID card format is incorrect":                              "身份证格式不正确",
+	"The ID number has been submitted for certification":           "该身份证号已提交认证",
 }

@@ -99,10 +99,10 @@ func (this MemberVerified) Verified(member model.Member) error {
 	}
 
 	if !common.IsMobile(this.Mobile, global.Language) {
-		return errors.New("手机格式不正确")
+		return errors.New(lang.Lang("The phone format is incorrect"))
 	}
 	if !common.IsIdCard(this.IDNumber) {
-		return errors.New("身份证格式不正确")
+		return errors.New(lang.Lang("The ID card format is incorrect"))
 	}
 
 	if member.IsReal == model.StatusAccept {
@@ -114,10 +114,11 @@ func (this MemberVerified) Verified(member model.Member) error {
 	}
 	//当身份证号已存在时
 	if ex.Get() {
-		if ex.UID != member.ID {
-			return errors.New("该身份证已绑定其他账号")
+		//当实名状态为待审核或已审核时,直接返回信息提示
+		if ex.Status == model.StatusAccept || ex.Status == model.StatusReview {
+			return errors.New(lang.Lang("The ID number has been submitted for certification"))
 		}
-
+		//当实名状态为已驳回时,将旧数据删除
 		if ex.Status == model.StatusRollback {
 			//删除驳回认证
 			ex.Remove()
