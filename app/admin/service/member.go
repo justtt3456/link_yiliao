@@ -371,6 +371,7 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	for i := range users {
 		childIds = append(childIds, users[i].Member.ID)
 	}
+
 	where3 := "uid in (?) "
 	args3 := []interface{}{childIds}
 	product := model.OrderProduct{}
@@ -385,46 +386,52 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	totalSumUseBalance := m1.Sum(where4, args4, "use_balance")
 	//总总收益
 	totalSumIncome := m1.Sum(where4, args4, "income")
-	res.TotalSumBalance = float64(totalSumProduct) / model.UNITY
+	res.TotalSumProduct = float64(totalSumProduct) / model.UNITY
 	res.TotalSumBalance = float64(totalSumBalance) / model.UNITY
 	res.TotalSumUseBalance = float64(totalSumUseBalance) / model.UNITY
 	res.TotalSumIncome = float64(totalSumIncome) / model.UNITY
+	res.TotalMemberCount = len(childIds)
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
 	for i := range list {
 		p := model.MemberRelation{UID: list[i].Member.ID, Level: 1}
 		p.Get2()
+		//获取用户投资金额
+		orderModel := model.OrderProduct{}
+		payMondyAmount := orderModel.Sum("id = ?", []interface{}{list[i].Member.ID}, "pay_money")
+
 		items = append(items, response.MemberInfo{
-			ID:               list[i].Member.ID,
-			Username:         list[i].Member.Username,
-			TotalBalance:     float64(list[i].Member.TotalBalance) / model.UNITY,
-			Balance:          float64(list[i].Member.Balance) / model.UNITY,
-			UseBalance:       float64(list[i].Member.UseBalance) / model.UNITY,
-			IsReal:           list[i].Member.IsReal,
-			RealName:         list[i].Member.RealName,
-			InvestFreeze:     float64(list[i].Member.InvestFreeze) / model.UNITY,
-			InvestAmount:     float64(list[i].Member.InvestAmount) / model.UNITY,
-			InvestIncome:     float64(list[i].Member.InvestIncome) / model.UNITY,
-			Avatar:           list[i].Member.Avatar,
-			Status:           list[i].Member.Status,
-			FundsStatus:      list[i].Member.FundsStatus,
-			Level:            int(list[i].Level),
-			Score:            list[i].Member.Score,
-			LastLoginTime:    list[i].Member.LastLoginTime,
-			LastLoginIP:      list[i].Member.LastLoginIP,
-			RegTime:          list[i].Member.RegTime,
-			RegisterIP:       list[i].Member.RegisterIP,
-			Nickname:         list[i].Member.Nickname,
-			Mobile:           list[i].Member.Mobile,
-			Email:            list[i].Member.Email,
-			Qq:               list[i].Member.Qq,
-			Wechat:           list[i].Member.Wechat,
-			DisableLoginTime: list[i].Member.DisableLoginTime,
-			DisableBetTime:   list[i].Member.DisableBetTime,
-			Code:             list[i].Member.Code,
-			IsBuy:            list[i].Member.IsBuy,
-			TopId:            p.Puid,
-			TopName:          p.Member2.Username,
+			ID:                 list[i].Member.ID,
+			Username:           list[i].Member.Username,
+			TotalBalance:       float64(list[i].Member.TotalBalance) / model.UNITY,
+			Balance:            float64(list[i].Member.Balance) / model.UNITY,
+			UseBalance:         float64(list[i].Member.UseBalance) / model.UNITY,
+			IsReal:             list[i].Member.IsReal,
+			RealName:           list[i].Member.RealName,
+			InvestFreeze:       float64(list[i].Member.InvestFreeze) / model.UNITY,
+			InvestAmount:       float64(list[i].Member.InvestAmount) / model.UNITY,
+			InvestIncome:       float64(list[i].Member.InvestIncome) / model.UNITY,
+			Avatar:             list[i].Member.Avatar,
+			Status:             list[i].Member.Status,
+			FundsStatus:        list[i].Member.FundsStatus,
+			Level:              int(list[i].Level),
+			Score:              list[i].Member.Score,
+			LastLoginTime:      list[i].Member.LastLoginTime,
+			LastLoginIP:        list[i].Member.LastLoginIP,
+			RegTime:            list[i].Member.RegTime,
+			RegisterIP:         list[i].Member.RegisterIP,
+			Nickname:           list[i].Member.Nickname,
+			Mobile:             list[i].Member.Mobile,
+			Email:              list[i].Member.Email,
+			Qq:                 list[i].Member.Qq,
+			Wechat:             list[i].Member.Wechat,
+			DisableLoginTime:   list[i].Member.DisableLoginTime,
+			DisableBetTime:     list[i].Member.DisableBetTime,
+			Code:               list[i].Member.Code,
+			IsBuy:              list[i].Member.IsBuy,
+			TopId:              p.Puid,
+			TopName:            p.Member2.Username,
+			ProductOrderAmount: float64(payMondyAmount) / model.UNITY,
 		})
 	}
 	res.List = items
