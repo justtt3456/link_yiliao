@@ -13,7 +13,7 @@ func IsMobile(mobile string, lang string) bool {
 }
 
 func cnMobile(mobile string) bool {
-	regular := "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|195|198|199|(147))\\d{8}$"
+	regular := "^(13|14|15|16|17|18|19)\\d{9}$"
 	reg := regexp.MustCompile(regular)
 	return reg.MatchString(mobile)
 }
