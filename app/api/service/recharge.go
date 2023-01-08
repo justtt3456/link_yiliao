@@ -229,7 +229,7 @@ func (this RechargeList) formatList(lists []model.Recharge) []response.Recharge 
 }
 func (this RechargeList) getWhere(uid int) (string, []interface{}, error) {
 	where := map[string]interface{}{
-		"uid": uid,
+		model.Recharge{}.TableName() + ".uid": uid,
 	}
 	if this.Status > 0 {
 		where[model.Recharge{}.TableName()+".status"] = this.Status
