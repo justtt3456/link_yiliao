@@ -43,7 +43,7 @@ func (this *SetBase) Get() bool {
 }
 func (this *SetBase) Update() error {
 	//全部更新
-	res := global.DB.Updates(this)
+	res := global.DB.Save(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return res.Error

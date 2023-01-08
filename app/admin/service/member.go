@@ -286,7 +286,7 @@ func (this MemberVerifiedUpdate) Update() error {
 	}
 	c := model.SetBase{}
 	c.Get()
-	if member.IsOneShiming == 1 && this.Status == 2 {
+	if c.VerifiedSend > 0 && member.IsOneShiming == 1 && this.Status == 2 {
 		//加入账变记录
 		trade := model.Trade{
 			UID:        member.ID,

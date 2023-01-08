@@ -42,10 +42,10 @@ func (this ConfigBaseUpdate) Update() error {
 			AppName:      this.AppName,
 			AppLogo:      this.AppLogo,
 			VerifiedSend: int(this.VerifiedSend * model.UNITY),
-			RegisterSend: int(this.VerifiedSend * model.UNITY),
-			OneSend:      int(this.VerifiedSend * model.UNITY),
-			TwoSend:      int(this.VerifiedSend * model.UNITY),
-			ThreeSend:    int(this.VerifiedSend * model.UNITY),
+			RegisterSend: int(this.RegisterSend * model.UNITY),
+			OneSend:      int(this.OneSend * model.UNITY),
+			TwoSend:      int(this.TwoSend * model.UNITY),
+			ThreeSend:    int(this.ThreeSend * model.UNITY),
 			SendDesc:     this.SendDesc,
 			RegisterDesc: this.RegisterDesc,
 			TeamDesc:     this.TeamDesc,
@@ -151,7 +151,7 @@ func (this ConfigFundsUpdate) Update() error {
 	}
 }
 
-//bank
+// bank
 type ConfigBankList struct {
 }
 
@@ -269,7 +269,7 @@ func (this ConfigBankRemove) Remove() error {
 	return m.Remove()
 }
 
-//alipay
+// alipay
 type ConfigAlipayList struct {
 }
 
@@ -371,7 +371,7 @@ func (this ConfigAlipayRemove) Remove() error {
 	return m.Remove()
 }
 
-//usdt
+// usdt
 type ConfigUsdtList struct {
 }
 
@@ -470,7 +470,7 @@ func (this ConfigUsdtRemove) Remove() error {
 	return m.Remove()
 }
 
-//kf
+// kf
 type ConfigKfList struct {
 }
 
@@ -547,7 +547,7 @@ func (this ConfigKfUpdateStatus) UpdateStatus() error {
 	return m.Update("status")
 }
 
-//lang
+// lang
 type ConfigLangList struct {
 	Status int `form:"status"`
 }
@@ -593,7 +593,7 @@ func (this ConfigLangUpdateStatus) UpdateStatus() error {
 	return m.Update("status")
 }
 
-//recharge method
+// recharge method
 type ConfigRechargeMethodList struct {
 }
 
@@ -652,7 +652,7 @@ func (this ConfigRechargeMethodUpdateStatus) UpdateStatus() error {
 	return m.Update("status")
 }
 
-//withdraw method
+// withdraw method
 type ConfigWithdrawMethodList struct {
 }
 
