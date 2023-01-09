@@ -128,3 +128,14 @@ func (this *Recharge) Get() bool {
 
 	return true
 }
+
+// 获取会员充值总人数
+func (r *Recharge) GetMemberCount(where string, args []interface{}) int {
+	var total int
+	tx := global.DB.Model(r).Select("COUNT(DISTINCT uid)").Where(where, args...).First(&total)
+	if tx.Error != nil {
+		logrus.Error(tx.Error)
+		return 0
+	}
+	return total
+}

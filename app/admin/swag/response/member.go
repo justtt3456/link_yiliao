@@ -17,6 +17,8 @@ type MemberListData struct {
 	TodayRechargeAmount float64      `json:"today_recharge_amount"` //今日团队总充值金额
 	TotalWithdrawAmount float64      `json:"total_withdraw_amount"` //团队总提现金额
 	TodayWithdrawAmount float64      `json:"today_withdraw_amount"` //今日团队总提现金额
+	TotalRechargeCount  int          `json:"total_recharge_count"`  //团队充值总人数
+	TodayRechargeCount  int          `json:"today_recharge_count"`  //今日团队充值总人数
 }
 type MemberInfo struct {
 	ID                 int     `json:"id"`                   //

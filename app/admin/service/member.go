@@ -412,6 +412,18 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	args8 := []interface{}{todayZeroTime, childIds}
 	todayWithdrawAmount := withdrawModel2.Sum(where8, args8, "total_amount")
 
+	//充值总人数
+	rechargeModel3 := model.Recharge{}
+	where9 := "uid in (?) and status = 2"
+	args9 := []interface{}{childIds}
+	totalRechargeCount := rechargeModel3.GetMemberCount(where9, args9)
+
+	//今日充值人数
+	rechargeModel4 := model.Recharge{}
+	where10 := "update_time >= ? and uid in (?) and status = 2"
+	args10 := []interface{}{todayZeroTime, childIds}
+	todayRechargeCount := rechargeModel4.GetMemberCount(where10, args10)
+
 	res.TotalSumProduct = float64(totalSumProduct) / model.UNITY
 	res.TotalSumBalance = float64(totalSumBalance) / model.UNITY
 	res.TotalSumUseBalance = float64(totalSumUseBalance) / model.UNITY
@@ -421,6 +433,8 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	res.TotalWithdrawAmount = float64(totalWithdrawAmount) / model.UNITY
 	res.TodayRechargeAmount = float64(todayRechargeAmount) / model.UNITY
 	res.TodayWithdrawAmount = float64(todayWithdrawAmount) / model.UNITY
+	res.TotalRechargeCount = totalRechargeCount
+	res.TodayRechargeCount = todayRechargeCount
 
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
