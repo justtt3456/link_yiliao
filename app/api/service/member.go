@@ -105,24 +105,34 @@ func (this MemberVerified) Verified(member model.Member) error {
 		return errors.New(lang.Lang("The ID card format is incorrect"))
 	}
 
+	//会员实名认证后,无需再提交认证信息
 	if member.IsReal == model.StatusAccept {
 		return errors.New(lang.Lang("Real name authentication already exists"))
 	}
+	//分析会员是否提交实名认证信息
+	info := model.MemberVerified{
+		UID: member.ID,
+	}
+	//当会员已提交认证信息时
+	if info.Get() {
+		//当实名状态为待审核或已审核时,直接返回信息提示
+		if info.Status == model.StatusAccept || info.Status == model.StatusReview {
+			return errors.New(lang.Lang("You have submitted real name authentication"))
+		}
+		//当实名状态为已驳回时,将旧数据删除
+		if info.Status == model.StatusRollback {
+			//删除驳回认证
+			info.Remove()
+		}
+	}
+
 	//同一个身份证号只可以认证一次
 	ex := model.MemberVerified{
 		IDNumber: this.IDNumber,
 	}
 	//当身份证号已存在时
 	if ex.Get() {
-		//当实名状态为待审核或已审核时,直接返回信息提示
-		if ex.Status == model.StatusAccept || ex.Status == model.StatusReview {
-			return errors.New(lang.Lang("The ID number has been submitted for certification"))
-		}
-		//当实名状态为已驳回时,将旧数据删除
-		if ex.Status == model.StatusRollback {
-			//删除驳回认证
-			ex.Remove()
-		}
+		return errors.New(lang.Lang("The ID number has been submitted for certification"))
 	}
 
 	m := model.MemberVerified{

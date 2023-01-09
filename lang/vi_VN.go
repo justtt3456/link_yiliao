@@ -108,4 +108,5 @@ var vi_VN map[string]string = map[string]string{
 	"The phone format is incorrect":                      "Định dạng điện thoại không chính xác",
 	"The ID card format is incorrect":                    "Định dạng ID không chính xác",
 	"The ID number has been submitted for certification": "Số ID đã được gửi để chứng nhận",
+	"You have submitted real name authentication":        "Thông tin xác thực tên thật của bạn đã tồn tại",
 }

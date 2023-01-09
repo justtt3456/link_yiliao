@@ -108,4 +108,5 @@ var ja_JP map[string]string = map[string]string{
 	"The phone format is incorrect":                      "電話の形式が正しくありません",
 	"The ID card format is incorrect":                    "ID 形式が正しくありません",
 	"The ID number has been submitted for certification": "ID 番号が認証のために送信されました",
+	"You have submitted real name authentication":        "あなたの実名認証情報は既に存在します",
 }
