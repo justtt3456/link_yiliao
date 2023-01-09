@@ -91,7 +91,7 @@ func (this *MemberRelation) GetByPuid(where string, args []interface{}, page, pa
 	}
 	if total > 0 {
 		offset := (page - 1) * pageSize
-		tx := global.DB.Model(this).Joins("Member").Joins("MemberVerified").Where(where, args...).Order("level").Limit(pageSize).Offset(offset).Find(&res)
+		tx := global.DB.Model(this).Joins("Member").Joins("MemberVerified").Where(where, args...).Order(this.TableName() + ".uid ASC").Order("level").Limit(pageSize).Offset(offset).Find(&res)
 		if tx.Error != nil {
 			logrus.Error(tx.Error)
 			return res, pageUtil
@@ -113,7 +113,7 @@ func (this *MemberRelation) GetByPuidAll(where string, args []interface{}) ([]*M
 		return res, total
 	}
 	if total > 0 {
-		tx := global.DB.Model(this).Joins("Member").Where(where, args...).Find(&res)
+		tx := global.DB.Model(this).Joins("Member").Where(where, args...).Order(this.TableName() + ".uid ASC").Find(&res)
 		if tx.Error != nil {
 			logrus.Error(tx.Error)
 			return res, total

@@ -6,13 +6,17 @@ type MemberListResponse struct {
 	Data MemberListData `json:"data"`
 }
 type MemberListData struct {
-	List               []MemberInfo `json:"list"`
-	TotalSumProduct    float64      `json:"total_sum_product"`
-	TotalSumBalance    float64      `json:"total_sum_balance"`
-	TotalSumUseBalance float64      `json:"total_sum_use_balance"`
-	TotalSumIncome     float64      `json:"total_sum_income"`
-	Page               Page         `json:"page"`
-	TotalMemberCount   int          `json:"count"`
+	List                []MemberInfo `json:"list"`
+	TotalSumProduct     float64      `json:"total_sum_product"`
+	TotalSumBalance     float64      `json:"total_sum_balance"`
+	TotalSumUseBalance  float64      `json:"total_sum_use_balance"`
+	TotalSumIncome      float64      `json:"total_sum_income"`
+	Page                Page         `json:"page"`
+	TotalMemberCount    int          `json:"count"`                 //团队总人数
+	TotalRechargeAmount float64      `json:"total_recharge_amount"` //团队总充值金额
+	TodayRechargeAmount float64      `json:"today_recharge_amount"` //今日团队总充值金额
+	TotalWithdrawAmount float64      `json:"total_withdraw_amount"` //团队总提现金额
+	TodayWithdrawAmount float64      `json:"today_withdraw_amount"` //今日团队总提现金额
 }
 type MemberInfo struct {
 	ID                 int     `json:"id"`                   //

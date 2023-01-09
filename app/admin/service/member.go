@@ -378,7 +378,7 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	totalSumProduct := product.Sum(where3, args3, "pay_money")
 
 	m1 := model.Member{}
-	where4 := "id in (?) "
+	where4 := "id in (?)"
 	args4 := []interface{}{childIds}
 	//总可用
 	totalSumBalance := m1.Sum(where4, args4, "balance")
@@ -386,11 +386,42 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	totalSumUseBalance := m1.Sum(where4, args4, "use_balance")
 	//总总收益
 	totalSumIncome := m1.Sum(where4, args4, "income")
+
+	//总充值
+	rechargeModel := model.Recharge{}
+	where5 := "uid in (?) and status = 2"
+	args5 := []interface{}{childIds}
+	totalRechargeAmount := rechargeModel.Sum(where5, args5, "amount")
+
+	//总提现
+	withdrawModel := model.Withdraw{}
+	where6 := "uid in (?) and status = 2"
+	args6 := []interface{}{childIds}
+	totalWithdrawAmount := withdrawModel.Sum(where6, args6, "total_amount")
+
+	todayZeroTime := common.GetTodayZero()
+	//今日总充值
+	rechargeModel2 := model.Recharge{}
+	where7 := "update_time >= ? and uid in (?) and status = 2"
+	args7 := []interface{}{todayZeroTime, childIds}
+	todayRechargeAmount := rechargeModel2.Sum(where7, args7, "amount")
+
+	//今日总提现
+	withdrawModel2 := model.Withdraw{}
+	where8 := "update_time >= ? and uid in (?) and status = 2"
+	args8 := []interface{}{todayZeroTime, childIds}
+	todayWithdrawAmount := withdrawModel2.Sum(where8, args8, "total_amount")
+
 	res.TotalSumProduct = float64(totalSumProduct) / model.UNITY
 	res.TotalSumBalance = float64(totalSumBalance) / model.UNITY
 	res.TotalSumUseBalance = float64(totalSumUseBalance) / model.UNITY
 	res.TotalSumIncome = float64(totalSumIncome) / model.UNITY
 	res.TotalMemberCount = len(childIds)
+	res.TotalRechargeAmount = float64(totalRechargeAmount) / model.UNITY
+	res.TotalWithdrawAmount = float64(totalWithdrawAmount) / model.UNITY
+	res.TodayRechargeAmount = float64(todayRechargeAmount) / model.UNITY
+	res.TodayWithdrawAmount = float64(todayWithdrawAmount) / model.UNITY
+
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
 	for i := range list {
@@ -398,7 +429,7 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 		p.Get2()
 		//获取用户投资金额
 		orderModel := model.OrderProduct{}
-		payMondyAmount := orderModel.Sum("id = ?", []interface{}{list[i].Member.ID}, "pay_money")
+		payMondyAmount := orderModel.Sum("uid = ?", []interface{}{list[i].Member.ID}, "pay_money")
 
 		items = append(items, response.MemberInfo{
 			ID:                 list[i].Member.ID,
