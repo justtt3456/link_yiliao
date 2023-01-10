@@ -639,7 +639,16 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 	var income int64
 	var t int
 	if level == 1 {
-		income = c.OneSendMoeny + int64(c.OneSend)*productOrder.PayMoney/int64(model.UNITY)
+		income = int64(c.OneSend) * productOrder.PayMoney / int64(model.UNITY)
+		//检测会员的订单
+		ordersModel := model.OrderProduct{
+			UID:         productOrder.UID,
+			IsReturnTop: 2,
+		}
+		//会员第一次下单, 直接上级发放红包
+		if !ordersModel.Get() {
+			income += c.OneSendMoeny
+		}
 		t = 18
 	} else if level == 2 {
 		income = int64(c.TwoSend) * productOrder.PayMoney / int64(model.UNITY)
