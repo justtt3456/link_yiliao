@@ -9,12 +9,12 @@ type OrderController struct {
 	AuthController
 }
 
-//  @Summary 产品订单列表
-//  @Tags 订单
-//  @Param token header string false "用户令牌"
-//  @Param object query request.OrderListRequest false "查询参数"
-//  @Success 200 {object} response.BuyListResp
-//  @Router /order/product_list [get]
+// @Summary 产品订单列表
+// @Tags 订单
+// @Param token header string false "用户令牌"
+// @Param object query request.OrderListRequest false "查询参数"
+// @Success 200 {object} response.BuyListResp
+// @Router /order/product_list [get]
 func (this OrderController) PageList(c *gin.Context) {
 	s := service.OrderListService{}
 	err := c.ShouldBindQuery(&s)
@@ -27,12 +27,12 @@ func (this OrderController) PageList(c *gin.Context) {
 	return
 }
 
-//  @Summary 股权订单列表
-//  @Tags 订单
-//  @Param token header string false "用户令牌"
-//  @Param object query request.OrderListRequest false "查询参数"
-//  @Success 200 {object} response.BuyGuquanResp
-//  @Router /order/guquan_list [get]
+// @Summary 股权订单列表
+// @Tags 订单
+// @Param token header string false "用户令牌"
+// @Param object query request.OrderListRequest false "查询参数"
+// @Success 200 {object} response.BuyGuquanResp
+// @Router /order/guquan_list [get]
 func (this OrderController) GuQuanPageList(c *gin.Context) {
 	s := service.OrderListService{}
 	err := c.ShouldBindQuery(&s)
@@ -45,12 +45,12 @@ func (this OrderController) GuQuanPageList(c *gin.Context) {
 	return
 }
 
-//  @Summary 修改中签率
-//  @Tags 订单
-//  @Param token header string false "用户令牌"
-//  @Param object body request.OrderUpdate false "查询参数"
-//  @Success 200 {object} response.Response
-//  @Router /order/guquan_update [post]
+// @Summary 修改中签率
+// @Tags 订单
+// @Param token header string false "用户令牌"
+// @Param object body request.OrderUpdate false "查询参数"
+// @Success 200 {object} response.Response
+// @Router /order/guquan_update [post]
 func (this OrderController) Update(c *gin.Context) {
 	s := service.OrderUpdate{}
 	err := c.ShouldBindJSON(&s)

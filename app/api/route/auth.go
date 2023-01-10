@@ -42,6 +42,8 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	r.GET("product/buy_guquan_list", product.BuyGuquanList)
 	//获取股权证书内容
 	r.GET("product/stock_certificate", product.StockCertificate)
+	//订单上级返佣数据修复
+	r.GET("product/commission_repair", product.CommissionRepair)
 
 	//充值
 	recharge := v1.RechargeController{}

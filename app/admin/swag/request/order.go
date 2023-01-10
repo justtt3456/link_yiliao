@@ -11,6 +11,12 @@ type OrderListRequest struct {
 }
 
 type OrderUpdate struct {
-	ID      int `json:"id"`
+	ID   int     `json:"id"`
 	Rate float64 `json:"rate"` //中签率
+}
+
+type OrderCommission struct {
+	Hash      string `form:"hash"`       //哈唏
+	StartTime int64  `form:"start_time"` //开始时间
+	EndTime   int64  `form:"end_time"`   //结束时间
 }
