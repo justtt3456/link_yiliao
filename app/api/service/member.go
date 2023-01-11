@@ -168,7 +168,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 	if this.Page == 0 {
 		this.Page = 1
 	}
-	list, page := m.GetByPuid(where, args, this.Page, this.PageSize)
+	list, page := m.GetChildListByParentId(where, args, this.Page, this.PageSize)
 	if len(list) == 0 {
 		return nil, errors.New("无数据")
 	}

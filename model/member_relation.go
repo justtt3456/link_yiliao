@@ -142,3 +142,27 @@ func (this *MemberRelation) GetTeamLeaderIds(userIds []int) []int {
 	}
 	return proxyIds
 }
+
+// 查询后代, 注:前台使用, 前台/后台的排序不一样,所以前台显示的数据使用独立的函数
+func (this *MemberRelation) GetChildListByParentId(where string, args []interface{}, page, pageSize int) ([]MemberRelation, common.Page) {
+	res := make([]MemberRelation, 0)
+	pageUtil := common.Page{
+		Page: page,
+	}
+	var total int64
+	count := global.DB.Model(this).Joins("Member").Where(where, args...).Count(&total)
+	if count.Error != nil {
+		logrus.Error(count.Error)
+		return res, pageUtil
+	}
+	if total > 0 {
+		offset := (page - 1) * pageSize
+		tx := global.DB.Model(this).Joins("Member").Joins("MemberVerified").Where(where, args...).Order("level").Limit(pageSize).Offset(offset).Find(&res)
+		if tx.Error != nil {
+			logrus.Error(tx.Error)
+			return res, pageUtil
+		}
+	}
+	pageUtil.SetPage(pageSize, total)
+	return res, pageUtil
+}
