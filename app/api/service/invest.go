@@ -96,7 +96,7 @@ func (this InvestOrder) Insert(member model.Member) error {
 			return errors.New(lang.Lang("Parameter error"))
 		}
 		if amount < c.MinAmount {
-			return errors.New(fmt.Sprintf("最小转入金额%v", c.MinAmount))
+			return errors.New(fmt.Sprintf("最小转入金额%v", float64(c.MinAmount)/model.UNITY))
 		}
 		today := common.GetTodayZero()
 		m := model.InvestOrder{

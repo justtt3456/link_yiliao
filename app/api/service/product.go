@@ -714,11 +714,16 @@ func (this BuyProducList) List(member *model.Member) *response.BuyListResp {
 	}
 	items := make([]response.BuyList, 0)
 	for i := range list {
+		//订单状态
+		orderStatus := 1
+		if list[i].IsReturnCapital == 1 {
+			orderStatus = 2
+		}
 		items = append(items, response.BuyList{
 			Name:    list[i].Product.Name,
 			BuyTime: int(list[i].CreateTime),
 			Amount:  float64(list[i].PayMoney) / model.UNITY,
-			Status:  1,
+			Status:  orderStatus,
 		})
 	}
 	res.List = items
