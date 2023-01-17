@@ -103,7 +103,7 @@ func (this *Award) Run() {
 		}
 
 		//当前还没有到开始收益时间
-		if starttime > now {
+		if starttime >= now {
 			continue
 		}
 		//当前已经过了收益的结束时间
@@ -141,9 +141,15 @@ func (this *Award) Run() {
 		memberModel.UseBalance += income2
 		memberModel.Income += income2
 		memberModel.PIncome += income2
-		err = memberModel.Update("total_balance", "use_balance", "income", "p_income")
+		//待收益扣减
+		if memberModel.WillIncome-income2 >= 0 {
+			memberModel.WillIncome -= income2
+		} else {
+			memberModel.WillIncome = 0
+		}
+		err = memberModel.Update("total_balance", "use_balance", "income", "p_income", "wll_income")
 		if err != nil {
-			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, income2, err)
+			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, income, err)
 		}
 	}
 
