@@ -85,11 +85,10 @@ func (this *Award) Run() {
 			_ = trade.Insert()
 
 			//更改用户余额
-			memberModel.TotalBalance += capital
 			memberModel.UseBalance += capital
 			memberModel.Income += capital
 			memberModel.PIncome += capital
-			err := memberModel.Update("total_balance", "use_balance", "income", "p_income")
+			err := memberModel.Update("use_balance", "income", "p_income")
 			if err != nil {
 				logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, capital, err)
 			}
