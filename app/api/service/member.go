@@ -216,37 +216,37 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 	}
 	amount := int64(this.Amount * model.UNITY)
 	switch this.Type {
-	case 1:
-		trade := model.Trade{UID: member.ID, TradeType: 5}
-		count, err := trade.CountByToday()
-		if err != nil {
-			return err
-		}
-		if count >= c.DayTurnMoneyNum {
-			return errors.New(fmt.Sprintf("每日只能转%v次", c.DayTurnMoneyNum))
-		}
-		member.Balance -= amount
-		member.UseBalance += amount
-		err = member.Update("balance", "use_balance")
-		if err != nil {
-			return err
-		}
-		//加入账单
-		inc := model.Trade{
-			UID:        member.ID,
-			TradeType:  5,
-			Amount:     amount,
-			Before:     member.UseBalance - amount,
-			After:      member.UseBalance,
-			Desc:       "可用转可提",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		err = inc.Insert()
-		if err != nil {
-			logrus.Errorf("可用转可提 记录失败%v", err)
-		}
+	//case 1:
+	//	trade := model.Trade{UID: member.ID, TradeType: 5}
+	//	count, err := trade.CountByToday()
+	//	if err != nil {
+	//		return err
+	//	}
+	//	if count >= c.DayTurnMoneyNum {
+	//		return errors.New(fmt.Sprintf("每日只能转%v次", c.DayTurnMoneyNum))
+	//	}
+	//	member.Balance -= amount
+	//	member.UseBalance += amount
+	//	err = member.Update("balance", "use_balance")
+	//	if err != nil {
+	//		return err
+	//	}
+	//	//加入账单
+	//	inc := model.Trade{
+	//		UID:        member.ID,
+	//		TradeType:  5,
+	//		Amount:     amount,
+	//		Before:     member.UseBalance - amount,
+	//		After:      member.UseBalance,
+	//		Desc:       "可用转可提",
+	//		CreateTime: time.Now().Unix(),
+	//		UpdateTime: time.Now().Unix(),
+	//		IsFrontend: 1,
+	//	}
+	//	err = inc.Insert()
+	//	if err != nil {
+	//		logrus.Errorf("可用转可提 记录失败%v", err)
+	//	}
 	case 2:
 		//当前余额分析
 		if amount > member.UseBalance {
