@@ -190,7 +190,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 
 		res.List = append(res.List, response.MyTeam{
 			ID:       list[i].Member.ID,
-			Username: list[i].Member.Username,
+			Username: this.parseMobileNumber(list[i].Member.Username),
 			Level:    int(list[i].Level),
 			RegTime:  list[i].Member.RegTime,
 			Income:   float64(income) / model.UNITY,
@@ -198,6 +198,12 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 		})
 	}
 	return &res, nil
+}
+
+func (this MemberTeam) parseMobileNumber(mobile string) string {
+	numbers := []rune(mobile)
+	length := len(numbers)
+	return string(numbers[0:3]) + "****" + string(numbers[length-4:length])
 }
 
 type MemberTransfer struct {
