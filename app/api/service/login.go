@@ -32,12 +32,12 @@ func (this LoginService) DoLogin(c *gin.Context) (*response.Member, error) {
 	if this.Password == "" {
 		return nil, errors.New(lang.Lang("Password cannot be empty"))
 	}
-	if this.Code == "" {
-		return nil, errors.New("验证码不能为空")
-	}
-	if !common.CaptchaVerify(c, this.Code) {
-		return nil, errors.New("验证码错误")
-	}
+	//if this.Code == "" {
+	//	return nil, errors.New("验证码不能为空")
+	//}
+	//if !common.CaptchaVerify(c, this.Code) {
+	//	return nil, errors.New("验证码错误")
+	//}
 
 	//是否存在用户
 	member := model.Member{

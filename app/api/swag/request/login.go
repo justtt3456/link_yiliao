@@ -11,7 +11,7 @@ type Register struct {
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Code     string `json:"code"`
+	//Code     string `json:"code"`
 }
 
 type Help struct {
@@ -20,5 +20,5 @@ type Help struct {
 
 type SendCode struct {
 	Username string `json:"username"` //用户名（手机号）
-	Type     int    `json:"type"`   //1=注册
+	Type     int    `json:"type"`     //1=注册
 }
