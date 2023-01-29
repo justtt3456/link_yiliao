@@ -83,7 +83,6 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 		return nil, errors.New(lang.Lang("Password cannot be empty"))
 	}
 	if this.RePassword != this.Password {
-
 		return nil, errors.New(lang.Lang("The two passwords are inconsistent"))
 	}
 	if this.WithdrawPassword == "" {
@@ -130,6 +129,7 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 		Token:            common.RandStringRunes(32),
 		RegisterIP:       c.ClientIP(),
 		LastLoginIP:      c.ClientIP(),
+		LastLoginTime:    time.Now().Unix(),
 		Code:             code,
 		IsBuy:            2,
 		IsOneShiming:     1,

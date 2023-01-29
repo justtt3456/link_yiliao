@@ -6,6 +6,7 @@ import (
 	"finance/app/admin/swag/response"
 	"finance/common"
 	"finance/model"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
@@ -136,6 +137,18 @@ func (this ProductCreate) Create() error {
 	if ex.Get() {
 		return errors.New("产品已存在")
 	}
+
+	//高精度浮点计算
+	unity := decimal.NewFromFloat(model.UNITY)
+	//年利率计算
+	dayIncome := decimal.NewFromFloat(this.Dayincome)
+	//单价
+	price := decimal.NewFromFloat(this.Price)
+	//总金额
+	totalPrice := decimal.NewFromFloat(this.TotalPrice)
+	//可投余额
+	otherPrice := decimal.NewFromFloat(this.OtherPrice)
+
 	m := model.Product{
 		Name:         this.Name,
 		Category:     this.Category,
@@ -144,10 +157,10 @@ func (this ProductCreate) Create() error {
 		Tag:          this.Tag,
 		TimeLimit:    this.TimeLimit,
 		IsRecommend:  this.IsRecommend,
-		Dayincome:    int(this.Dayincome * model.UNITY),
-		Price:        int64(this.Price * model.UNITY),
-		TotalPrice:   int64(this.TotalPrice * model.UNITY),
-		OtherPrice:   int64(this.OtherPrice * model.UNITY),
+		Dayincome:    int(dayIncome.Mul(unity).IntPart()),
+		Price:        price.Mul(unity).IntPart(),
+		TotalPrice:   totalPrice.Mul(unity).IntPart(),
+		OtherPrice:   otherPrice.Mul(unity).IntPart(),
 		MoreBuy:      this.MoreBuy,
 		Desc:         this.Desc,
 		IsFinish:     this.IsFinish,
@@ -228,14 +241,25 @@ func (this ProductUpdate) Update() error {
 		return errors.New("产品不存在")
 	}
 
+	//高精度浮点计算
+	unity := decimal.NewFromFloat(model.UNITY)
+	//年利率计算
+	dayIncome := decimal.NewFromFloat(this.Dayincome)
+	//单价
+	price := decimal.NewFromFloat(this.Price)
+	//总金额
+	totalPrice := decimal.NewFromFloat(this.TotalPrice)
+	//可投余额
+	otherPrice := decimal.NewFromFloat(this.OtherPrice)
+
 	m.Name = this.Name
 	m.Category = this.Category
 	m.Status = this.Status
 	m.TimeLimit = this.TimeLimit
-	m.Dayincome = int(this.Dayincome * model.UNITY)
-	m.Price = int64(this.Price * model.UNITY)
-	m.TotalPrice = int64(this.TotalPrice * model.UNITY)
-	m.OtherPrice = int64(this.OtherPrice * model.UNITY)
+	m.Dayincome = int(dayIncome.Mul(unity).IntPart())
+	m.Price = price.Mul(unity).IntPart()
+	m.TotalPrice = totalPrice.Mul(unity).IntPart()
+	m.OtherPrice = otherPrice.Mul(unity).IntPart()
 	m.MoreBuy = this.MoreBuy
 	m.Desc = this.Desc
 	m.Status = this.Status
