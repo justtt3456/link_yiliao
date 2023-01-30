@@ -155,3 +155,27 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount int64, way 
 	member.TotalBalance += amount
 	return member.Update("balance", "total_balance")
 }
+
+func (RechargeHandle) TopupUseBalance(member model.Member, item int, amount int64, tradeType int, isfront int) error {
+	//账单
+	trade := model.Trade{
+		UID:        member.ID,
+		TradeType:  tradeType,
+		ItemID:     item,
+		Amount:     amount,
+		Before:     member.UseBalance,
+		After:      member.UseBalance + amount,
+		Desc:       "国家通用燃气补贴金",
+		IsFrontend: isfront,
+	}
+
+	err := trade.Insert()
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	//上分
+	member.UseBalance += amount
+	member.TotalBalance += amount
+	return member.Update("use_balance", "total_balance")
+}

@@ -43,6 +43,7 @@ func (this ManualController) Handle(c *gin.Context) {
 	}
 	admin := this.AdminInfo(c)
 	switch s.Handle {
+	//上分
 	case 1:
 		if err = s.Recharge(*admin, s.Handle, s.IsFrontend); err != nil {
 			this.Json(c, 10001, err.Error(), nil)
@@ -50,8 +51,18 @@ func (this ManualController) Handle(c *gin.Context) {
 		}
 		this.Json(c, 0, "ok", nil)
 		return
+	//下分,冻结
 	case 2, 3:
 		if err = s.Withdraw(*admin, s.IsFrontend); err != nil {
+			this.Json(c, 10001, err.Error(), nil)
+			return
+		}
+		this.Json(c, 0, "ok", nil)
+		return
+
+	//解冻(添加可提现余额)
+	case 4:
+		if err = s.TopupUseBalance(*admin, s.Handle, s.IsFrontend); err != nil {
 			this.Json(c, 10001, err.Error(), nil)
 			return
 		}

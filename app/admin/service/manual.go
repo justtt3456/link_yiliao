@@ -38,8 +38,8 @@ func (this Manual) Recharge(admin model.Admin, t int, isfront int) error {
 	}
 
 	return nil
-
 }
+
 func (this Manual) Withdraw(admin model.Admin, isfront int) error {
 	s := strings.Split(this.UIDs, ",")
 	for _, v := range s {
@@ -77,7 +77,7 @@ func (this Manual) Withdraw(admin model.Admin, isfront int) error {
 		} else {
 			trade.Before = user.UseBalance
 			trade.After = user.UseBalance - int64(this.Amount*model.UNITY)
-			trade.Desc = "人工扣款可提现余额"
+			trade.Desc = "自动回调可提现余额"
 			user.UseBalance -= int64(this.Amount * model.UNITY)
 		}
 		user.TotalBalance -= int64(this.Amount * model.UNITY)
@@ -86,7 +86,30 @@ func (this Manual) Withdraw(admin model.Admin, isfront int) error {
 	}
 
 	return nil
+}
 
+func (this Manual) TopupUseBalance(admin model.Admin, t int, isfront int) error {
+	s := strings.Split(this.UIDs, ",")
+	for _, v := range s {
+		id, _ := strconv.Atoi(v)
+		if id == 0 {
+			return errors.New("用户错误")
+		}
+		if this.Amount == 0 {
+			return errors.New("金额错误")
+		}
+		member := model.Member{ID: id}
+		if !member.Get() {
+			return errors.New("用户不存在")
+		}
+
+		h := RechargeHandle{}
+		err := h.TopupUseBalance(member, 0, int64(this.Amount*model.UNITY), 14, isfront)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type ManualList struct {
