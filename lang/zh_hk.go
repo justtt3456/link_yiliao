@@ -110,4 +110,5 @@ var zh_hk map[string]string = map[string]string{
 	"The ID card format is incorrect":                              "身份證格式不正確",
 	"The ID number has been submitted for certification":           "該身份證號已提交認證",
 	"You have submitted real name authentication":                  "您的實名認證信息已存在",
+	"Image upload failed":                                          "圖片上傳失敗",
 }

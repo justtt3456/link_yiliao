@@ -110,4 +110,5 @@ var zh_cn map[string]string = map[string]string{
 	"The ID card format is incorrect":                              "身份证格式不正确",
 	"The ID number has been submitted for certification":           "该身份证号已提交认证",
 	"You have submitted real name authentication":                  "您的实名认证信息已存在",
+	"Image upload failed":                                          "图片上传失败",
 }
