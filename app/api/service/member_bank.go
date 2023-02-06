@@ -19,14 +19,10 @@ func (MemberBankList) List(member model.Member) response.MemberBankList {
 	list := memberBank.List()
 	res := make([]response.MemberBank, 0)
 	for _, v := range list {
-		var cardNumber string
-		if len(v.CardNumber) >= 8 {
-			cardNumber = v.CardNumber[:4] + "****" + v.CardNumber[len(v.CardNumber)-4:]
-		}
 		i := response.MemberBank{
 			ID:         v.ID,
 			BankName:   v.BankName,
-			CardNumber: cardNumber,
+			CardNumber: v.CardNumber,
 			Province:   v.Province,
 			City:       v.City,
 			BranchBank: v.BranchBank,
