@@ -25,3 +25,14 @@ func (this NoticeController) PageList(c *gin.Context) {
 	this.Json(c, 0, "ok", s.PageList())
 	return
 }
+
+//获取滚动新闻列表
+func (this NoticeController) NoticeList(c *gin.Context) {
+	s := service.NoticeList{}
+	if err := c.ShouldBindQuery(&s); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", s.PageList())
+	return
+}

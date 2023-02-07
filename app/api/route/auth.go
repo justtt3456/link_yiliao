@@ -71,6 +71,9 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	//首页
 	index := v1.IndexController{}
 	r.GET("index", index.Index)
+	//滚动公告列表
+	notice := v1.NoticeController{}
+	r.GET("notice/notice_list", notice.NoticeList)
 	//公司简介和推荐奖励
 	help := v1.HelpController{}
 	r.GET("help/list", help.List)

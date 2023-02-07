@@ -17,3 +17,13 @@ type Notice struct {
 	Lang       string `json:"lang"`        //语言
 	CreateTime int64  `json:"create_time"` //
 }
+type NoticeListResponse struct {
+	List []NoticeInfo `json:"list"`
+	Page Page         `json:"page"`
+}
+type NoticeInfo struct {
+	ID         int    `json:"id"`
+	Title      string `json:"title"`       //标题
+	Content    string `json:"content"`     //内容
+	CreateTime int64  `json:"create_time"` //
+}
