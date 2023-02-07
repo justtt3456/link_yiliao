@@ -125,8 +125,8 @@ func (this WithdrawCreate) Create(member model.Member) error {
 
 	//每日提现次数
 	countModel := model.Withdraw{}
-	countWhere := "uid = ? and create_time >= ?"
-	countArgs := []interface{}{member.ID, common.GetTodayZero()}
+	countWhere := "uid = ? and create_time >= ? and `c_withdraw`.`status` != ?"
+	countArgs := []interface{}{member.ID, common.GetTodayZero(), model.StatusRollback}
 	count := countModel.Count(countWhere, countArgs)
 	if count > 0 && count >= int64(c.WithdrawCount) {
 		return errors.New(fmt.Sprintf(lang.Lang("You can only withdraw %d times per day"), c.WithdrawCount))
