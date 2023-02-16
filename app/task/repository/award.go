@@ -5,6 +5,7 @@ import (
 	"finance/global"
 	"finance/model"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -50,17 +51,46 @@ func (this *Award) Run() {
 		var capital int64
 		var desc string
 		//是否需要返回本金
-		if productOrder[i].Product.Type == 1 {
-			//时间到了就反
+		//if productOrder[i].Product.Type == 1 {
+		//	//时间到了就反
+		//	desc = "到期返回本金"
+		//	if overtime == now {
+		//		capital = productOrder[i].PayMoney
+		//	}
+		//} else {
+		//	//延期返回本金
+		//	desc = "延期返回本金"
+		//	if overtime+int64(productOrder[i].Product.DelayTime*3600*24) == now {
+		//		capital = productOrder[i].PayMoney
+		//	}
+		//}
+
+		//返还本金
+		switch productOrder[i].Product.Type {
+		case 1: //到期返本
 			desc = "到期返回本金"
 			if overtime == now {
 				capital = productOrder[i].PayMoney
 			}
-		} else {
-			//延期返回本金
+		case 2: //延期返本
 			desc = "延期返回本金"
 			if overtime+int64(productOrder[i].Product.DelayTime*3600*24) == now {
 				capital = productOrder[i].PayMoney
+			}
+		case 3: //到期返本返息
+			desc = "到期返本返息本金"
+			if overtime == now {
+				capital = productOrder[i].PayMoney
+			}
+		case 4: //每日返本返息
+			desc = "每日返本返息本金"
+			if overtime >= now {
+				//计算每日返回本金金额
+				if productOrder[i].Product.TimeLimit > 0 {
+					totalAmount := decimal.NewFromInt(productOrder[i].PayMoney)
+					totalDays := decimal.NewFromInt(int64(productOrder[i].Product.TimeLimit))
+					capital = totalAmount.Div(totalDays).IntPart()
+				}
 			}
 		}
 
@@ -114,6 +144,16 @@ func (this *Award) Run() {
 		income := float64(productOrder[i].PayMoney*int64(productOrder[i].Product.Dayincome)) / model.UNITY / model.UNITY
 		logrus.Infof("今日已经结算%v  用户ID %v 收益 &v", today, productOrder[i].UID, income)
 		income2 := int64(income * model.UNITY)
+
+		//订单为返本返息结算类型时
+		if productOrder[i].Product.Type == 3 {
+			if overtime == now {
+				income = income * float64(productOrder[i].Product.TimeLimit)
+				income2 = income2 * int64(productOrder[i].Product.TimeLimit)
+			} else {
+				continue
+			}
+		}
 
 		//获取当前余额
 		memberModel.Get()
