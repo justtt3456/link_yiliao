@@ -116,7 +116,7 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if !puser.Get() {
 		return nil, errors.New(lang.Lang("Wrong invitation code"))
 	}
-	code := common.RandIntRunes(6)
+	code := InviteCode()
 	salt := common.RandStringRunes(6)
 	withdrawSalt := common.RandStringRunes(6)
 	//入库
@@ -176,4 +176,15 @@ func memberLoginLog(member model.Member, ip string) {
 		LoginTime: time.Now().Unix(),
 	}
 	m.Insert()
+}
+
+// 获取邀请码
+func InviteCode() string {
+	randCode := common.RandIntRunes(6)
+	memberModel := model.Member{Code: randCode}
+	//当邀请码重复时
+	if !memberModel.Get() {
+		return randCode
+	}
+	return InviteCode()
 }
