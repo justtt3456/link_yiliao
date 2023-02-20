@@ -66,6 +66,7 @@ func (this *Award) Run() {
 		//}
 
 		//返还本金
+		isReturnCaptial := 1
 		switch productOrder[i].Product.Type {
 		case 1: //到期返本
 			desc = "到期返回本金"
@@ -84,18 +85,21 @@ func (this *Award) Run() {
 			}
 		case 4: //每日返本返息
 			desc = "每日返本返息本金"
-			if overtime >= now {
+			if overtime >= now && starttime < now {
 				//计算每日返回本金金额
 				if productOrder[i].Product.TimeLimit > 0 {
 					totalAmount := decimal.NewFromInt(productOrder[i].PayMoney)
 					totalDays := decimal.NewFromInt(int64(productOrder[i].Product.TimeLimit))
 					capital = totalAmount.Div(totalDays).IntPart()
 				}
+				//当每日返本返息,未潢投资周期时,不能改变订单返回本金状态
+				if overtime > now {
+					isReturnCaptial = 0
+				}
 			}
 		}
 
 		memberModel := model.Member{ID: productOrder[i].UID}
-		orderModel := model.OrderProduct{ID: productOrder[i].ID}
 		if capital > 0 {
 			//获取当前余额
 			memberModel.Get()
@@ -124,10 +128,13 @@ func (this *Award) Run() {
 			}
 
 			//更改订单状态:是否已返还投资本金
-			orderModel.IsReturnCapital = 1
-			err = orderModel.Update("is_return_capital")
-			if err != nil {
-				logrus.Errorf("修改产品订单返还本金状态失败  今日%v  订单ID %v err= &v", today, productOrder[i].ID, err)
+			if isReturnCaptial == 1 {
+				orderModel := model.OrderProduct{ID: productOrder[i].ID}
+				orderModel.IsReturnCapital = 1
+				err = orderModel.Update("is_return_capital")
+				if err != nil {
+					logrus.Errorf("修改产品订单返还本金状态失败  今日%v  订单ID %v err= &v", today, productOrder[i].ID, err)
+				}
 			}
 		}
 
