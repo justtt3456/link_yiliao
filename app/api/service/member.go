@@ -194,7 +194,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 			Level:    int(list[i].Level),
 			RegTime:  list[i].Member.RegTime,
 			Income:   float64(income) / model.UNITY,
-			RealName: list[i].MemberVerified.RealName,
+			RealName: list[i].Member.RealName,
 		})
 	}
 	return &res, nil
