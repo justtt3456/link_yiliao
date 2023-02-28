@@ -92,7 +92,7 @@ func (this *Award) Run() {
 			//存入收益列表
 			trade := model.Trade{
 				UID:        productOrder[i].UID,
-				TradeType:  16,
+				TradeType:  24,
 				ItemID:     productOrder[i].ID,
 				Amount:     capital,
 				Before:     memberModel.UseBalance,
