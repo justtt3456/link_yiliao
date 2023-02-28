@@ -50,20 +50,6 @@ func (this *Award) Run() {
 
 		var capital int64
 		var desc string
-		//是否需要返回本金
-		//if productOrder[i].Product.Type == 1 {
-		//	//时间到了就反
-		//	desc = "到期返回本金"
-		//	if overtime == now {
-		//		capital = productOrder[i].PayMoney
-		//	}
-		//} else {
-		//	//延期返回本金
-		//	desc = "延期返回本金"
-		//	if overtime+int64(productOrder[i].Product.DelayTime*3600*24) == now {
-		//		capital = productOrder[i].PayMoney
-		//	}
-		//}
 
 		//返还本金
 		isReturnCaptial := 1
