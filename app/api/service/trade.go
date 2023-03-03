@@ -7,7 +7,9 @@ import (
 	"finance/common"
 	"finance/lang"
 	"finance/model"
+	"fmt"
 	"github.com/sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
@@ -31,12 +33,17 @@ func (this TradeService) PageList(member model.Member) response.TradeList {
 func (this TradeService) formatList(list []model.Trade) []response.Trade {
 	res := make([]response.Trade, 0)
 	for _, v := range list {
+		//金额数字分析
+		amount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Amount)/model.UNITY), 64)
+		beforAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Before)/model.UNITY), 64)
+		afterAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.After)/model.UNITY), 64)
+
 		item := response.Trade{
 			ID:         v.ID,
 			TradeType:  v.TradeType,
-			Amount:     float64(v.Amount) / model.UNITY,
-			Before:     float64(v.Before) / model.UNITY,
-			After:      float64(v.After) / model.UNITY,
+			Amount:     amount,
+			Before:     beforAmount,
+			After:      afterAmount,
 			CreateTime: v.CreateTime,
 			Desc:       v.Desc,
 		}
@@ -95,12 +102,17 @@ func (this Tradev2Service) PageList(member model.Member) response.TradeList {
 func (this Tradev2Service) formatList(list []model.Trade) []response.Trade {
 	res := make([]response.Trade, 0)
 	for _, v := range list {
+		//金额数字分析
+		amount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Amount)/model.UNITY), 64)
+		beforeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Before)/model.UNITY), 64)
+		afterAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.After)/model.UNITY), 64)
+
 		item := response.Trade{
 			ID:         v.ID,
 			TradeType:  v.TradeType,
-			Amount:     float64(v.Amount) / model.UNITY,
-			Before:     float64(v.Before) / model.UNITY,
-			After:      float64(v.After) / model.UNITY,
+			Amount:     amount,
+			Before:     beforeAmount,
+			After:      afterAmount,
 			CreateTime: v.CreateTime,
 			Desc:       v.Desc,
 		}

@@ -6,6 +6,7 @@ import (
 	"finance/app/admin/swag/response"
 	"finance/common"
 	"finance/model"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -30,6 +31,8 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
 	res := make([]response.WithdrawInfo, 0)
 	for _, v := range list {
+		//实际金额
+		realAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.1f", float64(v.Amount)/model.UNITY), 64)
 		i := response.WithdrawInfo{
 			ID:               v.ID,
 			UID:              v.UID,
@@ -39,7 +42,7 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 			RealName:         v.RealName,
 			CardNumber:       v.CardNumber,
 			BankPhone:        v.BankPhone,
-			Amount:           float64(v.Amount) / model.UNITY,
+			Amount:           realAmount,
 			Fee:              float64(v.Fee) / model.UNITY,
 			TotalAmount:      float64(v.TotalAmount) / model.UNITY,
 			UsdtAmount:       float64(v.UsdtAmount) / model.UNITY,

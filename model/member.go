@@ -5,6 +5,8 @@ import (
 	"finance/common"
 	"finance/extends"
 	"finance/global"
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -113,16 +115,29 @@ func (this *Member) Info() *response.Member {
 	where := "uid = ? or uid = ? and status = ? and is_read = ?"
 	args := []interface{}{this.ID, -1, StatusOk, 1}
 	msg := Message{}
+
+	//金额分析(精确小数点后两位小数)
+	incomeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.Income)/UNITY), 64)
+	willIncomeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.WillIncome)/UNITY), 64)
+
+	balanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.Balance)/UNITY), 64)
+	useBalanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.UseBalance)/UNITY), 64)
+	totalBalanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.TotalBalance)/UNITY), 64)
+
+	investFreezeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.InvestFreeze)/UNITY), 64)
+	investAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.InvestAmount)/UNITY), 64)
+	investIncomeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.InvestIncome)/UNITY), 64)
+
 	return &response.Member{
 		ID:                  this.ID,
 		Username:            this.Username,
-		Balance:             float64(this.Balance) / UNITY,
-		UseBalance:          float64(this.UseBalance) / UNITY,
+		Balance:             balanceAmount,
+		UseBalance:          useBalanceAmount,
 		IsReal:              this.IsReal,
 		RealName:            this.RealName,
-		InvestFreeze:        float64(this.InvestFreeze) / UNITY,
-		InvestAmount:        float64(this.InvestAmount) / UNITY,
-		InvestIncome:        float64(this.InvestIncome) / UNITY,
+		InvestFreeze:        investFreezeAmount,
+		InvestAmount:        investAmount,
+		InvestIncome:        investIncomeAmount,
 		Avatar:              this.Avatar,
 		Status:              this.Status,
 		FundsStatus:         this.FundsStatus,
@@ -140,12 +155,12 @@ func (this *Member) Info() *response.Member {
 		Qq:                  this.Qq,
 		Wechat:              this.Wechat,
 		InviteCode:          this.Code,
-		TotalBalance:        float64(this.TotalBalance) / UNITY,
+		TotalBalance:        totalBalanceAmount,
 		Coupon:              coupons,
-		Income:              float64(this.Income) / UNITY,
+		Income:              incomeAmount,
 		Guquan:              this.Guquan,
 		Message:             msg.Count(where, args),
-		WillIncome:          float64(this.WillIncome) / UNITY,
+		WillIncome:          willIncomeAmount,
 	}
 }
 

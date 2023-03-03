@@ -10,6 +10,7 @@ import (
 	"finance/model"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
@@ -29,6 +30,11 @@ func (this WithdrawList) PageList(member model.Member) response.WithdrawData {
 	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
 	res := make([]response.Withdraw, 0)
 	for _, v := range list {
+		//提现金额
+		amount, _ := strconv.ParseFloat(fmt.Sprintf("%.1f", float64(v.Amount)/model.UNITY), 64)
+		freeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.1f", float64(v.Fee)/model.UNITY), 64)
+		totalAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.1f", float64(v.TotalAmount)/model.UNITY), 64)
+
 		i := response.Withdraw{
 			ID:          v.ID,
 			OrderSn:     v.OrderSn,
@@ -39,14 +45,15 @@ func (this WithdrawList) PageList(member model.Member) response.WithdrawData {
 			RealName:    v.RealName,
 			CardNumber:  v.CardNumber,
 			BankPhone:   v.BankPhone,
-			Amount:      float64(v.Amount) / model.UNITY,
-			Fee:         float64(v.Fee) / model.UNITY,
-			TotalAmount: float64(v.TotalAmount) / model.UNITY,
+			Amount:      amount,
+			Fee:         freeAmount,
+			TotalAmount: totalAmount,
 			Description: v.Description,
 			Status:      v.Status,
 			CreateTime:  v.CreateTime,
 			UpdateTime:  v.UpdateTime,
 		}
+
 		res = append(res, i)
 	}
 	return response.WithdrawData{List: res, Page: FormatPage(page)}
