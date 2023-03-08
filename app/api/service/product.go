@@ -368,7 +368,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			Pid:          p.ID,
 			PayMoney:     amount,
 			IsReturnTop:  1,
-			AfterBalance: memberModel.Balance - amount,
+			AfterBalance: memberModel.Balance - needAmount,
 			CreateTime:   time.Now().Unix(),
 			UpdateTime:   time.Now().Unix(),
 		}
