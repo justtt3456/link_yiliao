@@ -315,9 +315,28 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 	//金额分析
 	amount := int64(this.Amount * model.UNITY)
-	if amount > memberModel.Balance {
+
+	//优惠券分析
+	var couponAmount int64
+	if this.UseId != 0 {
+		MemberCoupon := model.MemberCoupon{
+			Uid:   int64(member.ID),
+			ID:    this.UseId,
+			IsUse: 1,
+		}
+		if !MemberCoupon.Get() {
+			return errors.New("没有找到可用的优惠券信息！")
+		}
+		couponAmount = MemberCoupon.Coupon.Price
+	}
+
+	//所需用户金额
+	needAmount := amount - couponAmount
+	if needAmount > memberModel.Balance {
 		return errors.New("余额不足,请先充值！")
 	}
+
+	//购买不同分类的产品的订单处理
 	switch this.Cate {
 	case 1:
 		//产品
@@ -370,9 +389,9 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			UID:        member.ID,
 			TradeType:  1,
 			ItemID:     inc.ID,
-			Amount:     amount,
+			Amount:     needAmount,
 			Before:     memberModel.Balance,
-			After:      memberModel.Balance - amount,
+			After:      memberModel.Balance - needAmount,
 			Desc:       "购买产品",
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
@@ -384,11 +403,41 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//扣减可用余额
-		memberModel.Balance -= amount
+		memberModel.Balance -= needAmount
 		memberModel.IsBuy = 1
 		err = memberModel.Update("balance", "is_buy")
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
+		}
+
+		//优惠券使用记录
+		if couponAmount > 0 {
+			//使用优惠券记录
+			trade3 := model.Trade{
+				UID:        member.ID,
+				TradeType:  10,
+				ItemID:     int(this.UseId),
+				Amount:     couponAmount,
+				Before:     memberModel.Balance,
+				After:      memberModel.Balance,
+				Desc:       "使用优惠券",
+				CreateTime: time.Now().Unix(),
+				UpdateTime: time.Now().Unix(),
+				IsFrontend: 1,
+			}
+			err = trade3.Insert()
+			if err != nil {
+				logrus.Errorf("使用优惠券记录 加入账变记录失败%v", err)
+			}
+			//更改优惠券状态
+			MemberCoupon2 := model.MemberCoupon{
+				ID: this.UseId,
+			}
+			MemberCoupon2.IsUse = 2
+			err = MemberCoupon2.Update("is_use")
+			if err != nil {
+				logrus.Errorf("修改用户优惠券失败%v", err)
+			}
 		}
 
 		if isSendRigster {
@@ -463,47 +512,6 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			}
 		}
 
-		//检查优惠券
-		if this.UseId != 0 {
-			MemberCoupon := model.MemberCoupon{
-				Uid:   int64(member.ID),
-				ID:    this.UseId,
-				IsUse: 1,
-			}
-			//获取最新会员余额
-			memberModel.Get()
-			if MemberCoupon.Get() {
-				//使用优惠券记录
-				trade3 := model.Trade{
-					UID:        member.ID,
-					TradeType:  10,
-					ItemID:     int(this.UseId),
-					Amount:     MemberCoupon.Coupon.Price,
-					Before:     memberModel.Balance,
-					After:      memberModel.Balance + MemberCoupon.Coupon.Price,
-					Desc:       "使用优惠券",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade3.Insert()
-				if err != nil {
-					logrus.Errorf("使用优惠券记录 加入账变记录失败%v", err)
-				}
-				MemberCoupon.IsUse = 2
-				err = MemberCoupon.Update("is_use")
-				if err != nil {
-					logrus.Errorf("修改用户优惠券失败%v", err)
-				}
-
-				memberModel.Balance += MemberCoupon.Coupon.Price
-				memberModel.TotalBalance += MemberCoupon.Coupon.Price
-				err = memberModel.Update("balance", "total_balance")
-				if err != nil {
-					logrus.Errorf("更改会员余额信息失败%v", err)
-				}
-			}
-		}
 		//更改用户收益
 		memberModel.WillIncome += amount * int64(p.Dayincome*p.TimeLimit) / int64(model.UNITY)
 		err = memberModel.Update("wll_income")
