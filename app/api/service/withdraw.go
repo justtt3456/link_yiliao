@@ -99,15 +99,17 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	if !memberBank.Get() {
 		return errors.New(lang.Lang("Bank card does not exist"))
 	}
-	amount := int64(this.TotalAmount * model.UNITY)
-	//检查余额
-	if member.UseBalance < amount {
-		return errors.New(lang.Lang("Insufficient account balance"))
-	}
 	//验证交易密码
 	if common.Md5String(this.WithdrawPassword+member.WithdrawSalt) != member.WithdrawPassword {
 		return errors.New(lang.Lang("Incorrect withdraw password"))
 	}
+	//提现方式分析
+	method := model.WithdrawMethod{ID: this.Method}
+	if !method.Get() {
+		return errors.New(lang.Lang("Wrong withdrawal method"))
+	}
+
+	amount := int64(this.TotalAmount * model.UNITY)
 	//提现时间 金额验证
 	c := model.SetFunds{}
 	if c.Get() {
@@ -125,9 +127,27 @@ func (this WithdrawCreate) Create(member model.Member) error {
 			return errors.New(fmt.Sprintf(lang.Lang("Maximum withdraw %.2f"), float64(c.WithdrawMaxAmount)/model.UNITY))
 		}
 	}
-	method := model.WithdrawMethod{ID: this.Method}
-	if !method.Get() {
-		return errors.New(lang.Lang("Wrong withdrawal method"))
+
+	//添加Redis乐观锁
+	lockKey := fmt.Sprintf("redisLock:api:submitWithdrawOrder:memberId_%s_methodId_%d_amount_%d", member.ID, this.Method, amount)
+	redisLock := common.RedisLock{RedisClient: global.REDIS}
+	lockResult := redisLock.Lock(lockKey)
+	if !lockResult {
+		return errors.New(lang.Lang("During data processing, Please try again later"))
+	}
+
+	//获取用户当前余额
+	memberModel := model.Member{ID: member.ID}
+	if !memberModel.Get() {
+		//解锁
+		redisLock.Unlock(lockKey)
+		return errors.New(lang.Lang("Member info is not exits"))
+	}
+	//检查余额
+	if memberModel.UseBalance < amount {
+		//解锁
+		redisLock.Unlock(lockKey)
+		return errors.New(lang.Lang("Insufficient account balance"))
 	}
 
 	//每日提现次数
@@ -136,11 +156,15 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	countArgs := []interface{}{member.ID, common.GetTodayZero(), model.StatusRollback}
 	count := countModel.Count(countWhere, countArgs)
 	if count > 0 && count >= int64(c.WithdrawCount) {
+		//解锁
+		redisLock.Unlock(lockKey)
 		return errors.New(fmt.Sprintf(lang.Lang("You can only withdraw %d times per day"), c.WithdrawCount))
 	}
+
 	//计算手续费
 	fee := int64(c.WithdrawFee) * amount / int64(model.UNITY)
-	m := model.Withdraw{
+	//生成提现记录
+	order := model.Withdraw{
 		UID:          member.ID,
 		WithdrawType: this.Method,
 		BankName:     memberBank.BankName,
@@ -154,24 +178,35 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		Status:       model.StatusReview,
 		OrderSn:      common.OrderSn(),
 	}
+	if err := order.Insert(); err != nil {
+		//解锁
+		redisLock.Unlock(lockKey)
+		return err
+	}
 	//生成账单
 	trade := model.Trade{
-		UID:       m.UID,
+		UID:       member.ID,
 		TradeType: 4,
-		ItemID:    m.ID,
+		ItemID:    order.ID,
 		Amount:    amount,
-		Before:    member.UseBalance,
-		After:     member.UseBalance - amount,
+		Before:    memberModel.UseBalance,
+		After:     memberModel.UseBalance - amount,
 		Desc:      "提现申请",
 	}
 	if err := trade.Insert(); err != nil {
+		//解锁
+		redisLock.Unlock(lockKey)
 		return err
 	}
 
+	//更改用户余额
 	member.UseBalance -= amount
 	member.TotalBalance -= amount
-	member.Update("use_balance", "total_balance")
-	return m.Insert()
+	err := member.Update("use_balance", "total_balance")
+
+	//解锁
+	redisLock.Unlock(lockKey)
+	return err
 }
 
 type WithdrawMethod struct {

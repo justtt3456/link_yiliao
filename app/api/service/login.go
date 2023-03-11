@@ -65,14 +65,7 @@ func (this LoginService) DoLogin(c *gin.Context) (*response.Member, error) {
 }
 
 func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
-
-	key := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(this.Username)
-	value := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(this.Username)
-	if global.REDIS.Get(key).Val() == value {
-		return nil, errors.New("请勿重复提交表单")
-	}
-	global.REDIS.Set(key, value, time.Second*3)
-
+	//参数分析
 	if this.Username == "" {
 		return nil, errors.New(lang.Lang("Username cannot be empty"))
 	}
@@ -92,22 +85,9 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 		return nil, errors.New(lang.Lang("Invitation code cannot be empty"))
 	}
 	//验证码
-	key = fmt.Sprintf("reg_%v", this.Username)
+	key := fmt.Sprintf("reg_%v", this.Username)
 	if this.Code != global.REDIS.Get(key).Val() {
-		return nil, errors.New("验证码错误")
-	}
-	//if this.Code == "" {
-	//	return nil, errors.New("验证码不能为空")
-	//}
-	//if !common.CaptchaVerify(c, this.Code) {
-	//	return nil, errors.New("验证码错误")
-	//}
-	//是否存在用户
-	m := model.Member{
-		Username: this.Username,
-	}
-	if m.Get() {
-		return nil, errors.New(lang.Lang("Username already exists"))
+		return nil, errors.New(lang.Lang("Verification code error"))
 	}
 	//检查邀请码
 	puser := model.Member{
@@ -116,6 +96,25 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if !puser.Get() {
 		return nil, errors.New(lang.Lang("Wrong invitation code"))
 	}
+
+	//添加Redis乐观锁
+	lockKey := fmt.Sprintf("redisLock:api:memberRegister:memberNamee_%s", this.Username)
+	redisLock := common.RedisLock{RedisClient: global.REDIS}
+	lockResult := redisLock.Lock(lockKey)
+	if !lockResult {
+		return nil, errors.New(lang.Lang("During data processing, Please try again later"))
+	}
+
+	//是否存在用户
+	memberModel := model.Member{
+		Username: this.Username,
+	}
+	if memberModel.Get() {
+		//解锁
+		redisLock.Unlock(lockKey)
+		return nil, errors.New(lang.Lang("Username already exists"))
+	}
+
 	code := InviteCode()
 	salt := common.RandStringRunes(6)
 	withdrawSalt := common.RandStringRunes(6)
@@ -136,8 +135,11 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	}
 	err := member.Insert()
 	if err != nil {
+		//解锁
+		redisLock.Unlock(lockKey)
 		return nil, err
 	}
+
 	//绑定父级关系
 	relation := make([]model.MemberRelation, 0)
 	relation = append(relation, model.MemberRelation{
@@ -164,6 +166,10 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if err != nil {
 		logrus.Errorf("绑定关系插入失败%v", err)
 	}
+
+	//解锁
+	redisLock.Unlock(lockKey)
+
 	go memberLoginLog(member, c.ClientIP())
 	return member.Info(), nil
 }

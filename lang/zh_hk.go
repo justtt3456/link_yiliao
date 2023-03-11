@@ -111,4 +111,7 @@ var zh_hk map[string]string = map[string]string{
 	"The ID number has been submitted for certification":           "該身份證號已提交認證",
 	"You have submitted real name authentication":                  "您的實名認證信息已存在",
 	"Image upload failed":                                          "圖片上傳失敗",
+	"During data processing, Please try again later":              "數據處理中...請稍候再試",
+	"Member info is not exits":                                     "用戶信息不存在!",
+	"Verification code error":                                      "驗證碼錯誤!",
 }

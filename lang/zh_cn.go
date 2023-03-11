@@ -111,4 +111,7 @@ var zh_cn map[string]string = map[string]string{
 	"The ID number has been submitted for certification":           "该身份证号已提交认证",
 	"You have submitted real name authentication":                  "您的实名认证信息已存在",
 	"Image upload failed":                                          "图片上传失败",
+	"During data processing, Please try again later":              "数据处理中...请稍候再试",
+	"Member info is not exits":                                     "用户信息不存在!",
+	"Verification code error":                                      "验证码错误!",
 }

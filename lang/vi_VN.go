@@ -110,4 +110,7 @@ var vi_VN map[string]string = map[string]string{
 	"The ID number has been submitted for certification": "Số ID đã được gửi để chứng nhận",
 	"You have submitted real name authentication":        "Thông tin xác thực tên thật của bạn đã tồn tại",
 	"Image upload failed":                                "Tải lên hình ảnh không thành công",
+	"During data processing, Please try again later":    "Đang xử lý dữ liệu... vui lòng thử lại sau",
+	"Member info is not exits":                           "Thông tin người dùng không tồn tại!",
+	"Verification code error":                            "Lỗi mã xác minh!",
 }

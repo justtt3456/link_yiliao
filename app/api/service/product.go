@@ -5,6 +5,7 @@ import (
 	"finance/app/api/swag/request"
 	"finance/app/api/swag/response"
 	"finance/common"
+	"finance/global"
 	"finance/lang"
 	"finance/model"
 	"fmt"
@@ -282,6 +283,10 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	if member.IsReal != 2 {
 		return errors.New("请实名认证！")
 	}
+	//产品ID
+	if this.Id <= 0 {
+		return errors.New("产品ID格式不正确！")
+	}
 	//金额分析
 	if this.Amount <= 0 {
 		return errors.New("购买金额必须大于0！")
@@ -291,27 +296,9 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		return errors.New("交易密码错误")
 	}
 
-	//检查用户是否在注册24小时内第一次购买产品或股权
-	var isSendRigster bool
-	if member.RegTime+24*3600 >= time.Now().Unix() {
-		guquan := model.OrderGuquan{UID: member.ID}
-		product := model.OrderProduct{UID: member.ID}
-		guquanNum, _ := guquan.Count()
-		productNum := product.Count("uid = ?", []interface{}{member.ID})
-		if guquanNum == 0 && productNum == 0 {
-			isSendRigster = true
-		}
-	}
-
 	//基础配置表
 	config := model.SetBase{}
 	config.Get()
-
-	//获取会员当前最新余额
-	memberModel := model.Member{
-		ID: member.ID,
-	}
-	memberModel.Get()
 
 	//金额分析
 	amount := int64(this.Amount * model.UNITY)
@@ -330,10 +317,38 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		couponAmount = MemberCoupon.Coupon.Price
 	}
 
+	//添加Redis乐观锁
+	lockKey := fmt.Sprintf("redisLock:api:submitProductOrder:memberId_%s_productId_%d_amount_%d", member.ID, this.Id, amount)
+	redisLock := common.RedisLock{RedisClient: global.REDIS}
+	lockResult := redisLock.Lock(lockKey)
+	if !lockResult {
+		return errors.New(lang.Lang("During data processing, Please try again later"))
+	}
+
+	//获取会员当前最新余额
+	memberModel := model.Member{
+		ID: member.ID,
+	}
+	memberModel.Get()
+
 	//所需用户金额
 	needAmount := amount - couponAmount
 	if needAmount > memberModel.Balance {
+		//解锁
+		redisLock.Unlock(lockKey)
 		return errors.New("余额不足,请先充值！")
+	}
+
+	//检查用户是否在注册24小时内第一次购买产品或股权
+	var isSendRigster bool
+	if member.RegTime+24*3600 >= time.Now().Unix() {
+		guquan := model.OrderGuquan{UID: member.ID}
+		product := model.OrderProduct{UID: member.ID}
+		guquanNum, _ := guquan.Count()
+		productNum := product.Count("uid = ?", []interface{}{member.ID})
+		if guquanNum == 0 && productNum == 0 {
+			isSendRigster = true
+		}
 	}
 
 	//购买不同分类的产品的订单处理
@@ -342,12 +357,18 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		//产品
 		p := model.Product{ID: this.Id}
 		if !p.Get() {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New("产品不存在！")
 		}
 		if int64(this.Amount*model.UNITY) < p.Price {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New(fmt.Sprintf("购买金额必须大于%v！", float64(p.Price)/model.UNITY))
 		}
 		if int(this.Amount) > p.MoreBuy {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New(fmt.Sprintf("购买金额必须小于%v！", p.MoreBuy))
 		}
 
@@ -356,9 +377,13 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		agrss := []interface{}{member.ID, this.Id}
 		pmoney := money.Sum(wheres, agrss, "pay_money")
 		if int(float64((pmoney+int64(this.Amount*model.UNITY)))/model.UNITY) > p.MoreBuy {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New(fmt.Sprintf("您购买的产品已达到上限%v", p.MoreBuy))
 		}
 		if p.OtherPrice < int64(this.Amount*model.UNITY) {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New("项目可投余额不足")
 		}
 
@@ -374,6 +399,8 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 		err := inc.Insert()
 		if err != nil {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return err
 		}
 
@@ -528,21 +555,31 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			//3级代理佣金计算
 			this.ProxyRebate(&config, 3, inc)
 		}
+		//解锁
+		redisLock.Unlock(lockKey)
 		return nil
 
 	case 2:
 		//股权
 		p := model.Guquan{ID: int64(this.Id)}
 		if !p.Get(true) {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New("股权不存在！")
 		}
 		if p.PreStartTime > time.Now().Unix() {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New("股权预售时间未开始")
 		}
 		if p.PreEndTime < time.Now().Unix() {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New("股权预售时间已结束")
 		}
 		if int64(this.Amount) < p.LimitBuy {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return errors.New(fmt.Sprintf("购买金额必须大于%v！", p.LimitBuy))
 		}
 
@@ -558,6 +595,8 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 		err := inc.Insert()
 		if err != nil {
+			//解锁
+			redisLock.Unlock(lockKey)
 			return err
 		}
 
@@ -626,9 +665,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 	default:
+		//解锁
+		redisLock.Unlock(lockKey)
 		return errors.New("购买类型不存在")
 	}
-
+	//解锁
+	redisLock.Unlock(lockKey)
 	return nil
 }
 
