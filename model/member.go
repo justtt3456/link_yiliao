@@ -6,6 +6,7 @@ import (
 	"finance/extends"
 	"finance/global"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -121,7 +122,7 @@ func (this *Member) Info() *response.Member {
 	willIncomeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.WillIncome)/UNITY), 64)
 
 	balanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.Balance)/UNITY), 64)
-	useBalanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.UseBalance)/UNITY), 64)
+	useBalanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", math.Floor(float64(this.UseBalance)/UNITY)), 64)
 	totalBalanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.TotalBalance)/UNITY), 64)
 
 	investFreezeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(this.InvestFreeze)/UNITY), 64)
