@@ -130,6 +130,20 @@ func (this ProductCreate) Create() error {
 			return errors.New("延期时间必须大于0")
 		}
 	}
+	//赠送产品ID分析
+	if this.Type == 5 {
+		this.GiftId = 0
+	}
+	if this.GiftId > 0 {
+		giftModel := model.Product{
+			ID:     this.GiftId,
+			Type:   5,
+			Status: 1,
+		}
+		if !giftModel.Get() {
+			return errors.New("赠品不存在")
+		}
+	}
 
 	ex := model.Product{
 		Name: this.Name,
@@ -169,6 +183,7 @@ func (this ProductCreate) Create() error {
 		Type:         this.Type,
 		DelayTime:    this.DelayTime,
 		Progress:     int(this.Progress * model.UNITY),
+		GiftId:       this.GiftId,
 	}
 	return m.Insert()
 }
@@ -234,6 +249,21 @@ func (this ProductUpdate) Update() error {
 			return errors.New("延期时间必须大于0")
 		}
 	}
+	//赠送产品ID分析
+	if this.Type == 5 {
+		this.GiftId = 0
+	}
+	if this.GiftId > 0 {
+		giftModel := model.Product{
+			ID:     this.GiftId,
+			Type:   5,
+			Status: 1,
+		}
+		if !giftModel.Get() {
+			return errors.New("赠品不存在")
+		}
+	}
+
 	m := model.Product{
 		ID: this.ID,
 	}
@@ -271,8 +301,9 @@ func (this ProductUpdate) Update() error {
 	m.Type = this.Type
 	m.DelayTime = this.DelayTime
 	m.Progress = int(this.Progress * model.UNITY)
+	m.GiftId = this.GiftId
 
-	return m.Update("name", "progress", "buy_time_limit", "category", "create_time", "status", "tag", "time_limit", "is_recommend", "day_income", "price", "total_price", "other_price", "more_buy", "desc", "is_finish", "is_manjian")
+	return m.Update("name", "progress", "buy_time_limit", "category", "create_time", "status", "tag", "time_limit", "is_recommend", "day_income", "price", "total_price", "other_price", "more_buy", "desc", "is_finish", "is_manjian", "gift_id")
 }
 
 type ProductUpdateStatus struct {
@@ -305,4 +336,24 @@ func (this ProductRemove) Remove() error {
 		ID: this.ID,
 	}
 	return m.Remove()
+}
+
+type GiftProductOptions struct {
+	request.GiftProductOptions
+}
+
+func (this GiftProductOptions) GiftList() response.ProductGiftOptions {
+	productModel := model.Product{}
+	//获取列表内容
+	list := productModel.GiftList()
+	res := make([]response.ProductGiftInfo, 0)
+	for _, value := range list {
+		info := response.ProductGiftInfo{
+			ID:   value.ID,
+			Name: value.Name,
+		}
+		res = append(res, info)
+	}
+	//返回内容
+	return response.ProductGiftOptions{List: res}
 }

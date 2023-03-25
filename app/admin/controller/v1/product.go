@@ -115,3 +115,18 @@ func (this ProductController) Remove(c *gin.Context) {
 	this.Json(c, 0, "ok", nil)
 	return
 }
+
+// @Summary 赠品产品列表(下拉菜单内容)
+// @Tags 产品
+// @Param object query request.ProductList false "查询参数"
+// @Success 200 {object} response.ProductListResponse
+// @Router /product/gift_options [get]
+func (this ProductController) GiftOptions(c *gin.Context) {
+	s := service.GiftProductOptions{}
+	if err := c.ShouldBindQuery(&s); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", s.GiftList())
+	return
+}

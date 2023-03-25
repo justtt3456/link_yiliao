@@ -45,3 +45,11 @@ type ProductRemote struct {
 	Name string `json:"name"` //产品名称
 	Code string `json:"code"` //产品代码
 }
+
+type ProductGiftOptions struct {
+	List []ProductGiftInfo `json:"list"`
+}
+type ProductGiftInfo struct {
+	ID   int    `json:"id"`   //产品ID
+	Name string `json:"name"` //产品名称
+}

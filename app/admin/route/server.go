@@ -176,6 +176,8 @@ func Run() {
 	ga.POST("product/update", product.Update)
 	ga.POST("product/update_status", product.UpdateStatus)
 	ga.POST("product/remove", product.Remove)
+	//获取赠品产品列表
+	ga.GET("product/gift_options", product.GiftOptions)
 
 	//股权
 	guquan := v1.GuquanController{}

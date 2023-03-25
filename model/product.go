@@ -31,6 +31,7 @@ type Product struct {
 	Progress        int             `gorm:"column:progress"`       //项目进度
 	Type            int             `gorm:"column:type"`           //1=到期返本金 2=延迟反本金
 	DelayTime       int             `gorm:"column:delay_time"`     //延迟多少天
+	GiftId          int             `gorm:"column:gift_id"`        //赠送产品ID, 当值为0时,则没有赠送
 	ProductCategory ProductCategory `gorm:"foreignKey:Category"`
 }
 
@@ -118,4 +119,15 @@ func (this *Product) PageList(where string, args []interface{}, page, pageSize i
 	}
 	pageUtil.SetPage(pageSize, total)
 	return res, pageUtil
+}
+
+func (this *Product) GiftList() []Product {
+	list := make([]Product, 0)
+	result := global.DB.Model(this).Select("id", "name").Where("status=?", 1).Where("type=?", 5).Find(&list)
+	if result.Error != nil {
+		logrus.Error(result.Error)
+		return nil
+	}
+
+	return list
 }
