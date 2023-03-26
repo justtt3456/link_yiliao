@@ -36,6 +36,7 @@ type Product struct {
 	DelayTime     int             `json:"delay_time"`      //延迟多少天
 	CreateTime    int64           `json:"create_time"`     //创建时间
 	ManSongActive []ManSongActive `json:"man_song_active"` //满送活动
+	GiftName      string          `json:"gift_name"`       //赠品产品名字
 }
 type ManSongActive struct {
 	Amount float64 `json:"amount"` //满多少钱

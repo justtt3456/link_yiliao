@@ -27,6 +27,7 @@ func (this ConfigBase) Get() (*response.ConfigBase, error) {
 		SendDesc:     base.SendDesc,
 		RegisterDesc: base.RegisterDesc,
 		TeamDesc:     base.TeamDesc,
+		GiftRate:     base.GiftRate,
 	}, nil
 }
 
@@ -50,6 +51,7 @@ func (this ConfigBaseUpdate) Update() error {
 			RegisterDesc: this.RegisterDesc,
 			TeamDesc:     this.TeamDesc,
 			OneSendMoeny: int64(this.OneSendMoeny * model.UNITY),
+			GiftRate:     int(this.GiftRate * model.UNITY),
 		}
 		return c.Insert()
 	} else {
@@ -66,6 +68,7 @@ func (this ConfigBaseUpdate) Update() error {
 		conf.SendDesc = this.SendDesc
 		conf.RegisterDesc = this.RegisterDesc
 		conf.TeamDesc = this.TeamDesc
+		conf.GiftRate = int(this.GiftRate * model.UNITY)
 		return conf.Update()
 	}
 }

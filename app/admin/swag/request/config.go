@@ -13,7 +13,7 @@ type ConfigBaseUpdate struct {
 	RegisterDesc string  `json:"register_desc"`  //注册好礼描述
 	TeamDesc     string  `json:"team_desc"`      //团队奖励描述
 	OneSendMoeny float64 `json:"one_send_moeny"` //代理返佣基础值  （10）元
-
+	GiftRate     float64 `json:"gift_rate"`      //赠品赠送比例
 }
 
 type ConfigFundsUpdate struct {

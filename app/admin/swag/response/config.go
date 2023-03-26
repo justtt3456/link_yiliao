@@ -18,6 +18,7 @@ type ConfigBase struct {
 	SendDesc     string  `json:"send_desc"`      //奖励描述
 	RegisterDesc string  `json:"register_desc"`  //注册好礼描述
 	TeamDesc     string  `json:"team_desc"`      //团队奖励描述
+	GiftRate     int     `json:"gift_rate"`      //赠品赠送比例
 }
 type ConfigFundsResponse struct {
 	Code int         `json:"code"`

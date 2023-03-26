@@ -40,6 +40,16 @@ func (this ProductList) PageList() response.ProductListData {
 		})
 	}
 	for _, v := range list {
+		//获取赠品产品名称
+		giftName := ""
+		if v.GiftId > 0 {
+			giftModel := model.Product{
+				ID: v.GiftId,
+			}
+			if giftModel.Get() {
+				giftName = giftModel.Name
+			}
+		}
 
 		i := response.Product{
 			ID:           v.ID,
@@ -63,6 +73,7 @@ func (this ProductList) PageList() response.ProductListData {
 			Type:         v.Type,
 			DelayTime:    v.DelayTime,
 			Progress:     float64(v.Progress) / model.UNITY,
+			GiftName:     giftName,
 		}
 		if v.IsManjian == 1 {
 			i.ManSongActive = act
@@ -162,6 +173,18 @@ func (this GetProduct) GetOne() response.Product {
 		progress = 1.00
 	}
 
+	//获取赠品产品名称
+	giftName := ""
+	if m.GiftId > 0 {
+		giftModel := model.Product{
+			ID:     m.GiftId,
+			Status: 1,
+		}
+		if giftModel.Get() {
+			giftName = giftModel.Name
+		}
+	}
+
 	res := response.Product{
 		ID:           m.ID,
 		Name:         m.Name,
@@ -183,6 +206,7 @@ func (this GetProduct) GetOne() response.Product {
 		BuyTimeLimit: m.BuyTimeLimit,
 		Progress:     progress,
 		Type:         m.Type,
+		GiftName:     giftName,
 	}
 	if res.IsManjian == 1 {
 		res.ManSongActive = act
@@ -355,11 +379,17 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	switch this.Cate {
 	case 1:
 		//产品
-		p := model.Product{ID: this.Id}
+		p := model.Product{ID: this.Id, Status: 1}
 		if !p.Get() {
 			//解锁
 			redisLock.Unlock(lockKey)
 			return errors.New("产品不存在！")
+		}
+		//赠品分析
+		if p.Type == 5 {
+			//解锁
+			redisLock.Unlock(lockKey)
+			return errors.New("产品为赠品！不能购买")
 		}
 		if int64(this.Amount*model.UNITY) < p.Price {
 			//解锁
@@ -555,6 +585,66 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			//3级代理佣金计算
 			this.ProxyRebate(&config, 3, inc)
 		}
+
+		//赠品分析
+		if p.GiftId > 0 {
+			giftModel := model.Product{
+				ID:     p.GiftId,
+				Status: 1,
+				Type:   5,
+			}
+
+			//当赠品产品信息存在时
+			if giftModel.Get() {
+				//获取会员当前最新余额信息
+				memberModel.Get()
+				//赠品金额 @todo
+				giftAmount := amount * int64(config.GiftRate) / int64(model.UNITY)
+
+				//赠品订单
+				orderModel := &model.OrderProduct{
+					UID:          member.ID,
+					Pid:          giftModel.ID,
+					PayMoney:     giftAmount,
+					IsReturnTop:  1,
+					AfterBalance: memberModel.Balance,
+					CreateTime:   time.Now().Unix(),
+					UpdateTime:   time.Now().Unix(),
+				}
+				err := orderModel.Insert()
+				if err != nil {
+					//解锁
+					redisLock.Unlock(lockKey)
+					return err
+				}
+
+				//加入账变记录
+				logModel := model.Trade{
+					UID:        member.ID,
+					TradeType:  1,
+					ItemID:     orderModel.ID,
+					Amount:     giftAmount,
+					Before:     memberModel.Balance,
+					After:      memberModel.Balance,
+					Desc:       "赠品:购买产品赠送",
+					CreateTime: time.Now().Unix(),
+					UpdateTime: time.Now().Unix(),
+					IsFrontend: 1,
+				}
+				err = logModel.Insert()
+				if err != nil {
+					logrus.Errorf("赠送赠品加入账变记录失败%v", err)
+				}
+
+				//更改用户收益
+				memberModel.WillIncome += giftAmount * int64(giftModel.Dayincome*p.TimeLimit) / int64(model.UNITY)
+				err = memberModel.Update("wll_income")
+				if err != nil {
+					logrus.Errorf("赠送赠品更改会员收益信息失败%v", err)
+				}
+			}
+		}
+
 		//解锁
 		redisLock.Unlock(lockKey)
 		return nil

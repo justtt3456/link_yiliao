@@ -18,6 +18,7 @@ type SetBase struct {
 	SendDesc     string `gorm:"column:send_desc"`      //奖励描述
 	RegisterDesc string `gorm:"column:register_desc"`  //注册好礼描述
 	TeamDesc     string `gorm:"column:team_desc"`      //团队奖励描述
+	GiftRate     int    `gorm:"column:gift_rate"`      //赠品赠送比例
 }
 
 // TableName sets the insert table name for this struct type
