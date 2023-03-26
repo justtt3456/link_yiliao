@@ -83,6 +83,11 @@ func (this *Award) Run() {
 					isReturnCaptial = 0
 				}
 			}
+		case 5: //赠品订单
+			desc = "到期返回本金"
+			if overtime == now {
+				capital = 0
+			}
 		}
 
 		memberModel := model.Member{ID: productOrder[i].UID}
