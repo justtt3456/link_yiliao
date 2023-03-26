@@ -27,7 +27,7 @@ func (this ConfigBase) Get() (*response.ConfigBase, error) {
 		SendDesc:     base.SendDesc,
 		RegisterDesc: base.RegisterDesc,
 		TeamDesc:     base.TeamDesc,
-		GiftRate:     base.GiftRate,
+		GiftRate:     float64(base.GiftRate) / model.UNITY,
 	}, nil
 }
 
