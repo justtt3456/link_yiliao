@@ -15,19 +15,24 @@ func (this ConfigBase) Get() (*response.ConfigBase, error) {
 		return nil, errors.New("参数错误")
 	}
 	return &response.ConfigBase{
-		ID:           base.ID,
-		AppName:      base.AppName,
-		AppLogo:      base.AppLogo,
-		VerifiedSend: float64(base.VerifiedSend) / model.UNITY,
-		RegisterSend: float64(base.RegisterSend) / model.UNITY,
-		OneSend:      float64(base.OneSend) / model.UNITY,
-		TwoSend:      float64(base.TwoSend) / model.UNITY,
-		ThreeSend:    float64(base.ThreeSend) / model.UNITY,
-		OneSendMoeny: float64(base.OneSendMoeny) / model.UNITY,
-		SendDesc:     base.SendDesc,
-		RegisterDesc: base.RegisterDesc,
-		TeamDesc:     base.TeamDesc,
-		GiftRate:     float64(base.GiftRate) / model.UNITY,
+		ID:                base.ID,
+		AppName:           base.AppName,
+		AppLogo:           base.AppLogo,
+		VerifiedSend:      float64(base.VerifiedSend) / model.UNITY,
+		RegisterSend:      float64(base.RegisterSend) / model.UNITY,
+		OneSend:           float64(base.OneSend) / model.UNITY,
+		TwoSend:           float64(base.TwoSend) / model.UNITY,
+		ThreeSend:         float64(base.ThreeSend) / model.UNITY,
+		OneSendMoeny:      float64(base.OneSendMoeny) / model.UNITY,
+		SendDesc:          base.SendDesc,
+		RegisterDesc:      base.RegisterDesc,
+		TeamDesc:          base.TeamDesc,
+		GiftRate:          float64(base.GiftRate) / model.UNITY,
+		RetreatStartDate:  base.RetreatStartDate,
+		OneReleaseRate:    float64(base.OneReleaseRate) / model.UNITY,
+		TwoReleaseRate:    float64(base.TwoReleaseRate) / model.UNITY,
+		ThreeReleaseRate:  float64(base.ThreeReleaseRate) / model.UNITY,
+		IncomeBalanceRate: float64(base.IncomeBalanceRate) / model.UNITY,
 	}, nil
 }
 
@@ -40,18 +45,23 @@ func (this ConfigBaseUpdate) Update() error {
 	//添加
 	if !conf.Get() {
 		c := model.SetBase{
-			AppName:      this.AppName,
-			AppLogo:      this.AppLogo,
-			VerifiedSend: int(this.VerifiedSend * model.UNITY),
-			RegisterSend: int(this.RegisterSend * model.UNITY),
-			OneSend:      int(this.OneSend * model.UNITY),
-			TwoSend:      int(this.TwoSend * model.UNITY),
-			ThreeSend:    int(this.ThreeSend * model.UNITY),
-			SendDesc:     this.SendDesc,
-			RegisterDesc: this.RegisterDesc,
-			TeamDesc:     this.TeamDesc,
-			OneSendMoeny: int64(this.OneSendMoeny * model.UNITY),
-			GiftRate:     int(this.GiftRate * model.UNITY),
+			AppName:           this.AppName,
+			AppLogo:           this.AppLogo,
+			VerifiedSend:      int(this.VerifiedSend * model.UNITY),
+			RegisterSend:      int(this.RegisterSend * model.UNITY),
+			OneSend:           int(this.OneSend * model.UNITY),
+			TwoSend:           int(this.TwoSend * model.UNITY),
+			ThreeSend:         int(this.ThreeSend * model.UNITY),
+			SendDesc:          this.SendDesc,
+			RegisterDesc:      this.RegisterDesc,
+			TeamDesc:          this.TeamDesc,
+			OneSendMoeny:      int64(this.OneSendMoeny * model.UNITY),
+			GiftRate:          int(this.GiftRate * model.UNITY),
+			RetreatStartDate:  this.RetreatStartDate,
+			OneReleaseRate:    int(this.OneReleaseRate * model.UNITY),
+			TwoReleaseRate:    int(this.TwoReleaseRate * model.UNITY),
+			ThreeReleaseRate:  int(this.ThreeReleaseRate * model.UNITY),
+			IncomeBalanceRate: int(this.IncomeBalanceRate * model.UNITY),
 		}
 		return c.Insert()
 	} else {
@@ -69,6 +79,11 @@ func (this ConfigBaseUpdate) Update() error {
 		conf.RegisterDesc = this.RegisterDesc
 		conf.TeamDesc = this.TeamDesc
 		conf.GiftRate = int(this.GiftRate * model.UNITY)
+		conf.RetreatStartDate = this.RetreatStartDate
+		conf.OneReleaseRate = int(this.OneReleaseRate * model.UNITY)
+		conf.TwoReleaseRate = int(this.TwoReleaseRate * model.UNITY)
+		conf.ThreeReleaseRate = int(this.ThreeReleaseRate * model.UNITY)
+		conf.IncomeBalanceRate = int(this.IncomeBalanceRate * model.UNITY)
 		return conf.Update()
 	}
 }

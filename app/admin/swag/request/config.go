@@ -1,19 +1,24 @@
 package request
 
 type ConfigBaseUpdate struct {
-	ID           int     `json:"id"`             //
-	AppName      string  `json:"app_name"`       //网站应用名称
-	AppLogo      string  `json:"app_logo"`       //网站应用logo
-	VerifiedSend float64 `json:"verified_send"`  //实名送金币
-	RegisterSend float64 `json:"register_send"`  //注册24小时后  第一次充值送金币
-	OneSend      float64 `json:"one_send"`       //一级奖励
-	TwoSend      float64 `json:"two_send"`       //二级奖励
-	ThreeSend    float64 `json:"three_send"`     //三级奖励
-	SendDesc     string  `json:"send_desc"`      //奖励描述
-	RegisterDesc string  `json:"register_desc"`  //注册好礼描述
-	TeamDesc     string  `json:"team_desc"`      //团队奖励描述
-	OneSendMoeny float64 `json:"one_send_moeny"` //代理返佣基础值  （10）元
-	GiftRate     float64 `json:"gift_rate"`      //赠品赠送比例
+	ID                int     `json:"id"`                  //
+	AppName           string  `json:"app_name"`            //网站应用名称
+	AppLogo           string  `json:"app_logo"`            //网站应用logo
+	VerifiedSend      float64 `json:"verified_send"`       //实名送金币
+	RegisterSend      float64 `json:"register_send"`       //注册24小时后  第一次充值送金币
+	OneSend           float64 `json:"one_send"`            //一级奖励
+	TwoSend           float64 `json:"two_send"`            //二级奖励
+	ThreeSend         float64 `json:"three_send"`          //三级奖励
+	SendDesc          string  `json:"send_desc"`           //奖励描述
+	RegisterDesc      string  `json:"register_desc"`       //注册好礼描述
+	TeamDesc          string  `json:"team_desc"`           //团队奖励描述
+	OneSendMoeny      float64 `json:"one_send_moeny"`      //代理返佣基础值  （10）元
+	GiftRate          float64 `json:"gift_rate"`           //赠品赠送比例
+	RetreatStartDate  string  `json:"retreat_start_date"`  //开始收盘日期
+	OneReleaseRate    float64 `json:"one_release_rate"`    //一级代理释放比
+	TwoReleaseRate    float64 `json:"two_release_rate"`    //二级代理释放比
+	ThreeReleaseRate  float64 `json:"three_release_rate"`  //三级代理释放比
+	IncomeBalanceRate float64 `json:"income_balance_rate"` //收益转可用余额比例
 }
 
 type ConfigFundsUpdate struct {
