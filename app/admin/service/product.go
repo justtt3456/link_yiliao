@@ -48,6 +48,7 @@ func (this ProductList) PageList() response.ProductData {
 			DelayTime:    v.DelayTime,
 			Type:         v.Type,
 			Progress:     float64(v.Progress) / model.UNITY,
+			GiftId:       v.GiftId,
 		}
 		res = append(res, i)
 	}
