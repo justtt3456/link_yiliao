@@ -21,8 +21,8 @@ type Member struct {
 	WithdrawPassword string `gorm:"column:withdraw_password"`       //提现密码
 	WithdrawSalt     string `gorm:"column:withdraw_salt"`           //盐
 	TotalBalance     int64  `gorm:"column:total_balance"`           //所有余额   可用余额+可提现余额+当前所投资项目的总额
-	Balance          int64  `gorm:"column:balance"`                 //余额
-	UseBalance       int64  `gorm:"column:use_balance"`             //可用余额
+	Balance          int64  `gorm:"column:balance"`                 //可用余额
+	UseBalance       int64  `gorm:"column:use_balance"`             //可提现余额
 	IsReal           int    `gorm:"column:is_real"`                 //是否实名 1审核中 2通过 3驳回
 	RealName         string `gorm:"column:real_name"`               //真实姓名
 	InvestFreeze     int64  `gorm:"column:invest_freeze"`           //余额宝冻结金额

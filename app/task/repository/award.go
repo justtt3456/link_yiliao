@@ -28,13 +28,6 @@ func (this *Award) Run() {
 	}
 	global.REDIS.Set(prefixdayincome+fmt.Sprint(today), now, -1)
 
-	//获取代理返佣配置
-	c := model.SetBase{}
-	if !c.Get() {
-		logrus.Errorf("基础配置表  未配置")
-		return
-	}
-
 	//产品收益
 	o := model.OrderProduct{}
 	productOrder := o.GetValidOrderList(today)
