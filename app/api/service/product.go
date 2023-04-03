@@ -780,28 +780,81 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		if isSendRigster {
 			//获取会员当前最新余额信息
 			memberModel.Get()
-			//赠送礼金 加入账变记录
-			trade2 := model.Trade{
-				UID:        member.ID,
-				TradeType:  7,
-				ItemID:     inc.ID,
-				Amount:     int64(config.RegisterSend),
-				Before:     memberModel.Balance,
-				After:      memberModel.Balance + int64(config.RegisterSend),
-				Desc:       "第一次购买赠送礼金",
-				CreateTime: time.Now().Unix(),
-				UpdateTime: time.Now().Unix(),
-				IsFrontend: 1,
+			//收盘状态分析
+			isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
+			if isRetreatStatus == true {
+				//可用余额转换比例分析, 默认为90%
+				if config.IncomeBalanceRate == 0 {
+					config.IncomeBalanceRate = 9000
+				}
+				//可用余额,可提现余额分析
+				balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * int64(config.RegisterSend)
+				useBalanceAmount := int64(config.RegisterSend) - balanceAmount
+
+				//赠送礼金 加入账变记录
+				trade2 := model.Trade{
+					UID:        member.ID,
+					TradeType:  7,
+					ItemID:     inc.ID,
+					Amount:     useBalanceAmount,
+					Before:     memberModel.UseBalance,
+					After:      memberModel.UseBalance + useBalanceAmount,
+					Desc:       "第一次购买赠送礼金",
+					CreateTime: time.Now().Unix(),
+					UpdateTime: time.Now().Unix(),
+					IsFrontend: 1,
+				}
+				err = trade2.Insert()
+				if err != nil {
+					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+				}
+
+				trade2 = model.Trade{
+					UID:        member.ID,
+					TradeType:  7,
+					ItemID:     inc.ID,
+					Amount:     balanceAmount,
+					Before:     memberModel.Balance,
+					After:      memberModel.Balance + balanceAmount,
+					Desc:       "第一次购买赠送礼金",
+					CreateTime: time.Now().Unix(),
+					UpdateTime: time.Now().Unix(),
+					IsFrontend: 1,
+				}
+				err = trade2.Insert()
+				if err != nil {
+					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+				}
+
+				//更改会员当前余额信息
+				memberModel.Balance += balanceAmount
+				memberModel.UseBalance += useBalanceAmount
+			} else {
+				//赠送礼金 加入账变记录
+				trade2 := model.Trade{
+					UID:        member.ID,
+					TradeType:  7,
+					ItemID:     inc.ID,
+					Amount:     int64(config.RegisterSend),
+					Before:     memberModel.Balance,
+					After:      memberModel.Balance + int64(config.RegisterSend),
+					Desc:       "第一次购买赠送礼金",
+					CreateTime: time.Now().Unix(),
+					UpdateTime: time.Now().Unix(),
+					IsFrontend: 1,
+				}
+				err = trade2.Insert()
+				if err != nil {
+					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+				}
+				//更改会员余额
+				memberModel.Balance += 0
+				memberModel.UseBalance += int64(config.RegisterSend)
 			}
-			err = trade2.Insert()
-			if err != nil {
-				logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-			}
-			//更改会员余额
-			memberModel.UseBalance += int64(config.RegisterSend)
+
 			memberModel.TotalBalance += int64(config.RegisterSend)
 			memberModel.Income += int64(config.RegisterSend)
-			err = memberModel.Update("total_balance", "use_balance", "income")
+			err = memberModel.Update("total_balance", "balance", "use_balance", "income")
 			if err != nil {
 				logrus.Errorf("更改会员余额信息失败%v", err)
 			}
