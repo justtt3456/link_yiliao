@@ -284,34 +284,86 @@ func (this MemberVerifiedUpdate) Update() error {
 	if !member.Get() {
 		return errors.New("用户不存在")
 	}
+
+	//获取基础配置表信息
 	c := model.SetBase{}
 	c.Get()
-	if c.VerifiedSend > 0 && member.IsOneShiming == 1 && this.Status == 2 {
-		//加入账变记录
-		trade := model.Trade{
-			UID:        member.ID,
-			TradeType:  8,
-			Amount:     int64(c.VerifiedSend),
-			Before:     member.UseBalance,
-			After:      member.UseBalance + int64(c.VerifiedSend),
-			Desc:       "实名认证礼金",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		trade.Insert()
 
-		//第一次实名通过的时候送奖金
-		member.IsOneShiming = 2
-		member.UseBalance += int64(c.VerifiedSend)
-		member.TotalBalance += int64(c.VerifiedSend)
-		member.Income += int64(c.VerifiedSend)
+	if c.VerifiedSend > 0 && member.IsOneShiming == 1 && this.Status == 2 {
+		//收盘状态分析
+		isRetreatStatus := common.ParseRetreatStatus(c.RetreatStartDate)
+		if isRetreatStatus == true {
+			//可用余额转换比例分析, 默认为90%
+			if c.IncomeBalanceRate == 0 {
+				c.IncomeBalanceRate = 9000
+			}
+
+			//可用余额,可提现余额分析
+			balanceAmount := int64(c.IncomeBalanceRate) / int64(model.UNITY) * int64(c.VerifiedSend)
+			useBalanceAmount := int64(c.VerifiedSend) - balanceAmount
+
+			//第一次实名通过的时候送奖金
+			member.IsOneShiming = 2
+			member.Balance += balanceAmount
+			member.UseBalance += useBalanceAmount
+			member.TotalBalance += int64(c.VerifiedSend)
+			member.Income += int64(c.VerifiedSend)
+
+			//加入账变记录
+			trade := model.Trade{
+				UID:        member.ID,
+				TradeType:  8,
+				Amount:     useBalanceAmount,
+				Before:     member.UseBalance,
+				After:      member.UseBalance + useBalanceAmount,
+				Desc:       "实名认证礼金",
+				CreateTime: time.Now().Unix(),
+				UpdateTime: time.Now().Unix(),
+				IsFrontend: 1,
+			}
+			trade.Insert()
+
+			trade = model.Trade{
+				UID:        member.ID,
+				TradeType:  8,
+				Amount:     balanceAmount,
+				Before:     member.Balance,
+				After:      member.Balance + balanceAmount,
+				Desc:       "实名认证礼金",
+				CreateTime: time.Now().Unix(),
+				UpdateTime: time.Now().Unix(),
+				IsFrontend: 1,
+			}
+			trade.Insert()
+
+		} else {
+			//加入账变记录
+			trade := model.Trade{
+				UID:        member.ID,
+				TradeType:  8,
+				Amount:     int64(c.VerifiedSend),
+				Before:     member.UseBalance,
+				After:      member.UseBalance + int64(c.VerifiedSend),
+				Desc:       "实名认证礼金",
+				CreateTime: time.Now().Unix(),
+				UpdateTime: time.Now().Unix(),
+				IsFrontend: 1,
+			}
+			trade.Insert()
+
+			//第一次实名通过的时候送奖金
+			member.IsOneShiming = 2
+			member.Balance += 0
+			member.UseBalance += int64(c.VerifiedSend)
+			member.TotalBalance += int64(c.VerifiedSend)
+			member.Income += int64(c.VerifiedSend)
+		}
 	}
 
 	member.IsReal = this.Status
 	member.RealName = m.RealName
 	member.Mobile = m.Mobile
-	return member.Update("is_real", "real_name", "mobile", "income", "use_balance", "is_one_shiming", "total_balance")
+	return member.Update("is_real", "real_name", "mobile", "income", "balance", "use_balance", "is_one_shiming", "total_balance")
 }
 
 type MemberVerifiedRemove struct {
