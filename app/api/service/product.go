@@ -908,36 +908,127 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 	//获取代理当前余额
 	memberModel.Get()
 
-	trade := model.Trade{
-		UID:        agent.Puid,
-		TradeType:  t,
-		ItemID:     productOrder.UID,
-		Amount:     income,
-		Before:     memberModel.UseBalance,
-		After:      memberModel.UseBalance + income,
-		Desc:       fmt.Sprintf("%v级返佣", level),
-		CreateTime: time.Now().Unix(),
-		UpdateTime: time.Now().Unix(),
-		IsFrontend: 1,
-	}
-	err := trade.Insert()
-	if err != nil {
-		logrus.Errorf("%v级返佣收益存入账单失败  用户ID %v err= &v", level, productOrder.UID, err)
+	//收盘状态分析
+	isRetreatStatus := common.ParseRetreatStatus(c.RetreatStartDate)
+	if isRetreatStatus == true && level != 1 {
+		trade := model.Trade{
+			UID:        agent.Puid,
+			TradeType:  t,
+			ItemID:     productOrder.UID,
+			Amount:     income,
+			Before:     memberModel.Balance,
+			After:      memberModel.Balance + income,
+			Desc:       fmt.Sprintf("%v级返佣", level),
+			CreateTime: time.Now().Unix(),
+			UpdateTime: time.Now().Unix(),
+			IsFrontend: 1,
+		}
+		err := trade.Insert()
+		if err != nil {
+			logrus.Errorf("%v级返佣收益存入账单失败  用户ID %v err= &v", level, productOrder.UID, err)
+		}
+
+		memberModel.TotalBalance += income
+		memberModel.Balance += income
+		memberModel.Income += income
+		err = memberModel.Update("total_balance", "balance", "income")
+		if err != nil {
+			logrus.Errorf("%v级返佣收益修改余额失败 用户ID %v 收益 %v  err= &v", level, productOrder.UID, income, err)
+		}
+
+		//修改产品状态
+		productOrder.IsReturnTop = 2
+		err = productOrder.Update("is_return_top")
+		if err != nil {
+			logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
+		}
+	} else {
+		trade := model.Trade{
+			UID:        agent.Puid,
+			TradeType:  t,
+			ItemID:     productOrder.UID,
+			Amount:     income,
+			Before:     memberModel.UseBalance,
+			After:      memberModel.UseBalance + income,
+			Desc:       fmt.Sprintf("%v级返佣", level),
+			CreateTime: time.Now().Unix(),
+			UpdateTime: time.Now().Unix(),
+			IsFrontend: 1,
+		}
+		err := trade.Insert()
+		if err != nil {
+			logrus.Errorf("%v级返佣收益存入账单失败  用户ID %v err= &v", level, productOrder.UID, err)
+		}
+
+		memberModel.TotalBalance += income
+		memberModel.UseBalance += income
+		memberModel.Income += income
+		err = memberModel.Update("total_balance", "use_balance", "income")
+		if err != nil {
+			logrus.Errorf("%v级返佣收益修改余额失败 用户ID %v 收益 %v  err= &v", level, productOrder.UID, income, err)
+		}
+
+		//修改产品状态
+		productOrder.IsReturnTop = 2
+		err = productOrder.Update("is_return_top")
+		if err != nil {
+			logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
+		}
 	}
 
-	memberModel.TotalBalance += income
-	memberModel.UseBalance += income
-	memberModel.Income += income
-	err = memberModel.Update("total_balance", "use_balance", "income")
-	if err != nil {
-		logrus.Errorf("%v级返佣收益修改余额失败 用户ID %v 收益 %v  err= &v", level, productOrder.UID, income, err)
-	}
+	//释放一级,二级,三级代理的可用余额
+	if isRetreatStatus == true && memberModel.Balance > 0 {
+		var freeAmount int64
+		var t2 int
+		switch level {
+		case 1:
+			if c.OneReleaseRate == 0 {
+				c.OneReleaseRate = 1000
+			}
+			t2 = 25
+			freeAmount = int64(c.OneReleaseRate) / int64(model.UNITY) * productOrder.PayMoney
+		case 2:
+			if c.TwoReleaseRate == 0 {
+				c.TwoReleaseRate = 500
+			}
+			t2 = 26
+			freeAmount = int64(c.TwoReleaseRate) / int64(model.UNITY) * productOrder.PayMoney
+		case 3:
+			if c.ThreeReleaseRate == 0 {
+				c.ThreeReleaseRate = 200
+			}
+			t2 = 27
+			freeAmount = int64(c.ThreeReleaseRate) / int64(model.UNITY) * productOrder.PayMoney
+		}
 
-	//修改产品状态
-	productOrder.IsReturnTop = 2
-	err = productOrder.Update("is_return_top")
-	if err != nil {
-		logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
+		//可用余额分析
+		if memberModel.Balance < freeAmount {
+			freeAmount = memberModel.Balance
+		}
+
+		trade2 := model.Trade{
+			UID:        agent.Puid,
+			TradeType:  t2,
+			ItemID:     productOrder.UID,
+			Amount:     freeAmount,
+			Before:     memberModel.UseBalance,
+			After:      memberModel.UseBalance + freeAmount,
+			Desc:       fmt.Sprintf("%v级释放可用余额", level),
+			CreateTime: time.Now().Unix(),
+			UpdateTime: time.Now().Unix(),
+			IsFrontend: 1,
+		}
+		err := trade2.Insert()
+		if err != nil {
+			logrus.Errorf("%v级释放可用余额失败  代理UID %v err= &v", level, agent.Puid, err)
+		}
+
+		memberModel.Balance -= freeAmount
+		memberModel.UseBalance += freeAmount
+		err = memberModel.Update("balance", "use_balance")
+		if err != nil {
+			logrus.Errorf("%v级释放可用余额失败 代理UID %v 收益 %v  err= &v", level, agent.Puid, freeAmount, err)
+		}
 	}
 }
 
