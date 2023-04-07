@@ -35,6 +35,13 @@ func (this *Award) Run() {
 		return
 	}
 
+	//获取基础配置表信息
+	config := model.SetBase{}
+	config.Get()
+
+	//收盘状态分析
+	isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
+
 	for i := range productOrder {
 		//判断收益是否结束
 		createDayTime := common.GetTimeByYMD(productOrder[i].CreateTime)
@@ -87,26 +94,73 @@ func (this *Award) Run() {
 		if capital > 0 {
 			//获取当前余额
 			memberModel.Get()
-			//存入收益列表
-			trade := model.Trade{
-				UID:        productOrder[i].UID,
-				TradeType:  24,
-				ItemID:     productOrder[i].ID,
-				Amount:     capital,
-				Before:     memberModel.UseBalance,
-				After:      memberModel.UseBalance + capital,
-				Desc:       desc,
-				CreateTime: now,
-				UpdateTime: now,
-				IsFrontend: 1,
+			if isRetreatStatus == true {
+				//可用余额转换比例分析, 默认为90%
+				if config.IncomeBalanceRate == 0 {
+					config.IncomeBalanceRate = 9000
+				}
+
+				//可用余额,可提现余额分析
+				balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * capital
+				useBalanceAmount := capital - balanceAmount
+
+				//存入收益列表
+				trade := model.Trade{
+					UID:        productOrder[i].UID,
+					TradeType:  24,
+					ItemID:     productOrder[i].ID,
+					Amount:     balanceAmount,
+					Before:     memberModel.Balance,
+					After:      memberModel.Balance + balanceAmount,
+					Desc:       desc,
+					CreateTime: now,
+					UpdateTime: now,
+					IsFrontend: 1,
+				}
+				_ = trade.Insert()
+
+				trade2 := model.Trade{
+					UID:        productOrder[i].UID,
+					TradeType:  24,
+					ItemID:     productOrder[i].ID,
+					Amount:     useBalanceAmount,
+					Before:     memberModel.UseBalance,
+					After:      memberModel.UseBalance + useBalanceAmount,
+					Desc:       desc,
+					CreateTime: now,
+					UpdateTime: now,
+					IsFrontend: 1,
+				}
+				_ = trade2.Insert()
+
+				//更改用户余额
+				memberModel.Balance += balanceAmount
+				memberModel.UseBalance += useBalanceAmount
+			} else {
+				//存入收益列表
+				trade := model.Trade{
+					UID:        productOrder[i].UID,
+					TradeType:  24,
+					ItemID:     productOrder[i].ID,
+					Amount:     capital,
+					Before:     memberModel.UseBalance,
+					After:      memberModel.UseBalance + capital,
+					Desc:       desc,
+					CreateTime: now,
+					UpdateTime: now,
+					IsFrontend: 1,
+				}
+				_ = trade.Insert()
+
+				//更改用户余额
+				memberModel.Balance += 0
+				memberModel.UseBalance += capital
 			}
-			_ = trade.Insert()
 
 			//更改用户余额
-			memberModel.UseBalance += capital
 			memberModel.Income += capital
 			memberModel.PIncome += capital
-			err := memberModel.Update("use_balance", "income", "p_income")
+			err := memberModel.Update("balance", "use_balance", "income", "p_income")
 			if err != nil {
 				logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, capital, err)
 			}
@@ -115,7 +169,7 @@ func (this *Award) Run() {
 			if isReturnCaptial == 1 {
 				orderModel := model.OrderProduct{ID: productOrder[i].ID}
 				orderModel.IsReturnCapital = 1
-				err = orderModel.Update("is_return_capital")
+				err := orderModel.Update("is_return_capital")
 				if err != nil {
 					logrus.Errorf("修改产品订单返还本金状态失败  今日%v  订单ID %v err= &v", today, productOrder[i].ID, err)
 				}
@@ -148,27 +202,79 @@ func (this *Award) Run() {
 
 		//获取当前余额
 		memberModel.Get()
-		//存入收益列表
-		trade := model.Trade{
-			UID:        productOrder[i].UID,
-			TradeType:  16,
-			ItemID:     productOrder[i].ID,
-			Amount:     income2,
-			Before:     memberModel.UseBalance,
-			After:      memberModel.UseBalance + income2,
-			Desc:       "产品每日收益",
-			CreateTime: now,
-			UpdateTime: now,
-			IsFrontend: 1,
-		}
-		err := trade.Insert()
-		if err != nil {
-			logrus.Errorf("存入账单失败  今日%v  用户ID %v err= &v", today, productOrder[i].UID, err)
-		}
+		if isRetreatStatus == true {
+			//可用余额转换比例分析, 默认为90%
+			if config.IncomeBalanceRate == 0 {
+				config.IncomeBalanceRate = 9000
+			}
 
+			//可用余额,可提现余额分析
+			balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * income2
+			useBalanceAmount := income2 - balanceAmount
+
+			//存入收益列表
+			trade := model.Trade{
+				UID:        productOrder[i].UID,
+				TradeType:  16,
+				ItemID:     productOrder[i].ID,
+				Amount:     balanceAmount,
+				Before:     memberModel.Balance,
+				After:      memberModel.Balance + balanceAmount,
+				Desc:       "产品每日收益",
+				CreateTime: now,
+				UpdateTime: now,
+				IsFrontend: 1,
+			}
+			err := trade.Insert()
+			if err != nil {
+				logrus.Errorf("存入可用余额账单失败  今日%v  用户ID %v err= &v", today, productOrder[i].UID, err)
+			}
+
+			trade2 := model.Trade{
+				UID:        productOrder[i].UID,
+				TradeType:  16,
+				ItemID:     productOrder[i].ID,
+				Amount:     useBalanceAmount,
+				Before:     memberModel.UseBalance,
+				After:      memberModel.UseBalance + useBalanceAmount,
+				Desc:       "产品每日收益",
+				CreateTime: now,
+				UpdateTime: now,
+				IsFrontend: 1,
+			}
+			err = trade2.Insert()
+			if err != nil {
+				logrus.Errorf("存入可提现余额账单失败  今日%v  用户ID %v err= &v", today, productOrder[i].UID, err)
+			}
+
+			//更改用户余额
+			memberModel.Balance += balanceAmount
+			memberModel.UseBalance += useBalanceAmount
+		} else {
+			//存入收益列表
+			trade := model.Trade{
+				UID:        productOrder[i].UID,
+				TradeType:  16,
+				ItemID:     productOrder[i].ID,
+				Amount:     income2,
+				Before:     memberModel.UseBalance,
+				After:      memberModel.UseBalance + income2,
+				Desc:       "产品每日收益",
+				CreateTime: now,
+				UpdateTime: now,
+				IsFrontend: 1,
+			}
+			err := trade.Insert()
+			if err != nil {
+				logrus.Errorf("存入账单失败  今日%v  用户ID %v err= &v", today, productOrder[i].UID, err)
+			}
+
+			//更改用户余额
+			memberModel.Balance += 0
+			memberModel.UseBalance += income2
+		}
 		//更改用户余额
 		memberModel.TotalBalance += income2
-		memberModel.UseBalance += income2
 		memberModel.Income += income2
 		memberModel.PIncome += income2
 		//待收益扣减
@@ -177,7 +283,7 @@ func (this *Award) Run() {
 		} else {
 			memberModel.WillIncome = 0
 		}
-		err = memberModel.Update("total_balance", "use_balance", "income", "p_income", "wll_income")
+		err := memberModel.Update("total_balance", "use_balance", "income", "p_income", "wll_income")
 		if err != nil {
 			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, income, err)
 		}
@@ -260,29 +366,82 @@ func (this *Award) TeamIncome() {
 			}
 
 			if income3 > 0 {
+				//获取基础配置表信息
+				config := model.SetBase{}
+				config.Get()
+
 				memberModel := model.Member{ID: proxyId}
 				//获取当前余额
 				memberModel.Get()
-				//存入收益列表
-				trade := model.Trade{
-					UID:        proxyId,
-					TradeType:  21,
-					ItemID:     int(count),
-					Amount:     income3,
-					Before:     memberModel.UseBalance,
-					After:      memberModel.UseBalance + income3,
-					Desc:       "团队收益",
-					CreateTime: now,
-					UpdateTime: now,
-					IsFrontend: 1,
-				}
-				_ = trade.Insert()
 
+				//收盘状态分析
+				isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
+				if isRetreatStatus == true {
+					//可用余额转换比例分析, 默认为90%
+					if config.IncomeBalanceRate == 0 {
+						config.IncomeBalanceRate = 9000
+					}
+
+					//可用余额,可提现余额分析
+					balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * income3
+					useBalanceAmount := income3 - balanceAmount
+
+					//存入收益列表
+					trade := model.Trade{
+						UID:        proxyId,
+						TradeType:  21,
+						ItemID:     int(count),
+						Amount:     balanceAmount,
+						Before:     memberModel.Balance,
+						After:      memberModel.Balance + balanceAmount,
+						Desc:       "团队收益",
+						CreateTime: now,
+						UpdateTime: now,
+						IsFrontend: 1,
+					}
+					_ = trade.Insert()
+
+					trade2 := model.Trade{
+						UID:        proxyId,
+						TradeType:  21,
+						ItemID:     int(count),
+						Amount:     useBalanceAmount,
+						Before:     memberModel.UseBalance,
+						After:      memberModel.UseBalance + useBalanceAmount,
+						Desc:       "团队收益",
+						CreateTime: now,
+						UpdateTime: now,
+						IsFrontend: 1,
+					}
+					_ = trade2.Insert()
+
+					//更改账户余额
+					memberModel.Balance += balanceAmount
+					memberModel.UseBalance += useBalanceAmount
+				} else {
+					//存入收益列表
+					trade := model.Trade{
+						UID:        proxyId,
+						TradeType:  21,
+						ItemID:     int(count),
+						Amount:     income3,
+						Before:     memberModel.UseBalance,
+						After:      memberModel.UseBalance + income3,
+						Desc:       "团队收益",
+						CreateTime: now,
+						UpdateTime: now,
+						IsFrontend: 1,
+					}
+					_ = trade.Insert()
+
+					//更改账户余额
+					memberModel.Balance += 0
+					memberModel.UseBalance += income3
+				}
 				//更改账户余额
 				memberModel.TotalBalance += income3
-				memberModel.UseBalance += income3
 				memberModel.Income += income3
-				err := memberModel.Update("total_balance", "use_balance", "income")
+				err := memberModel.Update("total_balance", "balance", "use_balance", "income")
 				if err != nil {
 					logrus.Errorf("修改余额失败  今日%v  用户ID %v 团队收益 %v err= &v", today, proxyId, income3, err)
 				}
