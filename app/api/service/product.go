@@ -986,21 +986,20 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 				c.OneReleaseRate = 1000
 			}
 			t2 = 25
-			freeAmount = int64(c.OneReleaseRate) / int64(model.UNITY) * productOrder.PayMoney
+			freeAmount = int64(c.OneReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
 		case 2:
 			if c.TwoReleaseRate == 0 {
 				c.TwoReleaseRate = 500
 			}
 			t2 = 26
-			freeAmount = int64(c.TwoReleaseRate) / int64(model.UNITY) * productOrder.PayMoney
+			freeAmount = int64(c.TwoReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
 		case 3:
 			if c.ThreeReleaseRate == 0 {
 				c.ThreeReleaseRate = 200
 			}
 			t2 = 27
-			freeAmount = int64(c.ThreeReleaseRate) / int64(model.UNITY) * productOrder.PayMoney
+			freeAmount = int64(c.ThreeReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
 		}
-
 		//可用余额分析
 		if memberModel.Balance < freeAmount {
 			freeAmount = memberModel.Balance
