@@ -101,7 +101,7 @@ func (this *Award) Run() {
 				}
 
 				//可用余额,可提现余额分析
-				balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * capital
+				balanceAmount := int64(config.IncomeBalanceRate) * capital / int64(model.UNITY)
 				useBalanceAmount := capital - balanceAmount
 
 				//存入收益列表
@@ -209,7 +209,7 @@ func (this *Award) Run() {
 			}
 
 			//可用余额,可提现余额分析
-			balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * income2
+			balanceAmount := int64(config.IncomeBalanceRate) * income2 / int64(model.UNITY)
 			useBalanceAmount := income2 - balanceAmount
 
 			//存入收益列表
@@ -283,7 +283,7 @@ func (this *Award) Run() {
 		} else {
 			memberModel.WillIncome = 0
 		}
-		err := memberModel.Update("total_balance", "use_balance", "income", "p_income", "wll_income")
+		err := memberModel.Update("balance", "total_balance", "use_balance", "income", "p_income", "wll_income")
 		if err != nil {
 			logrus.Errorf("修改余额失败  今日%v  用户ID %v 收益 %v err= &v", today, productOrder[i].UID, income, err)
 		}

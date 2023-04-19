@@ -588,22 +588,22 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			full := model.FullDelivery{}
 			if full.Find(amount) {
 				//满送活动加入账变记录
-				trade3 := model.Trade{
-					UID:        member.ID,
-					TradeType:  9,
-					ItemID:     int(full.Coupon.ID),
-					Amount:     full.Coupon.Price,
-					Before:     memberModel.Balance,
-					After:      memberModel.Balance + full.Coupon.Price,
-					Desc:       "赠送优惠券",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade3.Insert()
-				if err != nil {
-					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				}
+				//trade3 := model.Trade{
+				//	UID:        member.ID,
+				//	TradeType:  9,
+				//	ItemID:     int(full.Coupon.ID),
+				//	Amount:     full.Coupon.Price,
+				//	Before:     memberModel.Balance,
+				//	After:      memberModel.Balance + full.Coupon.Price,
+				//	Desc:       "赠送优惠券",
+				//	CreateTime: time.Now().Unix(),
+				//	UpdateTime: time.Now().Unix(),
+				//	IsFrontend: 1,
+				//}
+				//err = trade3.Insert()
+				//if err != nil {
+				//	logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+				//}
 				MemberCoupon := model.MemberCoupon{
 					Uid:      int64(member.ID),
 					CouponId: full.Coupon.ID,
@@ -614,11 +614,11 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 					logrus.Errorf("赠赠送优惠券记录失败%v %v", err, member.ID)
 				}
 				//更改会员当前余额
-				memberModel.Balance += full.Coupon.Price
-				err = memberModel.Update("balance")
-				if err != nil {
-					logrus.Errorf("更改会员余额信息失败%v", err)
-				}
+				//memberModel.Balance += full.Coupon.Price
+				//err = memberModel.Update("balance")
+				//if err != nil {
+				//	logrus.Errorf("更改会员余额信息失败%v", err)
+				//}
 			}
 		}
 

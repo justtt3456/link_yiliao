@@ -13,7 +13,7 @@ type RedisLock struct {
 //加锁
 func (this *RedisLock) Lock(lockKey string) bool {
 	//Redis乐观锁缓存时间默认为3秒
-	success, err := this.RedisClient.SetNX(lockKey, "locking", 3*time.Second).Result()
+	success, err := this.RedisClient.SetNX(lockKey, "locking", 30*time.Second).Result()
 	if err != nil {
 		logrus.Error(err)
 		return false
