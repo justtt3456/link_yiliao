@@ -42,7 +42,7 @@ func (o *OrderProduct) Insert() error {
 }
 func (this *OrderProduct) Get() bool {
 	//取数据库
-	res := global.DB.Where(this).First(this)
+	res := global.DB.Where(this).Order("id desc").First(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return false

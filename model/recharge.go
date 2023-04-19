@@ -62,7 +62,7 @@ func (this *Recharge) GetPageList(where string, args []interface{}, page, pageSi
 		Page: page,
 	}
 	var total int64
-	count := global.DB.Model(this).Joins("Member").Joins("RechargeMethod").Joins("Payment").Joins("Admin").Where(where, args...).Count(&total)
+	count := global.DB.Model(this).Joins("Member").Joins("RechargeMethod").Joins("Admin").Where(where, args...).Count(&total)
 	if count.Error != nil {
 		logrus.Error(count.Error)
 		return res, pageUtil
@@ -70,7 +70,7 @@ func (this *Recharge) GetPageList(where string, args []interface{}, page, pageSi
 	pageUtil.SetPage(pageSize, total)
 	if total > 0 {
 		offset := (page - 1) * pageSize
-		tx := global.DB.Model(this).Joins("Member").Joins("RechargeMethod").Joins("Payment").Joins("Admin").Joins("MemberVerified").Where(where, args...).
+		tx := global.DB.Model(this).Joins("Member").Joins("RechargeMethod").Joins("Admin").Joins("MemberVerified").Where(where, args...).
 			Order(this.TableName() + ".id desc").Limit(pageUtil.PageSize).Offset(offset).Find(&res)
 		if tx.Error != nil {
 			logrus.Error(tx.Error)

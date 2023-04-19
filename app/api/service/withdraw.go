@@ -160,7 +160,13 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		redisLock.Unlock(lockKey)
 		return errors.New(fmt.Sprintf(lang.Lang("You can only withdraw %d times per day"), c.WithdrawCount))
 	}
-
+	//当月未参与投资，不允许提现
+	exist := model.OrderProduct{UID: member.ID}
+	if exist.Get() {
+		if exist.CreateTime+30*86400 < time.Now().Unix() {
+			return errors.New("当月未参与投资，不允许提现")
+		}
+	}
 	//计算手续费
 	fee := int64(c.WithdrawFee) * amount / int64(model.UNITY)
 	//生成提现记录

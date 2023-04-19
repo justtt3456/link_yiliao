@@ -46,7 +46,7 @@ func (this RechargeService) PageList() response.RechargeData {
 			CreateTime:  v.CreateTime,
 			Username:    v.Member.Username,
 			MethodName:  v.RechargeMethod.Name,
-			PaymentName: v.Payment.PayName,
+			//PaymentName: v.Payment.PayName,
 			SuccessTime: v.SuccessTime,
 			TradeSn:     v.TradeSn,
 			ImageUrl:    v.ImageUrl,
