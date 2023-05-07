@@ -289,6 +289,28 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 		if err != nil {
 			logrus.Errorf("可提转可用 记录失败%v", err)
 		}
+		//额外赠送
+		extraAmount := amount * 5 / 100
+		extra := model.Trade{
+			UID:        member.ID,
+			TradeType:  6,
+			Amount:     extraAmount,
+			Before:     member.Balance,
+			After:      member.Balance + extraAmount,
+			Desc:       "可提转可用补贴金",
+			CreateTime: time.Now().Unix(),
+			UpdateTime: time.Now().Unix(),
+			IsFrontend: 1,
+		}
+		err = extra.Insert()
+		if err != nil {
+			logrus.Errorf("可提转可用补贴金 记录失败%v", err)
+		}
+		member.Balance += extraAmount
+		err = member.Update("balance")
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

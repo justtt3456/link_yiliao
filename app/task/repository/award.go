@@ -383,7 +383,7 @@ func (this *Award) TeamIncome() {
 					}
 
 					//可用余额,可提现余额分析
-					balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * income3
+					balanceAmount := int64(config.IncomeBalanceRate) * income3 / int64(model.UNITY)
 					useBalanceAmount := income3 - balanceAmount
 
 					//存入收益列表

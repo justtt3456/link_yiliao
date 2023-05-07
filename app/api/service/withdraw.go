@@ -164,8 +164,10 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	exist := model.OrderProduct{UID: member.ID}
 	if exist.Get() {
 		if exist.CreateTime+30*86400 < time.Now().Unix() {
-			return errors.New("当月未参与投资，不允许提现")
+			return errors.New("30天内未激活账户，不允许提现")
 		}
+	} else {
+		return errors.New("30天内未激活账户，不允许提现")
 	}
 	//计算手续费
 	fee := int64(c.WithdrawFee) * amount / int64(model.UNITY)
