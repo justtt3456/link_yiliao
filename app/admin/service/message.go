@@ -68,7 +68,7 @@ func (this MessageCreate) Create() error {
 		UID:     this.UID,
 		Title:   this.Title,
 		Content: this.Content,
-		Status:  this.Status,
+		Status:  model.StatusClose,
 		IsRead:  1,
 	}
 	return m.Insert()
@@ -100,8 +100,8 @@ func (this MessageUpdate) Update() error {
 	//不能改接收用户
 	m.Title = this.Title
 	m.Content = this.Content
-	m.Status = this.Status
-	return m.Update("title", "content", "status")
+	//m.Status = this.Status
+	return m.Update("title", "content")
 }
 
 type MessageUpdateStatus struct {
@@ -118,6 +118,7 @@ func (this MessageUpdateStatus) UpdateStatus() error {
 	if !m.Get() {
 		return errors.New("站内信不存在")
 	}
+
 	m.Status = this.Status
 	return m.Update("status")
 }

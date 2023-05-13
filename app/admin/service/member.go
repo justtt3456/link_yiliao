@@ -84,6 +84,9 @@ func (this MemberList) getWhere() (string, []interface{}) {
 	if this.Username != "" {
 		where["username"] = this.Username
 	}
+	if this.RealName != "" {
+		where["real_name"] = this.RealName
+	}
 	if this.StartTime != "" {
 		where["reg_time >"] = common.DateToUnix(this.StartTime)
 	}

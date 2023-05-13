@@ -101,6 +101,8 @@ type BuyList struct {
 	Status  int     `json:"status"`   //状态 1=进行中  2=结束
 	BuyTime int     `json:"buy_time"` //投资时间
 	Amount  float64 `json:"amount"`   //金额
+	Income  float64 `json:"income"`   //每日收益
+	EndTime int64   `json:"end_time"` //到期时间
 }
 
 type BuyListResp struct {

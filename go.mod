@@ -22,7 +22,7 @@ require (
 	github.com/spf13/viper v1.9.0
 	github.com/swaggo/gin-swagger v1.3.3
 	github.com/swaggo/swag v1.7.6
-	golang.org/x/text v0.4.0 // indirect
+	github.com/xuri/excelize/v2 v2.7.1
 	gorm.io/driver/mysql v1.2.1
 	gorm.io/gorm v1.22.4
 )

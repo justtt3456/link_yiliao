@@ -9,6 +9,7 @@ type MemberList struct {
 	ID        int    `json:"id" form:"id"`
 	Mobile    string `json:"mobile" form:"mobile"`
 	Username  string `json:"username" form:"username"` //用户名
+	RealName  string `json:"real_name" form:"real_name"`
 	StartTime string `json:"start_time" form:"start_time"`
 	EndTime   string `json:"end_time" form:"end_time"`
 	Page      int    `json:"page" form:"page"`
@@ -61,5 +62,5 @@ type SendCouponReq struct {
 }
 
 type GetCodeReq struct {
-	Mobile      string `json:"mobile"`       //手机号
+	Mobile string `json:"mobile"` //手机号
 }

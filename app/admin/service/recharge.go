@@ -165,7 +165,7 @@ func (RechargeHandle) TopupUseBalance(member model.Member, item int, amount int6
 		Amount:     amount,
 		Before:     member.UseBalance,
 		After:      member.UseBalance + amount,
-		Desc:       "国家通用燃气补贴金",
+		Desc:       "提现冲正回调",
 		IsFrontend: isfront,
 	}
 

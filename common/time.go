@@ -88,12 +88,7 @@ func ParseRetreatStatus(startDate string) bool {
 	if startDate == "" {
 		return false
 	}
-	//收盘状态分析
-	closingStatus := false
 	startClosingTime, _ := time.ParseInLocation("2006-01-02", startDate, zone)
 	timeNow := time.Now().Unix()
-	if timeNow >= startClosingTime.Unix() {
-		closingStatus = true
-	}
-	return closingStatus
+	return timeNow >= startClosingTime.Unix()
 }

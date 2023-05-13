@@ -426,6 +426,8 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			AfterBalance: memberModel.Balance - needAmount,
 			CreateTime:   time.Now().Unix(),
 			UpdateTime:   time.Now().Unix(),
+			IncomeRate:   p.Dayincome,
+			EndTime:      time.Now().Unix() + int64(p.TimeLimit*86400),
 		}
 		err := inc.Insert()
 		if err != nil {
@@ -961,9 +963,9 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 
 		memberModel.TotalBalance += income
-		memberModel.UseBalance += income
+		memberModel.Balance += income
 		memberModel.Income += income
-		err = memberModel.Update("total_balance", "use_balance", "income")
+		err = memberModel.Update("total_balance", "balance", "income")
 		if err != nil {
 			logrus.Errorf("%v级返佣收益修改余额失败 用户ID %v 收益 %v  err= &v", level, productOrder.UID, income, err)
 		}
@@ -983,19 +985,22 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		switch level {
 		case 1:
 			if c.OneReleaseRate == 0 {
-				c.OneReleaseRate = 1000
+				return
+				//c.OneReleaseRate = 1000
 			}
 			t2 = 25
 			freeAmount = int64(c.OneReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
 		case 2:
 			if c.TwoReleaseRate == 0 {
-				c.TwoReleaseRate = 500
+				return
+				//c.TwoReleaseRate = 500
 			}
 			t2 = 26
 			freeAmount = int64(c.TwoReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
 		case 3:
 			if c.ThreeReleaseRate == 0 {
-				c.ThreeReleaseRate = 200
+				return
+				//c.ThreeReleaseRate = 200
 			}
 			t2 = 27
 			freeAmount = int64(c.ThreeReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
@@ -1055,11 +1060,19 @@ func (this BuyProducList) List(member *model.Member) *response.BuyListResp {
 		if list[i].IsReturnCapital == 1 {
 			orderStatus = 2
 		}
+		product := model.Product{ID: m.Pid}
+		if !product.Get() {
+			continue
+		}
+		//每日收益
+		income := float64(list[i].PayMoney*int64(list[i].IncomeRate)) / model.UNITY / model.UNITY
 		items = append(items, response.BuyList{
 			Name:    list[i].Product.Name,
 			BuyTime: int(list[i].CreateTime),
 			Amount:  float64(list[i].PayMoney) / model.UNITY,
 			Status:  orderStatus,
+			Income:  income,
+			EndTime: list[i].EndTime,
 		})
 	}
 	res.List = items

@@ -19,6 +19,8 @@ type OrderProduct struct {
 	IsReturnTop     int64   `gorm:"column:is_return_top"`              //1=未返还上级 2=已反还上级
 	IsReturnCapital int     `gorm:"column:is_return_capital"`          //是否返还本身 0:否 1:是
 	IsReturnTeam    int     `gorm:"column:is_return_team"`             //是否已结算团队收益 0:否 1:是
+	IncomeRate      int     `gorm:"column:income_rate"`                //收益率
+	EndTime         int64   `gorm:"column:end_time"`                   //结束时间
 	Member          Member  `gorm:"foreignKey:UID;"`                   //BeLongsTo 关联用户 自身外键UID
 	Product         Product `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
 }
