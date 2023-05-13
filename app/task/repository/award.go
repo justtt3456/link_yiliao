@@ -20,7 +20,7 @@ func (this *Award) Before(orders []*model.OrderProduct) {
 	now := time.Now().Unix()
 	for _, v := range orders {
 		//计算收益
-		income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY / model.UNITY)
+		income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY)
 		logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, float64(income)/model.UNITY)
 		member := model.Member{ID: v.UID}
 		if !member.Get() {
@@ -58,6 +58,8 @@ func (this *Award) Before(orders []*model.OrderProduct) {
 			}
 			_ = trade.Insert()
 			member.UseBalance += v.PayMoney
+			v.IsReturnCapital = 1
+			v.Update("is_return_capital")
 		}
 		member.Update("use_balance")
 	}
@@ -68,8 +70,8 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 	now := time.Now().Unix()
 	for _, v := range orders {
 		//计算收益
-		income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY / model.UNITY)
-		logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, float64(income)/model.UNITY)
+		income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY)
+		logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, income)
 		member := model.Member{ID: v.UID}
 		if !member.Get() {
 			continue
@@ -80,7 +82,7 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 		//可用余额
 		trade := model.Trade{
 			UID:        v.UID,
-			TradeType:  24,
+			TradeType:  16,
 			ItemID:     v.ID,
 			Amount:     balanceAmount,
 			Before:     member.Balance,
@@ -92,7 +94,7 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 		//可提现余额
 		trade2 := model.Trade{
 			UID:        v.UID,
-			TradeType:  24,
+			TradeType:  16,
 			ItemID:     v.ID,
 			Amount:     useBalanceAmount,
 			Before:     member.UseBalance,
@@ -135,6 +137,8 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 			_ = trade2.Insert()
 			member.Balance += balanceAmount
 			member.UseBalance += useBalanceAmount
+			v.IsReturnCapital = 1
+			v.Update("is_return_capital")
 		}
 		member.Update("balance", "use_balance")
 	}
