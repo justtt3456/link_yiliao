@@ -47,13 +47,11 @@ func (this *SetFunds) Get() bool {
 	return true
 }
 func (this *SetFunds) Update() error {
-
 	//全部更新
-	res := global.DB.Updates(this)
+	res := global.DB.Save(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return res.Error
 	}
-
 	return nil
 }
