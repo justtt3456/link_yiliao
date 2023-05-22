@@ -10,7 +10,7 @@ type HelpData struct {
 	Page Page   `json:"page"`
 }
 type Help struct {
-	ID         int    `json:"id"`      //
+	Id         int    `json:"id"`      //
 	Title      string `json:"title"`   //
 	Content    string `json:"content"` //
 	Lang       string `json:"lang"`    //

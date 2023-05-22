@@ -1,9 +1,9 @@
 package main
 
 import (
-	"finance/app/admin/route"
-	"finance/dao"
-	"finance/global"
+	"china-russia/app/admin/route"
+	"china-russia/dao"
+	"china-russia/global"
 	"math/rand"
 	"time"
 )
@@ -18,7 +18,7 @@ func init() {
 // @BasePath /admin/api
 func main() {
 	//初始化viper
-	global.VP = global.Viper()
+	global.Viper()
 	//初始化log
 	global.Log()
 	//dao连接

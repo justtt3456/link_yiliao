@@ -8,7 +8,7 @@ type MemberLevelResponse struct {
 	}
 }
 type MemberLevel struct {
-	ID   int    `json:"id"`   //
+	Id   int    `json:"id"`   //
 	Name string `json:"name"` //
 	Img  string `json:"img"`
 }

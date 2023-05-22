@@ -1,26 +1,26 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberBank struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
-	UID        int    `gorm:"column:uid"`                        //关联用户id
+	Id         int    `gorm:"column:id;primary_key"`             //
+	UId        int    `gorm:"column:uid"`                        //关联用户id
 	BankName   string `gorm:"column:bank_name"`                  //银行卡
 	CardNumber string `gorm:"column:card_number"`                //卡号
 	Province   string `gorm:"column:province"`                   //省份
 	City       string `gorm:"column:city"`                       //市
 	BranchBank string `gorm:"column:branch_bank"`                //开户行（开户所在地）
 	RealName   string `gorm:"column:real_name"`                  //开户人
-	IDNumber   string `gorm:"column:id_number"`                  //身份证号码
+	IdNumber   string `gorm:"column:id_number"`                  //身份证号码
 	BankPhone  string `gorm:"column:bank_phone"`                 //预留手机号码
 	IsDefault  int    `gorm:"column:is_default"`                 //默认银行卡
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //
-	Member     Member `gorm:"foreignKey:UID"`
+	Member     Member `gorm:"foreignKey:UId"`
 }
 
 // TableName sets the insert table name for this struct type
@@ -45,7 +45,7 @@ func (this *MemberBank) Get() bool {
 }
 func (this *MemberBank) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyMemberBank, this.ID)
+	key := fmt.Sprintf(LockKeyMemberBank, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

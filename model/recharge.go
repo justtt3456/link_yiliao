@@ -1,40 +1,41 @@
 package model
 
 import (
+	"china-russia/common"
+	"china-russia/global"
 	"encoding/json"
-	"finance/common"
-	"finance/global"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
 
 type Recharge struct {
-	ID             int            `gorm:"column:id;primary_key"`             //
-	OrderSn        string         `gorm:"column:order_sn"`                   //
-	UID            int            `gorm:"column:uid"`                        //关联用户id
-	Type           int            `gorm:"column:type"`                       //充值类别 1银行卡 2在线充值 3后台充值
-	Amount         int64          `gorm:"column:amount"`                     //充值金额
-	RealAmount     int64          `gorm:"column:real_amount"`                //实际到账金额
-	From           string         `gorm:"column:from"`                       //付款账号
-	To             string         `gorm:"column:to"`                         //收款账号
-	Voucher        string         `gorm:"column:voucher"`                    //凭证图
-	PaymentID      int            `gorm:"column:payment_id"`                 //三方支付id
-	Status         int            `gorm:"column:status"`                     //状态，0待审核，1已审核
-	UsdtAmount     int64          `gorm:"column:usdt_amount"`                //usdt充值数量
-	Operator       int            `gorm:"column:operator"`                   //操作的管理员
-	Description    string         `gorm:"column:description"`                //订单备注
-	SuccessTime    int64          `gorm:"column:success_time"`               //成功时间
-	TradeSn        string         `gorm:"column:trade_sn"`                   //三方订单号
-	UpdateTime     int64          `gorm:"column:update_time;autoCreateTime"` //审核时间
-	CreateTime     int64          `gorm:"column:create_time;autoUpdateTime"` //创建时间
-	Member         Member         `gorm:"foreignKey:UID"`
-	RechargeMethod RechargeMethod `gorm:"foreignKey:Type"`
-	Payment        Payment        `gorm:"foreignKey:PaymentID"`
-	Admin          Admin          `gorm:"foreignKey:ID"`
-	MemberVerified MemberVerified `gorm:"foreignKey:UID;references:UID"`
-	ImageUrl       string         `gorm:"column:img_url"` //凭证图片网址
+	Id             int             `gorm:"column:id;primary_key"`             //
+	OrderSn        string          `gorm:"column:order_sn"`                   //
+	UId            int             `gorm:"column:uid"`                        //关联用户id
+	Type           int             `gorm:"column:type"`                       //充值类别 1银行卡 2在线充值 3后台充值
+	Amount         decimal.Decimal `gorm:"column:amount"`                     //充值金额
+	RealAmount     decimal.Decimal `gorm:"column:real_amount"`                //实际到账金额
+	From           string          `gorm:"column:from"`                       //付款账号
+	To             string          `gorm:"column:to"`                         //收款账号
+	Voucher        string          `gorm:"column:voucher"`                    //凭证图
+	PaymentId      int             `gorm:"column:payment_id"`                 //三方支付id
+	Status         int             `gorm:"column:status"`                     //状态，0待审核，1已审核
+	UsdtAmount     decimal.Decimal `gorm:"column:usdt_amount"`                //usdt充值数量
+	Operator       int             `gorm:"column:operator"`                   //操作的管理员
+	Description    string          `gorm:"column:description"`                //订单备注
+	SuccessTime    int64           `gorm:"column:success_time"`               //成功时间
+	TradeSn        string          `gorm:"column:trade_sn"`                   //三方订单号
+	UpdateTime     int64           `gorm:"column:update_time;autoCreateTime"` //审核时间
+	CreateTime     int64           `gorm:"column:create_time;autoUpdateTime"` //创建时间
+	Member         Member          `gorm:"foreignKey:UId"`
+	RechargeMethod RechargeMethod  `gorm:"foreignKey:Type"`
+	Payment        Payment         `gorm:"foreignKey:PaymentId"`
+	Admin          Admin           `gorm:"foreignKey:Id"`
+	MemberVerified MemberVerified  `gorm:"foreignKey:UId;references:UId"`
+	ImageUrl       string          `gorm:"column:img_url"` //凭证图片网址
 }
 
 // TableName sets the insert table name for this struct type
@@ -82,7 +83,7 @@ func (this *Recharge) GetPageList(where string, args []interface{}, page, pageSi
 
 func (r *Recharge) Update(col string, cols ...interface{}) error {
 	rds := Redis{}
-	key := fmt.Sprintf(LockKeyRecharge, r.ID)
+	key := fmt.Sprintf(LockKeyRecharge, r.Id)
 	if err := rds.Lock(key); err != nil {
 		return err
 	}
@@ -95,7 +96,7 @@ func (r *Recharge) Update(col string, cols ...interface{}) error {
 	}
 	//同步redis
 	bytes, _ := json.Marshal(r)
-	global.REDIS.Set(fmt.Sprintf(StringKeyRecharge, r.ID), string(bytes), r.ExpireTime())
+	global.REDIS.Set(fmt.Sprintf(StringKeyRecharge, r.Id), string(bytes), r.ExpireTime())
 	return nil
 }
 

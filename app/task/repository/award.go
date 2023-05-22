@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"finance/common"
-	"finance/global"
-	"finance/model"
+	"china-russia/common"
+	"china-russia/global"
+	"china-russia/model"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -19,127 +19,126 @@ const prefixdayincome = "prefixdayincome"
 func (this *Award) Before(orders []*model.OrderProduct) {
 	now := time.Now().Unix()
 	for _, v := range orders {
-		member := model.Member{ID: v.UID}
+		member := model.Member{Id: v.UId}
 		if !member.Get() {
 			continue
 		}
 		//根据收益类型
 		switch v.Product.Type {
-		case 1: //到期返本
-
-			income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY)
-			logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, float64(income)/model.UNITY)
+		case 1, 5: //到期返本
+			income := int64(float64(v.PayMoney * int64(v.IncomeRate)))
+			logrus.Infof("今日已经结算%v  用户Id %v 收益 %v", time.Now().Format("20060102"), v.UId, float64(income)/model.UNITY)
 			//存入收益列表
 			trade := model.Trade{
-				UID:        v.UID,
+				UId:        v.UId,
 				TradeType:  16,
-				ItemID:     v.ID,
+				ItemId:     v.Id,
 				Amount:     income,
-				Before:     member.UseBalance,
-				After:      member.UseBalance + income,
+				Before:     member.WithdrawBalance,
+				After:      member.WithdrawBalance + income,
 				Desc:       "产品每日收益",
 				IsFrontend: 1,
 			}
 			err := trade.Insert()
 			if err != nil {
-				logrus.Errorf("存入账单失败  今日%v  用户ID %v err= %v", time.Now().Format("20060102"), v.UID, err)
+				logrus.Errorf("存入账单失败  今日%v  用户Id %v err= %v", time.Now().Format("20060102"), v.UId, err)
 			}
 			//更改用户可提现余额
-			member.UseBalance += income
+			member.WithdrawBalance += income
 			//是否到期返回本金
 			if now >= v.EndTime {
 				//存入收益列表
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     v.PayMoney,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + v.PayMoney,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + v.PayMoney,
 					Desc:       "到期返回本金",
 					IsFrontend: 1,
 				}
 				_ = trade.Insert()
-				member.UseBalance += v.PayMoney
+				member.WithdrawBalance += v.PayMoney
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		case 2: //延期返本
 			if now < v.EndTime {
 				//计算收益
-				income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY)
-				logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, float64(income)/model.UNITY)
+				income := int64(float64(v.PayMoney * int64(v.IncomeRate)))
+				logrus.Infof("今日已经结算%v  用户Id %v 收益 %v", time.Now().Format("20060102"), v.UId, float64(income)/model.UNITY)
 				//存入收益列表
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  16,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     income,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + income,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + income,
 					Desc:       "产品每日收益",
 					IsFrontend: 1,
 				}
 				err := trade.Insert()
 				if err != nil {
-					logrus.Errorf("存入账单失败  今日%v  用户ID %v err= %v", time.Now().Format("20060102"), v.UID, err)
+					logrus.Errorf("存入账单失败  今日%v  用户Id %v err= %v", time.Now().Format("20060102"), v.UId, err)
 				}
 				//更改用户可提现余额
-				member.UseBalance += income
+				member.WithdrawBalance += income
 			}
 			if now >= v.EndTime+int64(v.Product.DelayTime)*86400 {
 				//可提现
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     v.PayMoney,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + v.PayMoney,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + v.PayMoney,
 					Desc:       "延期返本",
 					IsFrontend: 1,
 				}
 				_ = trade.Insert()
-				member.UseBalance += v.PayMoney
+				member.WithdrawBalance += v.PayMoney
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		case 3: //到期返本返息
 			if now >= v.EndTime {
-				income := int64(float64(v.PayMoney*int64(v.Product.Dayincome*v.Product.TimeLimit)) / model.UNITY)
-				logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, income)
+				income := int64(float64(v.PayMoney * int64(v.Product.Dayincome*v.Product.TimeLimit)))
+				logrus.Infof("今日已经结算%v  用户Id %v 收益 %v", time.Now().Format("20060102"), v.UId, income)
 				//利息
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  16,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     income,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + income,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + income,
 					Desc:       "到期返本返息",
 					IsFrontend: 1,
 				}
 				_ = trade.Insert()
 				//更改用户余额
-				member.UseBalance += income
+				member.WithdrawBalance += income
 				//返本
 				trade2 := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     v.PayMoney,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + v.PayMoney,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + v.PayMoney,
 					Desc:       "到期返本返息",
 					IsFrontend: 1,
 				}
 				_ = trade2.Insert()
-				member.UseBalance += v.PayMoney
+				member.WithdrawBalance += v.PayMoney
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		}
-		member.Update("use_balance")
+		member.Update("withdraw_balance")
 	}
 }
 
@@ -147,25 +146,24 @@ func (this *Award) Before(orders []*model.OrderProduct) {
 func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 	now := time.Now().Unix()
 	for _, v := range orders {
-		member := model.Member{ID: v.UID}
+		member := model.Member{Id: v.UId}
 		if !member.Get() {
 			continue
 		}
 		//根据收益类型
 		switch v.Product.Type {
-		case 1: //到期返本
-
-			income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY)
-			logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, income)
+		case 1, 5: //到期返本
+			income := int64(float64(v.PayMoney * int64(v.IncomeRate)))
+			logrus.Infof("今日已经结算%v  用户Id %v 收益 %v", time.Now().Format("20060102"), v.UId, income)
 
 			//根据收益比例计算可用可提现余额
 			balanceAmount := int64(config.IncomeBalanceRate) * income / int64(model.UNITY)
 			useBalanceAmount := income - balanceAmount
 			//可用余额
 			trade := model.Trade{
-				UID:        v.UID,
+				UId:        v.UId,
 				TradeType:  16,
-				ItemID:     v.ID,
+				ItemId:     v.Id,
 				Amount:     balanceAmount,
 				Before:     member.Balance,
 				After:      member.Balance + balanceAmount,
@@ -175,19 +173,19 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 			_ = trade.Insert()
 			//可提现余额
 			trade2 := model.Trade{
-				UID:        v.UID,
+				UId:        v.UId,
 				TradeType:  16,
-				ItemID:     v.ID,
+				ItemId:     v.Id,
 				Amount:     useBalanceAmount,
-				Before:     member.UseBalance,
-				After:      member.UseBalance + useBalanceAmount,
+				Before:     member.WithdrawBalance,
+				After:      member.WithdrawBalance + useBalanceAmount,
 				Desc:       "产品每日收益",
 				IsFrontend: 1,
 			}
 			_ = trade2.Insert()
 			//更改用户余额
 			member.Balance += balanceAmount
-			member.UseBalance += useBalanceAmount
+			member.WithdrawBalance += useBalanceAmount
 			//是否到期返回本金
 			if now >= v.EndTime {
 				//根据收益比例计算可用可提现余额
@@ -195,9 +193,9 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 				useBalanceAmount := v.PayMoney - balanceAmount
 				//可提现
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     balanceAmount,
 					Before:     member.Balance,
 					After:      member.Balance + balanceAmount,
@@ -207,33 +205,33 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 				_ = trade.Insert()
 				//可提现
 				trade2 := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     useBalanceAmount,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + useBalanceAmount,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + useBalanceAmount,
 					Desc:       "到期返回本金",
 					IsFrontend: 1,
 				}
 				_ = trade2.Insert()
 				member.Balance += balanceAmount
-				member.UseBalance += useBalanceAmount
+				member.WithdrawBalance += useBalanceAmount
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		case 2: //延期返本
 			if now < v.EndTime {
-				income := int64(float64(v.PayMoney*int64(v.IncomeRate)) / model.UNITY)
-				logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, income)
+				income := int64(float64(v.PayMoney * int64(v.IncomeRate)))
+				logrus.Infof("今日已经结算%v  用户Id %v 收益 %v", time.Now().Format("20060102"), v.UId, income)
 				//根据收益比例计算可用可提现余额
 				balanceAmount := int64(config.IncomeBalanceRate) * income / int64(model.UNITY)
 				useBalanceAmount := income - balanceAmount
 				//可用余额
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  16,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     balanceAmount,
 					Before:     member.Balance,
 					After:      member.Balance + balanceAmount,
@@ -243,19 +241,19 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 				_ = trade.Insert()
 				//可提现余额
 				trade2 := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  16,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     useBalanceAmount,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + useBalanceAmount,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + useBalanceAmount,
 					Desc:       "产品每日收益",
 					IsFrontend: 1,
 				}
 				_ = trade2.Insert()
 				//更改用户余额
 				member.Balance += balanceAmount
-				member.UseBalance += useBalanceAmount
+				member.WithdrawBalance += useBalanceAmount
 			}
 			if now >= v.EndTime+int64(v.Product.DelayTime)*86400 {
 				//根据收益比例计算可用可提现余额
@@ -263,9 +261,9 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 				useBalanceAmount := v.PayMoney - balanceAmount
 				//可提现
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     balanceAmount,
 					Before:     member.Balance,
 					After:      member.Balance + balanceAmount,
@@ -275,33 +273,33 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 				_ = trade.Insert()
 				//可提现
 				trade2 := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     useBalanceAmount,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + useBalanceAmount,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + useBalanceAmount,
 					Desc:       "延期返本",
 					IsFrontend: 1,
 				}
 				_ = trade2.Insert()
 				member.Balance += balanceAmount
-				member.UseBalance += useBalanceAmount
+				member.WithdrawBalance += useBalanceAmount
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		case 3: //到期返本返息
 			if now >= v.EndTime {
-				income := int64(float64(v.PayMoney*int64(v.Product.Dayincome*v.Product.TimeLimit)) / model.UNITY)
-				logrus.Infof("今日已经结算%v  用户ID %v 收益 %v", time.Now().Format("20060102"), v.UID, income)
+				income := int64(float64(v.PayMoney * int64(v.Product.Dayincome*v.Product.TimeLimit)))
+				logrus.Infof("今日已经结算%v  用户Id %v 收益 %v", time.Now().Format("20060102"), v.UId, income)
 				//根据收益比例计算可用可提现余额
 				balanceAmount := int64(config.IncomeBalanceRate) * income / int64(model.UNITY)
 				useBalanceAmount := income - balanceAmount
 				//可用余额
 				trade := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  16,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     balanceAmount,
 					Before:     member.Balance,
 					After:      member.Balance + balanceAmount,
@@ -311,27 +309,27 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 				_ = trade.Insert()
 				//可提现余额
 				trade2 := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  16,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     useBalanceAmount,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + useBalanceAmount,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + useBalanceAmount,
 					Desc:       "到期返本返息",
 					IsFrontend: 1,
 				}
 				_ = trade2.Insert()
 				//更改用户余额
 				member.Balance += balanceAmount
-				member.UseBalance += useBalanceAmount
+				member.WithdrawBalance += useBalanceAmount
 				//根据收益比例计算可用可提现余额
 				srcBalanceAmount := int64(config.IncomeBalanceRate) * v.PayMoney / int64(model.UNITY)
 				srcUseBalanceAmount := v.PayMoney - srcBalanceAmount
 				//可提现
 				trade3 := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     srcBalanceAmount,
 					Before:     member.Balance,
 					After:      member.Balance + srcBalanceAmount,
@@ -341,23 +339,23 @@ func (this *Award) After(orders []*model.OrderProduct, config model.SetBase) {
 				_ = trade3.Insert()
 				//可提现
 				trade4 := model.Trade{
-					UID:        v.UID,
+					UId:        v.UId,
 					TradeType:  24,
-					ItemID:     v.ID,
+					ItemId:     v.Id,
 					Amount:     srcUseBalanceAmount,
-					Before:     member.UseBalance,
-					After:      member.UseBalance + srcUseBalanceAmount,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance + srcUseBalanceAmount,
 					Desc:       "到期返本返息",
 					IsFrontend: 1,
 				}
 				_ = trade4.Insert()
 				member.Balance += srcBalanceAmount
-				member.UseBalance += srcUseBalanceAmount
+				member.WithdrawBalance += srcUseBalanceAmount
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		}
-		member.Update("balance", "use_balance")
+		member.Update("balance", "withdraw_balance")
 	}
 }
 func (this *Award) Run() {
@@ -402,7 +400,7 @@ func (this *Award) TeamIncome() {
 		teamStartTime := thisMonth.AddDate(0, -1, 0).Unix()
 		teamEndTime := thisMonth.Unix() - 1
 
-		//获取团队代理ID列表
+		//获取团队代理Id列表
 		orderModel := model.OrderProduct{}
 		userIds := orderModel.GetOrderUserIds(teamStartTime, teamEndTime)
 		if len(userIds) == 0 {
@@ -432,7 +430,7 @@ func (this *Award) TeamIncome() {
 
 			for i := range users {
 				if users[i].Level <= 3 {
-					uids = append(uids, users[i].Member.ID)
+					uids = append(uids, users[i].Member.Id)
 				}
 			}
 			//当没有3级内下线会员时则跳过
@@ -466,7 +464,7 @@ func (this *Award) TeamIncome() {
 				config := model.SetBase{}
 				config.Get()
 
-				memberModel := model.Member{ID: proxyId}
+				memberModel := model.Member{Id: proxyId}
 				//获取当前余额
 				memberModel.Get()
 
@@ -484,9 +482,9 @@ func (this *Award) TeamIncome() {
 
 					//存入收益列表
 					trade := model.Trade{
-						UID:        proxyId,
+						UId:        proxyId,
 						TradeType:  21,
-						ItemID:     int(count),
+						ItemId:     int(count),
 						Amount:     balanceAmount,
 						Before:     memberModel.Balance,
 						After:      memberModel.Balance + balanceAmount,
@@ -498,12 +496,12 @@ func (this *Award) TeamIncome() {
 					_ = trade.Insert()
 
 					trade2 := model.Trade{
-						UID:        proxyId,
+						UId:        proxyId,
 						TradeType:  21,
-						ItemID:     int(count),
+						ItemId:     int(count),
 						Amount:     useBalanceAmount,
-						Before:     memberModel.UseBalance,
-						After:      memberModel.UseBalance + useBalanceAmount,
+						Before:     memberModel.WithdrawBalance,
+						After:      memberModel.WithdrawBalance + useBalanceAmount,
 						Desc:       "团队收益",
 						CreateTime: now,
 						UpdateTime: now,
@@ -513,16 +511,16 @@ func (this *Award) TeamIncome() {
 
 					//更改账户余额
 					memberModel.Balance += balanceAmount
-					memberModel.UseBalance += useBalanceAmount
+					memberModel.WithdrawBalance += useBalanceAmount
 				} else {
 					//存入收益列表
 					trade := model.Trade{
-						UID:        proxyId,
+						UId:        proxyId,
 						TradeType:  21,
-						ItemID:     int(count),
+						ItemId:     int(count),
 						Amount:     income3,
-						Before:     memberModel.UseBalance,
-						After:      memberModel.UseBalance + income3,
+						Before:     memberModel.WithdrawBalance,
+						After:      memberModel.WithdrawBalance + income3,
 						Desc:       "团队收益",
 						CreateTime: now,
 						UpdateTime: now,
@@ -532,14 +530,16 @@ func (this *Award) TeamIncome() {
 
 					//更改账户余额
 					memberModel.Balance += 0
-					memberModel.UseBalance += income3
+					memberModel.WithdrawBalance += income3
 				}
 				//更改账户余额
 				memberModel.TotalBalance += income3
 				memberModel.Income += income3
-				err := memberModel.Update("total_balance", "balance", "use_balance", "income")
+				err := memberModel.Update("total_balance", "balance", "withdraw_balance", "
+				income
+				")
 				if err != nil {
-					logrus.Errorf("修改余额失败  今日%v  用户ID %v 团队收益 %v err= &v", today, proxyId, income3, err)
+					logrus.Errorf("修改余额失败  今日%v  用户Id %v 团队收益 %v err= &v", today, proxyId, income3, err)
 				}
 			}
 		}

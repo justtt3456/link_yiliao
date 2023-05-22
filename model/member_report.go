@@ -1,16 +1,16 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
 
 type MemberReport struct {
-	ID             int    `gorm:"column:id;primary_key"`             //
-	UID            int    `gorm:"column:uid"`                        //
+	Id             int    `gorm:"column:id;primary_key"`             //
+	UId            int    `gorm:"column:uid"`                        //
 	Username       string `gorm:"column:username"`                   //用户名
 	RechargeCount  int    `gorm:"column:recharge_count"`             //充值次数
 	RechargeAmount int64  `gorm:"column:recharge_amount"`            //充值金额
@@ -76,7 +76,7 @@ func (this *MemberReport) Get() bool {
 
 func (this *MemberReport) Update() error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyMemberReport, this.ID)
+	key := fmt.Sprintf(LockKeyMemberReport, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

@@ -1,8 +1,8 @@
 package model
 
 import (
+	"china-russia/global"
 	"encoding/json"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -10,7 +10,7 @@ import (
 )
 
 type SetKf struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Name       string `gorm:"column:name"`                       //
 	StartTime  string `gorm:"column:start_time"`                 //
 	EndTime    string `gorm:"column:end_time"`                   //
@@ -28,7 +28,7 @@ func (s *SetKf) TableName() string {
 }
 func (this *SetKf) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyKfConfig, this.ID)
+	key := fmt.Sprintf(LockKeyKfConfig, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -43,12 +43,12 @@ func (this *SetKf) Update(col string, cols ...interface{}) error {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyKfConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyKfConfig, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *SetKf) Get() bool {
 	//取redis
-	s := global.REDIS.HGet(HashKeyKfConfig, strconv.Itoa(this.ID)).Val()
+	s := global.REDIS.HGet(HashKeyKfConfig, strconv.Itoa(this.Id)).Val()
 	if s != "" {
 		err := json.Unmarshal([]byte(s), this)
 		if err == nil {
@@ -66,11 +66,11 @@ func (this *SetKf) Get() bool {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyKfConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyKfConfig, strconv.Itoa(this.Id), string(bytes))
 	return true
 }
 
-//前台显示可用
+// 前台显示可用
 func (this *SetKf) List(isFront bool) []SetKf {
 	list := make([]SetKf, 0)
 	////取redis
@@ -105,7 +105,7 @@ func (this *SetKf) List(isFront bool) []SetKf {
 	//redisMap := map[string]interface{}{}
 	//for _, v := range list {
 	//	marshal, _ := json.Marshal(v)
-	//	redisMap[strconv.Itoa(v.ID)] = string(marshal)
+	//	redisMap[strconv.Itoa(v.Id)] = string(marshal)
 	//}
 	//global.REDIS.HMSet(HashKeyKfConfig, redisMap)
 	return list

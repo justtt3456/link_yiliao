@@ -1,12 +1,12 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"github.com/sirupsen/logrus"
 )
 
 type ProductCategory struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Name       string `gorm:"column:name"`                       //分类名称
 	Status     int    `gorm:"column:status"`                     //状态
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //

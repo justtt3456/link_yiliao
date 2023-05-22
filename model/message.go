@@ -1,15 +1,15 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type Message struct {
-	ID         int    `gorm:"column:id;primary_key"` //
-	UID        int    `gorm:"column:uid"`            //
+	Id         int    `gorm:"column:id;primary_key"` //
+	UId        int    `gorm:"column:uid"`            //
 	Title      string `gorm:"column:title"`          //标题
 	Content    string `gorm:"column:content"`        //内容
 	Status     int    `gorm:"column:status"`
@@ -43,7 +43,7 @@ func (this *Message) Get() bool {
 
 func (this *Message) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyMessage, this.ID)
+	key := fmt.Sprintf(LockKeyMessage, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (this *Message) Remove() error {
 	return nil
 }
 
-func (this *Message) Count(where string, args []interface{}) (int64) {
+func (this *Message) Count(where string, args []interface{}) int64 {
 
 	var total int64
 	count := global.DB.Model(this).Where(where, args...).Count(&total)

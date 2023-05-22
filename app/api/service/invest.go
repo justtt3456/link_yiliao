@@ -1,13 +1,14 @@
 package service
 
 import (
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/common"
+	"china-russia/lang"
+	"china-russia/model"
 	"errors"
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/common"
-	"finance/lang"
-	"finance/model"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
@@ -27,12 +28,12 @@ func (this InvestIndex) Index(member model.Member) *response.InvestIndexData {
 	//累计收益 余额 昨日收益
 	income := model.InvestLog{}
 	where := "uid = ?"
-	args := []interface{}{member.ID}
-	yesterday := income.YesterdayIncome(member.ID)
+	args := []interface{}{member.Id}
+	yesterday := income.YesterdayIncome(member.Id)
 	m := response.InvestMember{
-		Balance:         float64(member.InvestAmount+member.InvestFreeze) / model.UNITY,
-		TotalIncome:     float64(member.InvestIncome) / model.UNITY,
-		YesterdayIncome: float64(yesterday) / model.UNITY,
+		Balance:         member.InvestAmount.Add(member.InvestFreeze),
+		TotalIncome:     member.InvestIncome,
+		YesterdayIncome: yesterday,
 	}
 	//收益记录
 	if this.Page < 1 {
@@ -45,8 +46,8 @@ func (this InvestIndex) Index(member model.Member) *response.InvestIndexData {
 	res := make([]response.InvestIncome, 0)
 	for _, v := range list {
 		i := response.InvestIncome{
-			Income:     float64(v.Income) / model.UNITY,
-			Balance:    float64(v.Balance) / model.UNITY,
+			Income:     v.Income,
+			Balance:    v.Balance,
 			CreateTime: v.CreateTime,
 		}
 		res = append(res, i)
@@ -75,17 +76,16 @@ type InvestOrder struct {
 }
 
 func (this InvestOrder) Insert(member model.Member) error {
-	if this.Amount == 0 {
+	if this.Amount.LessThanOrEqual(decimal.Zero) {
 		return errors.New(lang.Lang("Wrong amount"))
 	}
 	if member.FundsStatus != model.StatusOk {
 		return errors.New(lang.Lang("The current account has been frozen!"))
 	}
-	amount := int64(this.Amount * model.UNITY)
 	now := time.Now().Unix()
 	switch this.Type {
 	case 1: //转入
-		if member.Balance < amount {
+		if member.Balance.LessThanOrEqual(this.Amount) {
 			return errors.New(lang.Lang("Insufficient account balance"))
 		}
 		c := model.Invest{}
@@ -95,18 +95,18 @@ func (this InvestOrder) Insert(member model.Member) error {
 		if c.Status != model.StatusOk {
 			return errors.New(lang.Lang("Parameter error"))
 		}
-		if amount < c.MinAmount {
-			return errors.New(fmt.Sprintf("最小转入金额%v", float64(c.MinAmount)/model.UNITY))
+		if this.Amount.LessThan(c.MinAmount) {
+			return errors.New(fmt.Sprintf("最小转入金额%v", c.MinAmount))
 		}
 		today := common.GetTodayZero()
 		m := model.InvestOrder{
-			UID:            member.ID,
+			UId:            member.Id,
 			Type:           this.Type,
-			Amount:         amount,
+			Amount:         this.Amount,
 			Rate:           c.Ratio,
 			UnfreezeTime:   now + int64(c.FreezeDay*86400),
 			IncomeTime:     today + int64(c.IncomeInterval*86400),
-			Balance:        member.InvestAmount + member.InvestFreeze + amount,
+			Balance:        member.InvestAmount.Add(member.InvestFreeze).Add(this.Amount),
 			UnfreezeStatus: model.StatusClose,
 		}
 		if err := m.Insert(); err != nil {
@@ -114,47 +114,47 @@ func (this InvestOrder) Insert(member model.Member) error {
 		}
 		//账变
 		trade := model.Trade{
-			UID:       member.ID,
+			UId:       member.Id,
 			TradeType: 11,
-			ItemID:    m.ID,
-			Amount:    amount,
+			ItemId:    m.Id,
+			Amount:    this.Amount,
 			Before:    member.Balance,
-			After:     member.Balance - amount,
+			After:     member.Balance.Sub(this.Amount),
 			Desc:      "余额宝转入",
 		}
 		trade.Insert()
 		//扣除余额
-		member.Balance -= amount
-		member.InvestFreeze += amount
+		member.Balance = member.Balance.Sub(this.Amount)
+		member.InvestFreeze = member.InvestFreeze.Add(this.Amount)
 		return member.Update("balance", "invest_freeze")
 	case 2: //转出
 		//获取可转出余额 余额-不可转出
-		if member.InvestAmount < amount {
+		if member.InvestAmount.LessThan(this.Amount) {
 			return errors.New(lang.Lang("Insufficient transferable balance"))
 		}
 		m := model.InvestOrder{
-			UID:     member.ID,
+			UId:     member.Id,
 			Type:    this.Type,
-			Amount:  amount,
-			Balance: member.InvestAmount + member.InvestFreeze - amount,
+			Amount:  this.Amount,
+			Balance: member.InvestAmount.Add(member.InvestFreeze).Sub(this.Amount),
 		}
 		if err := m.Insert(); err != nil {
 			return err
 		}
 		//账变
 		trade := model.Trade{
-			UID:       member.ID,
+			UId:       member.Id,
 			TradeType: 12,
-			ItemID:    m.ID,
-			Amount:    amount,
+			ItemId:    m.Id,
+			Amount:    this.Amount,
 			Before:    member.Balance,
-			After:     member.Balance + amount,
+			After:     member.Balance.Add(this.Amount),
 			Desc:      "余额宝转出",
 		}
 		trade.Insert()
 		//增加余额
-		member.Balance += amount
-		member.InvestAmount -= amount
+		member.Balance = member.Balance.Add(this.Amount)
+		member.InvestAmount = member.InvestAmount.Sub(this.Amount)
 		return member.Update("balance", "invest_amount")
 	default:
 		return errors.New(lang.Lang("Parameter error"))
@@ -174,17 +174,17 @@ func (this InvestOrderList) PageList(member model.Member) response.InvestOrderDa
 	}
 	m := model.InvestOrder{}
 	where := "uid = ?"
-	args := []interface{}{member.ID}
+	args := []interface{}{member.Id}
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.InvestOrder, 0)
 	for _, v := range list {
 		item := response.InvestOrder{
 			Type:         v.Type,
-			Amount:       float64(v.Amount) / model.UNITY,
+			Amount:       v.Amount,
 			CreateTime:   v.CreateTime,
 			UnfreezeTime: v.UnfreezeTime,
 			IncomeTime:   v.IncomeTime,
-			Balance:      float64(v.Balance) / model.UNITY,
+			Balance:      v.Balance,
 		}
 		res = append(res, item)
 	}

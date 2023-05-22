@@ -9,8 +9,8 @@ type ProductCategoryData struct {
 	List []ProductCategory `json:"list"`
 }
 type ProductCategory struct {
-	ID         int    `json:"id"` //
-	RemoteID   int    `json:"remote_id"`
+	Id         int    `json:"id"` //
+	RemoteId   int    `json:"remote_id"`
 	Name       string `json:"name"` //产品名称
 	Lang       string `json:"lang"`
 	Status     int    `json:"status"`      //是否开启，1为开启，0为关闭
@@ -27,6 +27,6 @@ type ProductCategoryRemoteData struct {
 	List []ProductCategoryRemote `json:"list"`
 }
 type ProductCategoryRemote struct {
-	ID   int    `json:"id"`   //
+	Id   int    `json:"id"`   //
 	Name string `json:"name"` //产品名称
 }

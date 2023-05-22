@@ -1,14 +1,14 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberUsdt struct {
-	ID       int    `gorm:"column:id;primary_key"` //
-	UID      int    `gorm:"column:uid"`            //关联用户id
+	Id       int    `gorm:"column:id;primary_key"` //
+	UId      int    `gorm:"column:uid"`            //关联用户id
 	Protocol string `gorm:"column:protocol"`       //协议
 	Address  string `gorm:"column:address"`        //地址
 }
@@ -35,7 +35,7 @@ func (this *MemberUsdt) Get() bool {
 }
 func (this *MemberUsdt) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyMemberBank, this.ID)
+	key := fmt.Sprintf(LockKeyMemberBank, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

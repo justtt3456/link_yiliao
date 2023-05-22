@@ -1,11 +1,12 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
+	//"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,16 +19,16 @@ func (this Invest) Get() (*response.InvestInfo, error) {
 		return nil, errors.New("参数错误")
 	}
 	return &response.InvestInfo{
-		ID:             invest.ID,
-		Name:           invest.Name,
-		Ratio:          float64(invest.Ratio) / model.UNITY,
+		Id:   invest.Id,
+		Name: invest.Name,
+		//Ratio:          float64(invest.Ratio) ,
 		FreezeDay:      invest.FreezeDay,
 		IncomeInterval: invest.IncomeInterval,
 		Status:         invest.Status,
 		Description:    invest.Description,
-		MinAmount:      float64(invest.MinAmount) / model.UNITY,
-		CreateTime:     invest.CreateTime,
-		UpdateTime:     invest.UpdateTime,
+		//MinAmount:      float64(invest.MinAmount) ,
+		CreateTime: invest.CreateTime,
+		UpdateTime: invest.UpdateTime,
 	}, nil
 }
 
@@ -36,32 +37,32 @@ type InvestUpdate struct {
 }
 
 func (this InvestUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Name == "" {
 		return errors.New("理财名称不能为空")
 	}
-	if this.Ratio == 0 {
-		return errors.New("收益率不能为空")
-	}
+	//if this.Ratio == 0 {
+	//	return errors.New("收益率不能为空")
+	//}
 
 	if this.IncomeInterval == 0 {
 		return errors.New("收益间隔不能为空")
 	}
 	m := model.Invest{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("记录不存在")
 	}
 	m.Name = this.Name
-	m.Ratio = int(this.Ratio * model.UNITY)
+	//m.Ratio = int(this.Ratio)
 	m.FreezeDay = this.FreezeDay
 	m.IncomeInterval = this.IncomeInterval
 	m.Status = this.Status
 	m.Description = this.Description
-	m.MinAmount = int64(this.MinAmount * model.UNITY)
+	//m.MinAmount = int64(this.MinAmount)
 	return m.Update("name", "ratio", "freeze_day", "income_interval", "status", "description", "min_amount")
 }
 
@@ -82,15 +83,15 @@ func (this InvestOrderList) PageList() response.InvestOrderData {
 	res := make([]response.InvestOrder, 0)
 	for _, v := range list {
 		i := response.InvestOrder{
-			ID:           v.ID,
-			UID:          v.UID,
-			Username:     v.Member.Username,
-			Type:         v.Type,
-			Amount:       float64(v.Amount) / model.UNITY,
+			Id:       v.Id,
+			UId:      v.UId,
+			Username: v.Member.Username,
+			Type:     v.Type,
+			//Amount:       float64(v.Amount) ,
 			CreateTime:   v.CreateTime,
 			UnfreezeTime: v.UnfreezeTime,
 			IncomeTime:   v.IncomeTime,
-			Balance:      float64(v.Balance) / model.UNITY,
+			//Balance:      float64(v.Balance) ,
 		}
 		res = append(res, i)
 	}
@@ -125,11 +126,11 @@ func (this InvestIncomeList) PageList() response.InvestIncomeData {
 	res := make([]response.InvestIncome, 0)
 	for _, v := range list {
 		i := response.InvestIncome{
-			ID:         v.ID,
-			UID:        v.UID,
-			Username:   v.Member.Username,
-			Income:     float64(v.Income) / model.UNITY,
-			Balance:    float64(v.Balance) / model.UNITY,
+			Id:       v.Id,
+			UId:      v.UId,
+			Username: v.Member.Username,
+			//Income:     float64(v.Income) ,
+			//Balance:    float64(v.Balance) ,
 			CreateTime: v.CreateTime,
 		}
 		res = append(res, i)

@@ -1,6 +1,6 @@
 package response
 
-//管理员列表返回值
+// 管理员列表返回值
 type AdminListResponse struct {
 	Code int           `json:"code"`
 	Msg  string        `json:"msg"`
@@ -11,16 +11,16 @@ type AdminListData struct {
 	Page Page        `json:"page"`
 }
 
-//管理员信息返回值
+// 管理员信息返回值
 type AdminItemResponse struct {
 	Code int       `json:"code"`
 	Msg  string    `json:"msg"`
 	Data AdminInfo `json:"data"`
 }
 
-//管理员信息
+// 管理员信息
 type AdminInfo struct {
-	AdminID    int              `json:"admin_id"` //
+	AdminId    int              `json:"admin_id"` //
 	Username   string           `json:"username"` //
 	Token      string           `json:"token"`    //
 	Role       int              `json:"role"`     //
@@ -33,14 +33,14 @@ type AdminInfo struct {
 	Permission []PermissionTree `json:"permission"`
 }
 
-//管理员谷歌验证码
+// 管理员谷歌验证码
 type AdminGoogleResponse struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`
 	Data AdminGoogle `json:"data"`
 }
 
-//管理员信息
+// 管理员信息
 type AdminGoogle struct {
 	Username string `json:"username"` //
 	Qrcode   string `json:"qrcode"`   //

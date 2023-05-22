@@ -1,6 +1,9 @@
 package pay
 
-import "finance/model"
+import (
+	"china-russia/model"
+	"github.com/shopspring/decimal"
+)
 
 type PayInterface interface {
 	//发起充值代收
@@ -39,27 +42,27 @@ type PaymentData struct {
 	Url string `json:"url"`
 }
 
-//代收充值参数
+// 代收充值参数
 type RechargeParam struct {
-	OrderNo string  //订单号
-	Amount  float64 //金额
-	Symbol  string  //币种
-	Channel string  //通道名称
-	Other   string  //额外参数
+	OrderNo string          //订单号
+	Amount  decimal.Decimal //金额
+	Symbol  string          //币种
+	Channel string          //通道名称
+	Other   string          //额外参数
 }
 
-//代付提现参数
+// 代付提现参数
 type WithdrawParam struct {
-	OrderNo     string  //订单号
-	Amount      float64 //金额
-	Symbol      string  //币种
-	Channel     string  //通道名称
-	Holder      string  //收款人
-	Account     string  //收款账号
-	AccountType string  //收款账号类型
-	Bank        string  //银行名称
-	Mobile      string  //手机号
-	Other       string  //额外参数
+	OrderNo     string          //订单号
+	Amount      decimal.Decimal //金额
+	Symbol      string          //币种
+	Channel     string          //通道名称
+	Holder      string          //收款人
+	Account     string          //收款账号
+	AccountType string          //收款账号类型
+	Bank        string          //银行名称
+	Mobile      string          //手机号
+	Other       string          //额外参数
 }
 
 func NewPay(payment model.Payment) PayInterface {

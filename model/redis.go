@@ -1,8 +1,8 @@
 package model
 
 import (
+	"china-russia/global"
 	"errors"
-	"finance/global"
 	"time"
 )
 

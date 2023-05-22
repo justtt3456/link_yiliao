@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,21 +38,21 @@ func (this PayChannelListService) PageList() *response.PayChannelData {
 	res := make([]response.PayChannel, 0)
 	for _, v := range list {
 		i := response.PayChannel{
-			ID:          v.ID,
+			Id:          v.Id,
 			Name:        v.Name,
-			PaymentID:   v.PaymentID,
+			PaymentId:   v.PaymentId,
 			PaymentName: v.Payment.PayName,
 			Code:        v.Code,
-			Min:         float64(v.Min) / model.UNITY,
-			Max:         float64(v.Max) / model.UNITY,
-			Status:      v.Status,
-			Category:    v.Category,
-			Sort:        v.Sort,
-			Icon:        v.Icon,
-			Fee:         v.Fee,
-			Lang:        v.Lang,
-			CreateTime:  v.CreateTime,
-			UpdateTime:  v.UpdateTime,
+			//Min:         float64(v.Min) ,
+			//Max:         float64(v.Max) ,
+			Status:     v.Status,
+			Category:   v.Category,
+			Sort:       v.Sort,
+			Icon:       v.Icon,
+			Fee:        v.Fee,
+			Lang:       v.Lang,
+			CreateTime: v.CreateTime,
+			UpdateTime: v.UpdateTime,
 		}
 		res = append(res, i)
 	}
@@ -66,52 +66,52 @@ func (this PayChannelCreateService) Create() error {
 	if this.Name == "" {
 		return errors.New("通道名称不能为空")
 	}
-	if this.PaymentID == 0 {
+	if this.PaymentId == 0 {
 		return errors.New("支付名称不能为空")
 	}
 	if this.Code == "" {
 		return errors.New("通道编码不能为空")
 	}
-	if this.Min == 0 {
-		return errors.New("最小值不能为空")
-	}
-	if this.Max == 0 {
-		return errors.New("最大值不能为空")
-	}
+	//if this.Min == 0 {
+	//	return errors.New("最小值不能为空")
+	//}
+	//if this.Max == 0 {
+	//	return errors.New("最大值不能为空")
+	//}
 	if this.Lang == "" {
 		return errors.New("语言不能为空")
 	}
 	m := model.PayChannel{
 		Name:      this.Name,
-		PaymentID: this.PaymentID,
+		PaymentId: this.PaymentId,
 		Code:      this.Code,
-		Min:       int64(this.Min * model.UNITY),
-		Max:       int64(this.Max * model.UNITY),
-		Icon:      this.Icon,
-		Fee:       this.Fee,
-		Lang:      this.Lang,
+		//Min:       int64(this.Min),
+		//Max:       int64(this.Max),
+		Icon: this.Icon,
+		Fee:  this.Fee,
+		Lang: this.Lang,
 	}
 	return m.Insert()
 }
 func (this PayChannelUpdateService) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Name == "" {
 		return errors.New("通道名称不能为空")
 	}
-	if this.PaymentID == 0 {
+	if this.PaymentId == 0 {
 		return errors.New("支付名称不能为空")
 	}
 	if this.Code == "" {
 		return errors.New("通道编码不能为空")
 	}
-	if this.Min == 0 {
-		return errors.New("最小值不能为空")
-	}
-	if this.Max == 0 {
-		return errors.New("最大值不能为空")
-	}
+	//if this.Min == 0 {
+	//	return errors.New("最小值不能为空")
+	//}
+	//if this.Max == 0 {
+	//	return errors.New("最大值不能为空")
+	//}
 	if this.Lang == "" {
 		return errors.New("语言不能为空")
 	}
@@ -119,36 +119,36 @@ func (this PayChannelUpdateService) Update() error {
 		return errors.New("语言不能为空")
 	}
 	m := model.PayChannel{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("通道不存在")
 	}
 	m.Name = this.Name
-	m.PaymentID = this.PaymentID
+	m.PaymentId = this.PaymentId
 	m.Code = this.Code
-	m.Min = int64(this.Min * model.UNITY)
-	m.Max = int64(this.Max * model.UNITY)
+	//m.Min = int64(this.Min)
+	//m.Max = int64(this.Max)
 	m.Icon = this.Icon
 	m.Fee = this.Fee
 	m.Lang = this.Lang
 	return m.Update("name", "payment_id", "code", "min", "max", "icon", "fee", "lang")
 }
 func (this PayChannelRemoveService) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.PayChannel{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }
 func (this PayChannelUpdateStatusService) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.PayChannel{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("通道不存在")
@@ -166,8 +166,8 @@ func (this PayChannelListService) getWhere() (string, []interface{}) {
 	if this.Name != "" {
 		where["name"] = this.Name
 	}
-	if this.PaymentID != 0 {
-		where["payment_id"] = this.PaymentID
+	if this.PaymentId != 0 {
+		where["payment_id"] = this.PaymentId
 	}
 	build, vals, err := common.WhereBuild(where)
 	if err != nil {

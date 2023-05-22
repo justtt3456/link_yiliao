@@ -1,10 +1,10 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/model"
 )
 
 type MemberLevel struct {
@@ -16,7 +16,7 @@ func (MemberLevel) List() response.MemberLevelData {
 	res := make([]response.MemberLevelInfo, 0)
 	for _, v := range list {
 		item := response.MemberLevelInfo{
-			ID:   v.ID,
+			Id:   v.Id,
 			Name: v.Name,
 			Img:  v.Img,
 		}
@@ -30,7 +30,7 @@ type MemberLevelUpdate struct {
 }
 
 func (this MemberLevelUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Name == "" {
@@ -40,7 +40,7 @@ func (this MemberLevelUpdate) Update() error {
 		return errors.New("等级图标不能为空")
 	}
 	m := model.MemberLevel{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("用户等级不存在")

@@ -10,10 +10,10 @@ type InviteCodeData struct {
 	Page Page             `json:"page"`
 }
 type InviteCodeInfo struct {
-	ID         int    `json:"id"`  //
-	UID        int    `json:"uid"` //用户id
+	Id         int    `json:"id"`  //
+	UId        int    `json:"uid"` //用户id
 	Username   string `json:"username"`
-	AgentID    int    `json:"agent_id"` //代理id
+	AgentId    int    `json:"agent_id"` //代理id
 	AgentName  string `json:"agent_name"`
 	Code       string `json:"code"`        //邀请码
 	RegCount   int    `json:"reg_count"`   //注册人数

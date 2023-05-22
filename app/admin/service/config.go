@@ -1,10 +1,10 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/model"
 )
 
 type ConfigBase struct{}
@@ -15,24 +15,24 @@ func (this ConfigBase) Get() (*response.ConfigBase, error) {
 		return nil, errors.New("参数错误")
 	}
 	return &response.ConfigBase{
-		ID:                base.ID,
-		AppName:           base.AppName,
-		AppLogo:           base.AppLogo,
-		VerifiedSend:      float64(base.VerifiedSend) / model.UNITY,
-		RegisterSend:      float64(base.RegisterSend) / model.UNITY,
-		OneSend:           float64(base.OneSend) / model.UNITY,
-		TwoSend:           float64(base.TwoSend) / model.UNITY,
-		ThreeSend:         float64(base.ThreeSend) / model.UNITY,
-		OneSendMoeny:      float64(base.OneSendMoeny) / model.UNITY,
-		SendDesc:          base.SendDesc,
-		RegisterDesc:      base.RegisterDesc,
-		TeamDesc:          base.TeamDesc,
-		GiftRate:          float64(base.GiftRate) / model.UNITY,
-		RetreatStartDate:  base.RetreatStartDate,
-		OneReleaseRate:    float64(base.OneReleaseRate) / model.UNITY,
-		TwoReleaseRate:    float64(base.TwoReleaseRate) / model.UNITY,
-		ThreeReleaseRate:  float64(base.ThreeReleaseRate) / model.UNITY,
-		IncomeBalanceRate: float64(base.IncomeBalanceRate) / model.UNITY,
+		Id:      base.Id,
+		AppName: base.AppName,
+		AppLogo: base.AppLogo,
+		//VerifiedSend:      float64(base.VerifiedSend) ,
+		//RegisterSend:      float64(base.RegisterSend) ,
+		//OneSend:           float64(base.OneSend) ,
+		//TwoSend:           float64(base.TwoSend) ,
+		//ThreeSend:         float64(base.ThreeSend) ,
+		//OneSendMoeny:      float64(base.OneSendMoeny) ,
+		SendDesc:     base.SendDesc,
+		RegisterDesc: base.RegisterDesc,
+		TeamDesc:     base.TeamDesc,
+		//GiftRate:          float64(base.GiftRate) ,
+		//RetreatStartDate:  base.RetreatStartDate,
+		//OneReleaseRate:    float64(base.OneReleaseRate) ,
+		//TwoReleaseRate:    float64(base.TwoReleaseRate) ,
+		//ThreeReleaseRate:  float64(base.ThreeReleaseRate) ,
+		//IncomeBalanceRate: float64(base.IncomeBalanceRate) ,
 	}, nil
 }
 
@@ -45,45 +45,45 @@ func (this ConfigBaseUpdate) Update() error {
 	//添加
 	if !conf.Get() {
 		c := model.SetBase{
-			AppName:           this.AppName,
-			AppLogo:           this.AppLogo,
-			VerifiedSend:      int(this.VerifiedSend * model.UNITY),
-			RegisterSend:      int(this.RegisterSend * model.UNITY),
-			OneSend:           int(this.OneSend * model.UNITY),
-			TwoSend:           int(this.TwoSend * model.UNITY),
-			ThreeSend:         int(this.ThreeSend * model.UNITY),
-			SendDesc:          this.SendDesc,
-			RegisterDesc:      this.RegisterDesc,
-			TeamDesc:          this.TeamDesc,
-			OneSendMoeny:      int64(this.OneSendMoeny * model.UNITY),
-			GiftRate:          int(this.GiftRate * model.UNITY),
-			RetreatStartDate:  this.RetreatStartDate,
-			OneReleaseRate:    int(this.OneReleaseRate * model.UNITY),
-			TwoReleaseRate:    int(this.TwoReleaseRate * model.UNITY),
-			ThreeReleaseRate:  int(this.ThreeReleaseRate * model.UNITY),
-			IncomeBalanceRate: int(this.IncomeBalanceRate * model.UNITY),
+			AppName: this.AppName,
+			AppLogo: this.AppLogo,
+			//VerifiedSend: int(this.VerifiedSend),
+			//RegisterSend:      int(this.RegisterSend),
+			//OneSend:           int(this.OneSend),
+			//TwoSend:           int(this.TwoSend),
+			//ThreeSend:         int(this.ThreeSend),
+			//SendDesc:          this.SendDesc,
+			//RegisterDesc:      this.RegisterDesc,
+			//TeamDesc:          this.TeamDesc,
+			//OneSendMoeny:      int64(this.OneSendMoeny),
+			//GiftRate:          int(this.GiftRate  decimal.Decimal),
+			RetreatStartDate: this.RetreatStartDate,
+			//OneReleaseRate:    int(this.OneReleaseRate),
+			//TwoReleaseRate:    int(this.TwoReleaseRate),
+			//ThreeReleaseRate:  int(this.ThreeReleaseRate),
+			//IncomeBalanceRate: int(this.IncomeBalanceRate),
 		}
 		return c.Insert()
 	} else {
 		//修改
-		conf.ID = this.ID
+		conf.Id = this.Id
 		conf.AppName = this.AppName
 		conf.AppLogo = this.AppLogo
-		conf.VerifiedSend = int(this.VerifiedSend * model.UNITY)
-		conf.RegisterSend = int(this.RegisterSend * model.UNITY)
-		conf.OneSend = int(this.OneSend * model.UNITY)
-		conf.TwoSend = int(this.TwoSend * model.UNITY)
-		conf.ThreeSend = int(this.ThreeSend * model.UNITY)
-		conf.OneSendMoeny = int64(this.OneSendMoeny * model.UNITY)
-		conf.SendDesc = this.SendDesc
-		conf.RegisterDesc = this.RegisterDesc
-		conf.TeamDesc = this.TeamDesc
-		conf.GiftRate = int(this.GiftRate * model.UNITY)
-		conf.RetreatStartDate = this.RetreatStartDate
-		conf.OneReleaseRate = int(this.OneReleaseRate * model.UNITY)
-		conf.TwoReleaseRate = int(this.TwoReleaseRate * model.UNITY)
-		conf.ThreeReleaseRate = int(this.ThreeReleaseRate * model.UNITY)
-		conf.IncomeBalanceRate = int(this.IncomeBalanceRate * model.UNITY)
+		//conf.VerifiedSend = int(this.VerifiedSend)
+		//conf.RegisterSend = int(this.RegisterSend)
+		//conf.OneSend = int(this.OneSend)
+		//conf.TwoSend = int(this.TwoSend)
+		//conf.ThreeSend = int(this.ThreeSend)
+		//conf.OneSendMoeny = int64(this.OneSendMoeny)
+		//conf.SendDesc = this.SendDesc
+		//conf.RegisterDesc = this.RegisterDesc
+		//conf.TeamDesc = this.TeamDesc
+		//conf.GiftRate = int(this.GiftRate)
+		//conf.RetreatStartDate = this.RetreatStartDate
+		//conf.OneReleaseRate = int(this.OneReleaseRate)
+		//conf.TwoReleaseRate = int(this.TwoReleaseRate)
+		//conf.ThreeReleaseRate = int(this.ThreeReleaseRate)
+		//conf.IncomeBalanceRate = int(this.IncomeBalanceRate)
 		return conf.Update()
 	}
 }
@@ -96,24 +96,24 @@ func (this ConfigFunds) Get() (*response.ConfigFunds, error) {
 		return nil, errors.New("参数错误")
 	}
 	return &response.ConfigFunds{
-		ID:                  funds.ID,
-		RechargeStartTime:   funds.RechargeStartTime,
-		RechargeEndTime:     funds.RechargeEndTime,
-		RechargeMinAmount:   float64(funds.RechargeMinAmount) / model.UNITY,
-		RechargeMaxAmount:   float64(funds.RechargeMaxAmount) / model.UNITY,
+		Id:                funds.Id,
+		RechargeStartTime: funds.RechargeStartTime,
+		RechargeEndTime:   funds.RechargeEndTime,
+		//RechargeMinAmount:   float64(funds.RechargeMinAmount) ,
+		//RechargeMaxAmount:   float64(funds.RechargeMaxAmount) ,
 		RechargeFee:         funds.RechargeFee,
 		RechargeQuickAmount: funds.RechargeQuickAmount,
 		WithdrawStartTime:   funds.WithdrawStartTime,
 		WithdrawEndTime:     funds.WithdrawEndTime,
 		MustPassword:        funds.MustPassword,
 		PasswordFreeze:      funds.PasswordFreeze,
-		WithdrawMinAmount:   float64(funds.WithdrawMinAmount) / model.UNITY,
-		WithdrawMaxAmount:   float64(funds.WithdrawMaxAmount) / model.UNITY,
-		WithdrawFee:         float64(funds.WithdrawFee),
-		WithdrawCount:       funds.WithdrawCount,
-		ProductFee:          funds.ProductFee,
-		ProductQuickAmount:  funds.ProductQuickAmount,
-		DayTurnMoneyNum:     funds.DayTurnMoneyNum,
+		//WithdrawMinAmount:   float64(funds.WithdrawMinAmount) ,
+		//WithdrawMaxAmount:   float64(funds.WithdrawMaxAmount) ,
+		//WithdrawFee:         float64(funds.WithdrawFee),
+		WithdrawCount:      funds.WithdrawCount,
+		ProductFee:         funds.ProductFee,
+		ProductQuickAmount: funds.ProductQuickAmount,
+		DayTurnMoneyNum:    funds.DayTurnMoneyNum,
 	}, nil
 }
 
@@ -147,20 +147,20 @@ func (this ConfigFundsUpdate) Update() error {
 		return c.Insert()
 	} else {
 		//修改
-		conf.ID = this.ID
+		conf.Id = this.Id
 		conf.RechargeStartTime = this.RechargeStartTime
 		conf.RechargeEndTime = this.RechargeEndTime
-		conf.RechargeMinAmount = int64(this.RechargeMinAmount * model.UNITY)
-		conf.RechargeMaxAmount = int64(this.RechargeMaxAmount * model.UNITY)
+		//conf.RechargeMinAmount = int64(this.RechargeMinAmount)
+		//conf.RechargeMaxAmount = int64(this.RechargeMaxAmount)
 		conf.RechargeFee = this.RechargeFee
 		conf.RechargeQuickAmount = this.RechargeQuickAmount
 		conf.WithdrawStartTime = this.WithdrawStartTime
 		conf.WithdrawEndTime = this.WithdrawEndTime
 		conf.MustPassword = this.MustPassword
 		conf.PasswordFreeze = this.PasswordFreeze
-		conf.WithdrawMinAmount = int64(this.WithdrawMinAmount * model.UNITY)
-		conf.WithdrawMaxAmount = int64(this.WithdrawMaxAmount * model.UNITY)
-		conf.WithdrawFee = this.WithdrawFee
+		//conf.WithdrawMinAmount = int64(this.WithdrawMinAmount)
+		//conf.WithdrawMaxAmount = int64(this.WithdrawMaxAmount)
+		//conf.WithdrawFee = this.WithdrawFee
 		conf.WithdrawCount = this.WithdrawCount
 		conf.ProductFee = this.ProductFee
 		conf.ProductQuickAmount = this.ProductQuickAmount
@@ -179,7 +179,7 @@ func (this ConfigBankList) List() response.ConfigBankData {
 	res := make([]response.ConfigBank, 0)
 	for _, v := range list {
 		i := response.ConfigBank{
-			ID:         v.ID,
+			Id:         v.Id,
 			BankName:   v.BankName,
 			CardNumber: v.CardNumber,
 			BranchBank: v.BranchBank,
@@ -226,7 +226,7 @@ type ConfigBankUpdate struct {
 }
 
 func (this ConfigBankUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.BankName == "" {
@@ -242,7 +242,7 @@ func (this ConfigBankUpdate) Update() error {
 		return errors.New("支行不能为空")
 	}
 	m := model.SetBank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("收款银行卡不存在")
@@ -260,11 +260,11 @@ type ConfigBankUpdateStatus struct {
 }
 
 func (this ConfigBankUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetBank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("收款银行卡不存在")
@@ -278,11 +278,11 @@ type ConfigBankRemove struct {
 }
 
 func (this ConfigBankRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetBank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }
@@ -298,7 +298,7 @@ func (this ConfigAlipayList) List() response.ConfigAlipayData {
 	res := make([]response.ConfigAlipay, 0)
 	for _, v := range list {
 		i := response.ConfigAlipay{
-			ID:         v.ID,
+			Id:         v.Id,
 			Account:    v.Account,
 			RealName:   v.RealName,
 			Status:     v.Status,
@@ -335,7 +335,7 @@ type ConfigAlipayUpdate struct {
 }
 
 func (this ConfigAlipayUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Account == "" {
@@ -345,7 +345,7 @@ func (this ConfigAlipayUpdate) Update() error {
 		return errors.New("收款人姓名不能为空")
 	}
 	m := model.SetAlipay{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("收款支付宝不存在")
@@ -362,11 +362,11 @@ type ConfigAlipayUpdateStatus struct {
 }
 
 func (this ConfigAlipayUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetAlipay{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("收款支付宝不存在")
@@ -380,11 +380,11 @@ type ConfigAlipayRemove struct {
 }
 
 func (this ConfigAlipayRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetAlipay{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }
@@ -399,7 +399,7 @@ func (this ConfigUsdtList) List() response.ConfigUsdtData {
 	res := make([]response.ConfigUsdt, 0)
 	for _, v := range list {
 		i := response.ConfigUsdt{
-			ID:         v.ID,
+			Id:         v.Id,
 			Address:    v.Address,
 			Status:     v.Status,
 			Proto:      v.Proto,
@@ -435,7 +435,7 @@ type ConfigUsdtUpdate struct {
 }
 
 func (this ConfigUsdtUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Address == "" {
@@ -445,7 +445,7 @@ func (this ConfigUsdtUpdate) Update() error {
 		return errors.New("usdt收地址址协议错误")
 	}
 	m := model.SetUsdt{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("收款usdt不存在")
@@ -461,11 +461,11 @@ type ConfigUsdtUpdateStatus struct {
 }
 
 func (this ConfigUsdtUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetUsdt{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("收款usdt不存在")
@@ -479,11 +479,11 @@ type ConfigUsdtRemove struct {
 }
 
 func (this ConfigUsdtRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetUsdt{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }
@@ -498,7 +498,7 @@ func (this ConfigKfList) List() response.ConfigKfData {
 	res := make([]response.ConfigKf, 0)
 	for _, v := range list {
 		i := response.ConfigKf{
-			ID:         v.ID,
+			Id:         v.Id,
 			Name:       v.Name,
 			StartTime:  v.StartTime,
 			EndTime:    v.EndTime,
@@ -519,7 +519,7 @@ type ConfigKfUpdate struct {
 }
 
 func (this ConfigKfUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.StartTime == "" {
@@ -532,7 +532,7 @@ func (this ConfigKfUpdate) Update() error {
 		return errors.New("跳转链接不能为空")
 	}
 	m := model.SetKf{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("客服不存在")
@@ -552,11 +552,11 @@ type ConfigKfUpdateStatus struct {
 }
 
 func (this ConfigKfUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetKf{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("客服不存在")
@@ -579,7 +579,7 @@ func (this ConfigLangList) List() response.ConfigLangData {
 	res := make([]response.ConfigLang, 0)
 	for _, v := range list {
 		i := response.ConfigLang{
-			ID:         v.ID,
+			Id:         v.Id,
 			Name:       v.Name,
 			Code:       v.Code,
 			Icon:       v.Icon,
@@ -598,11 +598,11 @@ type ConfigLangUpdateStatus struct {
 }
 
 func (this ConfigLangUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.SetLang{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("语言不存在")
@@ -621,7 +621,7 @@ func (this ConfigRechargeMethodList) List() response.ConfigRechargeMethodData {
 	res := make([]response.ConfigRechargeMethod, 0)
 	for _, v := range list {
 		i := response.ConfigRechargeMethod{
-			ID:     v.ID,
+			Id:     v.Id,
 			Name:   v.Name,
 			Code:   v.Code,
 			Icon:   v.Icon,
@@ -638,11 +638,11 @@ type ConfigRechargeMethodUpdate struct {
 }
 
 func (this ConfigRechargeMethodUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.RechargeMethod{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("充值方式不存在")
@@ -657,11 +657,11 @@ type ConfigRechargeMethodUpdateStatus struct {
 }
 
 func (this ConfigRechargeMethodUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.RechargeMethod{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("充值方式不存在")
@@ -680,7 +680,7 @@ func (this ConfigWithdrawMethodList) List() response.ConfigWithdrawMethodData {
 	res := make([]response.ConfigWithdrawMethod, 0)
 	for _, v := range list {
 		i := response.ConfigWithdrawMethod{
-			ID:     v.ID,
+			Id:     v.Id,
 			Name:   v.Name,
 			Code:   v.Code,
 			Icon:   v.Icon,
@@ -697,11 +697,11 @@ type ConfigWithdrawMethodUpdate struct {
 }
 
 func (this ConfigWithdrawMethodUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.WithdrawMethod{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("提现方式不存在")
@@ -716,11 +716,11 @@ type ConfigWithdrawMethodUpdateStatus struct {
 }
 
 func (this ConfigWithdrawMethodUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.WithdrawMethod{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("提现方式不存在")

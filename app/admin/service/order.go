@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,11 +32,11 @@ func (this OrderListService) PageList() *response.BuyListResp {
 		}
 		items = append(items, response.BuyList{
 			Username: list[i].Member.Username,
-			Uid:      list[i].Member.ID,
+			Uid:      list[i].Member.Id,
 			Name:     list[i].Product.Name,
 			BuyTime:  int(list[i].CreateTime),
-			Amount:   float64(list[i].PayMoney) / model.UNITY,
-			Status:   orderStatus,
+			//Amount:   float64(list[i].PayMoney) ,
+			Status: orderStatus,
 		})
 	}
 	return &response.BuyListResp{List: items, Page: FormatPage(page)}
@@ -78,14 +78,14 @@ func (this OrderListService) GuQuanPageList() *response.BuyGuquanResp {
 	items := make([]response.BuyGuquan, 0)
 	for i := range list {
 		items = append(items, response.BuyGuquan{
-			Id:         list[i].ID,
-			Rate:       float64(list[i].Rate) / model.UNITY,
-			Username:   list[i].Member.Username,
-			Uid:        list[i].Member.ID,
-			Num:        list[i].PayMoney / int64(model.UNITY) / list[i].Guquan.Price / int64(model.UNITY),
-			Price:      float64(list[i].Guquan.Price) / model.UNITY,
+			Id: list[i].Id,
+			//Rate:       float64(list[i].Rate) ,
+			Username: list[i].Member.Username,
+			Uid:      list[i].Member.Id,
+			//Num:        list[i].PayMoney / int64(model.UNITY) / list[i].Guquan.Price / int64(model.UNITY),
+			//Price:      float64(list[i].Guquan.Price) ,
 			CreateTime: int64(list[i].CreateTime),
-			TotalPrice: float64(list[i].PayMoney) / model.UNITY,
+			//TotalPrice: float64(list[i].PayMoney) ,
 		})
 	}
 	return &response.BuyGuquanResp{List: items, Page: FormatPage(page)}
@@ -119,19 +119,19 @@ type OrderUpdate struct {
 }
 
 func (this OrderUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
-	if this.Rate < 0 || this.Rate > 1 {
-		return errors.New("参数错误")
-	}
+	//if this.Rate < 0 || this.Rate > 1 {
+	//	return errors.New("参数错误")
+	//}
 	order := model.OrderGuquan{
-		ID: this.ID,
+		Id: this.Id,
 	}
 
 	if !order.Get() {
 		return errors.New("订单不存在")
 	}
-	order.Rate = int(this.Rate * model.UNITY)
+	//order.Rate = int(this.Rate)
 	return order.Update("rate")
 }

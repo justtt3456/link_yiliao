@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"finance/common"
-	"finance/model"
+	"china-russia/common"
+	"china-russia/model"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -36,10 +36,10 @@ func (this *Guquan) Do() {
 				//未中签的钱 + 返回的钱
 				weiMoney := (orders[i].PayMoney * int64(int(model.UNITY)-orders[i].Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(orders[i].Guquan.ReturnRate)) / int64(model.UNITY)
 
-				logrus.Infof("发行返回的钱  用户ID%v  收益%v", orders[i].UID, weiMoney)
+				logrus.Infof("发行返回的钱  用户Id%v  收益%v", orders[i].UId, weiMoney)
 
 				//获取用户余额
-				m := model.Member{ID: orders[i].UID}
+				m := model.Member{Id: orders[i].UId}
 				m.Get()
 
 				if isRetreatStatus == true {
@@ -54,9 +54,9 @@ func (this *Guquan) Do() {
 
 					//加入账变记录
 					trade := model.Trade{
-						UID:        orders[i].UID,
+						UId:        orders[i].UId,
 						TradeType:  17,
-						ItemID:     orders[i].ID,
+						ItemId:     orders[i].Id,
 						Amount:     balanceAmount,
 						Before:     orders[i].Member.Balance,
 						After:      orders[i].Member.Balance + balanceAmount,
@@ -67,16 +67,16 @@ func (this *Guquan) Do() {
 					}
 					err := trade.Insert()
 					if err != nil {
-						logrus.Errorf("发行返回的钱  用户ID%v  收益%v  err=%v", orders[i].UID, weiMoney, err)
+						logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", orders[i].UId, weiMoney, err)
 					}
 
 					trade2 := model.Trade{
-						UID:        orders[i].UID,
+						UId:        orders[i].UId,
 						TradeType:  17,
-						ItemID:     orders[i].ID,
+						ItemId:     orders[i].Id,
 						Amount:     useBalanceAmount,
-						Before:     orders[i].Member.UseBalance,
-						After:      orders[i].Member.UseBalance + balanceAmount,
+						Before:     orders[i].Member.WithdrawBalance,
+						After:      orders[i].Member.WithdrawBalance + balanceAmount,
 						Desc:       "股权发行收益",
 						CreateTime: time.Now().Unix(),
 						UpdateTime: time.Now().Unix(),
@@ -84,21 +84,21 @@ func (this *Guquan) Do() {
 					}
 					err = trade2.Insert()
 					if err != nil {
-						logrus.Errorf("发行返回的钱  用户ID%v  收益%v  err=%v", orders[i].UID, weiMoney, err)
+						logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", orders[i].UId, weiMoney, err)
 					}
 
 					//用户加钱
 					m.Balance += balanceAmount
-					m.UseBalance += useBalanceAmount
+					m.WithdrawBalance += useBalanceAmount
 				} else {
 					//加入账变记录
 					trade := model.Trade{
-						UID:        orders[i].UID,
+						UId:        orders[i].UId,
 						TradeType:  17,
-						ItemID:     orders[i].ID,
+						ItemId:     orders[i].Id,
 						Amount:     weiMoney,
-						Before:     orders[i].Member.UseBalance,
-						After:      orders[i].Member.UseBalance + weiMoney,
+						Before:     orders[i].Member.WithdrawBalance,
+						After:      orders[i].Member.WithdrawBalance + weiMoney,
 						Desc:       "股权发行收益",
 						CreateTime: time.Now().Unix(),
 						UpdateTime: time.Now().Unix(),
@@ -106,20 +106,22 @@ func (this *Guquan) Do() {
 					}
 					err := trade.Insert()
 					if err != nil {
-						logrus.Errorf("发行返回的钱  用户ID%v  收益%v  err=%v", orders[i].UID, weiMoney, err)
+						logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", orders[i].UId, weiMoney, err)
 					}
 
 					//用户加钱
 					m.Balance += 0
-					m.UseBalance += weiMoney
+					m.WithdrawBalance += weiMoney
 				}
 
 				//更改用户余额
 				m.TotalBalance += weiMoney
 				m.Income += weiMoney
-				err := m.Update("total_balance", "balance", "use_balance", "income")
+				err := m.Update("total_balance", "balance", "withdraw_balance", "
+				income
+				")
 				if err != nil {
-					logrus.Errorf("发行 修改余额失败  用户ID %v 收益 %v  err= &v", orders[i].UID, weiMoney, err)
+					logrus.Errorf("发行 修改余额失败  用户Id %v 收益 %v  err= &v", orders[i].UId, weiMoney, err)
 				}
 			}
 		}
@@ -134,10 +136,10 @@ func (this *Guquan) Do() {
 				//回购 + 返回的钱
 				huiMoney := (orders[i].PayMoney * int64(orders[i].Rate) / int64(model.UNITY)) * int64(orders[i].Guquan.ReturnLuckyRate) / int64(model.UNITY)
 
-				logrus.Infof("发行返回的钱  用户ID%v  收益%v", orders[i].UID, huiMoney)
+				logrus.Infof("发行返回的钱  用户Id%v  收益%v", orders[i].UId, huiMoney)
 
 				//获取用户余额
-				m := model.Member{ID: orders[i].UID}
+				m := model.Member{Id: orders[i].UId}
 				m.Get()
 
 				if isRetreatStatus == true {
@@ -152,9 +154,9 @@ func (this *Guquan) Do() {
 
 					//加入账变记录
 					trade := model.Trade{
-						UID:        orders[i].UID,
+						UId:        orders[i].UId,
 						TradeType:  17,
-						ItemID:     orders[i].ID,
+						ItemId:     orders[i].Id,
 						Amount:     balanceAmount,
 						Before:     m.Balance,
 						After:      m.Balance + balanceAmount,
@@ -165,16 +167,16 @@ func (this *Guquan) Do() {
 					}
 					err := trade.Insert()
 					if err != nil {
-						logrus.Errorf("回购返回的钱  用户ID%v  收益%v  err=%v", orders[i].UID, balanceAmount, err)
+						logrus.Errorf("回购返回的钱  用户Id%v  收益%v  err=%v", orders[i].UId, balanceAmount, err)
 					}
 
 					trade2 := model.Trade{
-						UID:        orders[i].UID,
+						UId:        orders[i].UId,
 						TradeType:  17,
-						ItemID:     orders[i].ID,
+						ItemId:     orders[i].Id,
 						Amount:     useBalanceAmount,
-						Before:     m.UseBalance,
-						After:      m.UseBalance + useBalanceAmount,
+						Before:     m.WithdrawBalance,
+						After:      m.WithdrawBalance + useBalanceAmount,
 						Desc:       "股权回购收益",
 						CreateTime: time.Now().Unix(),
 						UpdateTime: time.Now().Unix(),
@@ -182,21 +184,21 @@ func (this *Guquan) Do() {
 					}
 					err = trade2.Insert()
 					if err != nil {
-						logrus.Errorf("回购返回的钱  用户ID%v  收益%v  err=%v", orders[i].UID, useBalanceAmount, err)
+						logrus.Errorf("回购返回的钱  用户Id%v  收益%v  err=%v", orders[i].UId, useBalanceAmount, err)
 					}
 
 					//用户加钱
 					m.Balance += balanceAmount
-					m.UseBalance += useBalanceAmount
+					m.WithdrawBalance += useBalanceAmount
 				} else {
 					//加入账变记录
 					trade := model.Trade{
-						UID:        orders[i].UID,
+						UId:        orders[i].UId,
 						TradeType:  17,
-						ItemID:     orders[i].ID,
+						ItemId:     orders[i].Id,
 						Amount:     huiMoney,
-						Before:     m.UseBalance,
-						After:      m.UseBalance + huiMoney,
+						Before:     m.WithdrawBalance,
+						After:      m.WithdrawBalance + huiMoney,
 						Desc:       "股权回购收益",
 						CreateTime: time.Now().Unix(),
 						UpdateTime: time.Now().Unix(),
@@ -204,19 +206,21 @@ func (this *Guquan) Do() {
 					}
 					err := trade.Insert()
 					if err != nil {
-						logrus.Errorf("回购返回的钱  用户ID%v  收益%v  err=%v", orders[i].UID, huiMoney, err)
+						logrus.Errorf("回购返回的钱  用户Id%v  收益%v  err=%v", orders[i].UId, huiMoney, err)
 					}
 
 					//用户加钱
 					m.Balance += 0
-					m.UseBalance += huiMoney
+					m.WithdrawBalance += huiMoney
 				}
 
 				m.TotalBalance += huiMoney
 				m.Income += huiMoney
-				err := m.Update("total_balance", "balance", "use_balance", "income")
+				err := m.Update("total_balance", "balance", "withdraw_balance", "
+				income
+				")
 				if err != nil {
-					logrus.Errorf("回购 修改余额失败  用户ID %v 收益 %v  err= &v", orders[i].UID, huiMoney, err)
+					logrus.Errorf("回购 修改余额失败  用户Id %v 收益 %v  err= &v", orders[i].UId, huiMoney, err)
 				}
 			}
 		}

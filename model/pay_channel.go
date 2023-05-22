@@ -1,9 +1,9 @@
 package model
 
 import (
+	"china-russia/common"
+	"china-russia/global"
 	"encoding/json"
-	"finance/common"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -12,9 +12,9 @@ import (
 )
 
 type PayChannel struct {
-	ID         int     `gorm:"column:id;primary_key"`             //
+	Id         int     `gorm:"column:id;primary_key"`             //
 	Name       string  `gorm:"column:name"`                       //支付方式名称
-	PaymentID  int     `gorm:"column:payment_id"`                 //第三方名称
+	PaymentId  int     `gorm:"column:payment_id"`                 //第三方名称
 	Code       string  `gorm:"column:code"`                       //支付编码
 	Min        int64   `gorm:"column:min"`                        //最小值
 	Max        int64   `gorm:"column:max"`                        //最大值
@@ -26,7 +26,7 @@ type PayChannel struct {
 	Lang       string  `gorm:"column:lang"`                       //语言
 	CreateTime int64   `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime int64   `gorm:"column:update_time;autoUpdateTime"` //
-	Payment    Payment `gorm:"foreignKey:PaymentID"`              //外键
+	Payment    Payment `gorm:"foreignKey:PaymentId"`              //外键
 }
 
 // TableName sets the insert table name for this struct type
@@ -48,13 +48,13 @@ func (this *PayChannel) Insert() error {
 		if err != nil {
 			log.Println(err)
 		}
-		global.REDIS.HSet(HashKeyPayChannel, strconv.Itoa(this.ID), string(bytes))
+		global.REDIS.HSet(HashKeyPayChannel, strconv.Itoa(this.Id), string(bytes))
 	}
 	return nil
 }
 func (this *PayChannel) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyPayChannel, this.ID)
+	key := fmt.Sprintf(LockKeyPayChannel, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -66,21 +66,21 @@ func (this *PayChannel) Update(col string, cols ...interface{}) error {
 	}
 	//同步redis
 	if this.Status != StatusOk {
-		global.REDIS.HDel(HashKeyPayment, strconv.Itoa(this.ID))
+		global.REDIS.HDel(HashKeyPayment, strconv.Itoa(this.Id))
 	} else {
 		//同步redis
 		bytes, err := json.Marshal(this)
 		if err != nil {
 			log.Println(err)
 		}
-		global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.ID), string(bytes))
+		global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.Id), string(bytes))
 	}
 	return nil
 }
 func (this *PayChannel) Get() bool {
-	//if this.ID != 0 {
+	//if this.Id != 0 {
 	//	//取redis
-	//	s := global.REDIS.HGet(HashKeyPayment, strconv.Itoa(this.ID)).Val()
+	//	s := global.REDIS.HGet(HashKeyPayment, strconv.Itoa(this.Id)).Val()
 	//	if s != "" {
 	//		err := json.Unmarshal([]byte(s), this)
 	//		if err == nil {
@@ -99,7 +99,7 @@ func (this *PayChannel) Get() bool {
 	//if err != nil {
 	//	log.Println(err)
 	//}
-	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.ID), string(bytes))
+	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.Id), string(bytes))
 	return true
 }
 func (this PayChannel) List() []PayChannel {
@@ -138,6 +138,6 @@ func (this *PayChannel) Remove() error {
 	if res.Error != nil {
 		return res.Error
 	}
-	global.REDIS.HDel(HashKeyPayment, strconv.Itoa(this.ID))
+	global.REDIS.HDel(HashKeyPayment, strconv.Itoa(this.Id))
 	return nil
 }

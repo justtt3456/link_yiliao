@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"finance/model"
+	"china-russia/model"
 	"time"
 )
 
@@ -19,9 +19,9 @@ func (this Unfreeze) Do() {
 	}
 }
 
-//解除冻结余额宝余额
+// 解除冻结余额宝余额
 func (this Unfreeze) unfreeze(order model.InvestOrder) {
-	member := model.Member{ID: order.UID}
+	member := model.Member{Id: order.UId}
 	if !member.Get() {
 		return
 	}

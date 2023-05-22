@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (this NewsList) PageList() response.NewsData {
 	res := make([]response.News, 0)
 	for _, v := range list {
 		i := response.News{
-			ID:         v.ID,
+			Id:         v.Id,
 			Title:      v.Title,
 			Content:    v.Content,
 			CreateTime: v.CreateTime,
@@ -93,7 +93,7 @@ type NewsUpdate struct {
 }
 
 func (this NewsUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Lang == "" {
@@ -112,7 +112,7 @@ func (this NewsUpdate) Update() error {
 		return errors.New("封面不能为空")
 	}
 	m := model.News{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("资讯不存在")
@@ -132,11 +132,11 @@ type NewsUpdateStatus struct {
 }
 
 func (this NewsUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.News{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("资讯不存在")
@@ -150,11 +150,11 @@ type NewsRemove struct {
 }
 
 func (this NewsRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.News{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

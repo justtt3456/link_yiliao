@@ -1,15 +1,15 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
 )
 
 type Banner struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Image      string `gorm:"column:image"`                      //图片
 	Sort       int    `gorm:"column:sort"`                       //排序
 	Link       string `gorm:"column:link"`                       //链接
@@ -47,7 +47,7 @@ func (this *Banner) Get() bool {
 
 func (this *Banner) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyBanner, this.ID)
+	key := fmt.Sprintf(LockKeyBanner, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

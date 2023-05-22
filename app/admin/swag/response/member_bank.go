@@ -10,7 +10,7 @@ type MemberBankList struct {
 }
 
 type MemberBank struct {
-	ID         int    `json:"id"` //
+	Id         int    `json:"id"` //
 	BankName   string `json:"bank_name"`
 	CardNumber string `json:"card_number"` //卡号
 	BranchBank string `json:"branch_bank"` //开户行（开户所在地）

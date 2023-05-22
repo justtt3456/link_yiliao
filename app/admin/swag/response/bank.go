@@ -10,7 +10,7 @@ type BankData struct {
 	Page Page       `json:"page"`
 }
 type BankInfo struct {
-	ID         int    `json:"id"`        //
+	Id         int    `json:"id"`        //
 	BankName   string `json:"bank_name"` //银行名称
 	Sort       int    `json:"sort"`
 	Status     int    `json:"status"` //状态

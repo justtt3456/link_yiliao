@@ -1,14 +1,14 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type Upgrade struct {
-	ID          int    `gorm:"column:id;primary_key"`             //
+	Id          int    `gorm:"column:id;primary_key"`             //
 	Platform    string `gorm:"column:platform"`                   //平台
 	Version     string `gorm:"column:version"`                    //版本
 	DownloadURL string `gorm:"column:download_url"`               //下载地址
@@ -50,7 +50,7 @@ func (this *Upgrade) Get() bool {
 }
 func (this *Upgrade) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyUpgrade, this.ID)
+	key := fmt.Sprintf(LockKeyUpgrade, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

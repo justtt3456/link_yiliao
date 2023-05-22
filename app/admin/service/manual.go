@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -16,22 +16,22 @@ type Manual struct {
 }
 
 func (this Manual) Recharge(admin model.Admin, t int, isfront int) error {
-	s := strings.Split(this.UIDs, ",")
+	s := strings.Split(this.UIds, ",")
 	for _, v := range s {
 		id, _ := strconv.Atoi(v)
 		if id == 0 {
 			return errors.New("用户错误")
 		}
-		if this.Amount == 0 {
-			return errors.New("金额错误")
-		}
-		member := model.Member{ID: id}
+		//if this.Amount == 0 {
+		//	return errors.New("金额错误")
+		//}
+		member := model.Member{Id: id}
 		if !member.Get() {
 			return errors.New("用户不存在")
 		}
 
 		h := RechargeHandle{}
-		err := h.Recharge(member, 0, int64(this.Amount*model.UNITY), 2, 14, isfront)
+		err := h.Recharge(member, 0, this.Amount, 2, 14, isfront)
 		if err != nil {
 			return err
 		}
@@ -41,47 +41,47 @@ func (this Manual) Recharge(admin model.Admin, t int, isfront int) error {
 }
 
 func (this Manual) Withdraw(admin model.Admin, isfront int) error {
-	s := strings.Split(this.UIDs, ",")
+	s := strings.Split(this.UIds, ",")
 	for _, v := range s {
 		id, _ := strconv.Atoi(v)
 		if id == 0 {
 			return errors.New("用户错误")
 		}
-		if this.Amount == 0 {
-			return errors.New("金额错误")
-		}
-		user := model.Member{ID: id}
+		//if this.Amount == 0 {
+		//	return errors.New("金额错误")
+		//}
+		user := model.Member{Id: id}
 		if !user.Get() {
 			return errors.New("用户不存在")
 		}
-		if this.Handle == 2 && user.Balance < int64(this.Amount*model.UNITY) {
-			return errors.New("用户可用余额不足")
-		}
-		if this.Handle == 3 && user.UseBalance < int64(this.Amount*model.UNITY) {
-			return errors.New("用户可提余额不足")
-		}
+		//if this.Handle == 2 && user.Balance < int64(this.Amount decimal.Decimal) {
+		//	return errors.New("用户可用余额不足")
+		//}
+		//if this.Handle == 3 && user.WithdrawBalance < int64(this.Amount decimal.Decimal) {
+		//	return errors.New("用户可提余额不足")
+		//}
 
 		//账单
 		trade := model.Trade{
-			UID:        user.ID,
-			TradeType:  15,
-			ItemID:     0,
-			Amount:     int64(this.Amount * model.UNITY),
+			UId:       user.Id,
+			TradeType: 15,
+			ItemId:    0,
+			//Amount:    int64(this.Amount),
 			IsFrontend: isfront,
 		}
 		if this.Handle == 2 {
 			trade.Before = user.Balance
-			trade.After = user.Balance - int64(this.Amount*model.UNITY)
+			//trade.After = user.Balance - int64(this.Amount decimal.Decimal)
 			trade.Desc = "系统回调"
-			user.Balance -= int64(this.Amount * model.UNITY)
+			//user.Balance -= int64(this.Amount)
 		} else {
-			trade.Before = user.UseBalance
-			trade.After = user.UseBalance - int64(this.Amount*model.UNITY)
+			trade.Before = user.WithdrawBalance
+			//trade.After = user.WithdrawBalance - int64(this.Amount)
 			trade.Desc = "自动回调可提现余额"
-			user.UseBalance -= int64(this.Amount * model.UNITY)
+			//user.WithdrawBalance -= int64(this.Amount)
 		}
-		user.TotalBalance -= int64(this.Amount * model.UNITY)
-		user.Update("balance", "use_balance", "total_balance")
+		//user.TotalBalance -= int64(this.Amount)
+		user.Update("balance", "withdraw_balance")
 		trade.Insert()
 	}
 
@@ -89,22 +89,22 @@ func (this Manual) Withdraw(admin model.Admin, isfront int) error {
 }
 
 func (this Manual) TopupUseBalance(admin model.Admin, t int, isfront int) error {
-	s := strings.Split(this.UIDs, ",")
+	s := strings.Split(this.UIds, ",")
 	for _, v := range s {
 		id, _ := strconv.Atoi(v)
 		if id == 0 {
 			return errors.New("用户错误")
 		}
-		if this.Amount == 0 {
-			return errors.New("金额错误")
-		}
-		member := model.Member{ID: id}
+		//if this.Amount == 0 {
+		//	return errors.New("金额错误")
+		//}
+		member := model.Member{Id: id}
 		if !member.Get() {
 			return errors.New("用户不存在")
 		}
 
 		h := RechargeHandle{}
-		err := h.TopupUseBalance(member, 0, int64(this.Amount*model.UNITY), 14, isfront)
+		err := h.TopupUseBalance(member, 0, this.Amount, 14, isfront)
 		if err != nil {
 			return err
 		}
@@ -129,11 +129,11 @@ func (this ManualList) PageList() response.ManualData {
 	sli := make([]response.ManualInfo, 0)
 	for _, v := range list {
 		item := response.ManualInfo{
-			ID:         v.ID,
-			UserID:     v.UID,
-			Username:   v.Username,
-			Type:       v.Type,
-			Amount:     float64(v.Amount / 100),
+			Id:       v.Id,
+			UserId:   v.UId,
+			Username: v.Username,
+			Type:     v.Type,
+			//Amount:     float64(v.Amount / 100),
 			AdminName:  v.Admin.Username,
 			AgentName:  v.Agent.Name,
 			CreateTime: v.CreateTime,

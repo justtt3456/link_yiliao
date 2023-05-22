@@ -1,10 +1,10 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/model"
 )
 
 type CouponList struct {
@@ -17,8 +17,8 @@ func (this *CouponList) CouponList() response.CouponResp {
 	s := m.List()
 	for i := range s {
 		res = append(res, response.Coupon{
-			Id:    s[i].ID,
-			Price: float64(s[i].Price) / model.UNITY,
+			Id: s[i].Id,
+			//Price: float64(s[i].Price) ,
 		})
 	}
 	return response.CouponResp{List: res}
@@ -30,10 +30,10 @@ type CouponAdd struct {
 
 func (this *CouponAdd) Add() error {
 	m := model.Coupon{}
-	if this.Price == 0 {
-		return errors.New("金额不能为0")
-	}
-	m.Price = int64(this.Price * model.UNITY)
+	//if this.Price == 0 {
+	//	return errors.New("金额不能为0")
+	//}
+	//m.Price = int64(this.Price)
 	return m.Insert()
 }
 
@@ -47,9 +47,9 @@ func (this *ActiveList) PageList() response.ActiveResp {
 	s := m.List()
 	for i := range s {
 		res = append(res, response.Active{
-			Id:       s[i].ID,
-			Amout:    float64(s[i].Amout) / model.UNITY,
-			Price:    float64(s[i].Coupon.Price) / model.UNITY,
+			Id: s[i].Id,
+			//Amout:    float64(s[i].Amout) ,
+			//Price:    float64(s[i].Coupon.Price) ,
 			CouponId: s[i].CouponId,
 		})
 	}
@@ -63,16 +63,16 @@ type ActiveAdd struct {
 func (this *ActiveAdd) Add() error {
 	m := model.FullDelivery{}
 	if this.CouponId == 0 {
-		return errors.New("优惠券ID不能为空")
+		return errors.New("优惠券Id不能为空")
 	}
-	c := model.Coupon{ID: this.CouponId}
+	c := model.Coupon{Id: this.CouponId}
 	if !c.Get() {
 		return errors.New("优惠券不存在")
 	}
-	if this.Amout == 0 {
-		return errors.New("满多少不能为0")
-	}
-	m.Amout = int64(this.Amout * model.UNITY)
+	//if this.Amout == 0 {
+	//	return errors.New("满多少不能为0")
+	//}
+	//m.Amout = int64(this.Amout)
 	m.CouponId = this.CouponId
 
 	return m.Insert()
@@ -84,9 +84,9 @@ type DelActive struct {
 
 func (this *DelActive) Del() error {
 	if this.Id == 0 {
-		return errors.New("活动ID不能为空")
+		return errors.New("活动Id不能为空")
 	}
-	m := model.FullDelivery{ID: this.Id}
+	m := model.FullDelivery{Id: this.Id}
 	if !m.Get() {
 		return errors.New("活动不存在")
 	}

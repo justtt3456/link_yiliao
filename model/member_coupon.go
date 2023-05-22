@@ -1,12 +1,12 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberCoupon struct {
-	ID       int64  `gorm:"column:id;primary_key"` //
+	Id       int64  `gorm:"column:id;primary_key"` //
 	Uid      int64  `gorm:"column:uid"`            //用户id
 	CouponId int64  `gorm:"column:coupon_id"`      //优惠券id
 	IsUse    int    `gorm:"column:is_use"`         //1=未使用 2=已使用

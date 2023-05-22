@@ -10,15 +10,15 @@ type ProductCategoryCreate struct {
 	Lang   string `json:"lang"`   //固定传 zh_cn
 }
 type ProductCategoryUpdate struct {
-	ID     int    `json:"id"`     //
+	Id     int    `json:"id"`     //
 	Name   string `json:"name"`   //产品名称
 	Status int    `json:"status"` //是否开启，1为开启，0为关闭
 	Lang   string `json:"lang"`
 }
 type ProductCategoryUpdateStatus struct {
-	ID     int `json:"id"`
+	Id     int `json:"id"`
 	Status int `json:"status"` //状态
 }
 type ProductCategoryRemove struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }

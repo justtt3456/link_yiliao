@@ -1,7 +1,7 @@
 package lang
 
 import (
-	"finance/global"
+	"china-russia/global"
 )
 
 func Lang(msg string) string {

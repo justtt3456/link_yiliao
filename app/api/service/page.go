@@ -1,8 +1,8 @@
 package service
 
 import (
-	"finance/app/api/swag/response"
-	"finance/common"
+	"china-russia/app/api/swag/response"
+	"china-russia/common"
 )
 
 func FormatPage(page common.Page) response.Page {

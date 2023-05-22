@@ -2,7 +2,7 @@ package withdraw
 
 import (
 	"bytes"
-	"finance/model"
+	"china-russia/model"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"

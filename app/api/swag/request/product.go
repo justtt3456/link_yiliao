@@ -1,18 +1,20 @@
 package request
 
+import "github.com/shopspring/decimal"
+
 type ProductKline struct {
 	Code     string `form:"code"`
 	Interval int    `form:"interval"` //1 1分钟 2 5分钟 3 15分钟 4 30分钟 5 1小时 6 1天
 }
 type ProductOption struct {
-	ID int `json:"id" form:"id"`
+	Id int `json:"id" form:"id"`
 }
 type ProductBuy struct {
-	ID       int     `json:"id" form:"id"` //产品id
-	Interval int     `json:"interval"`     //购买时长 秒
-	Ratio    int     `json:"ratio"`        //购买收益率
-	Type     int     `json:"type"`         //购买类型 1涨 2跌
-	Amount   float64 `json:"amount"`       //购买金额
+	Id       int             `json:"id" form:"id"` //产品id
+	Interval int             `json:"interval"`     //购买时长 秒
+	Ratio    int             `json:"ratio"`        //购买收益率
+	Type     int             `json:"type"`         //购买类型 1涨 2跌
+	Amount   decimal.Decimal `json:"amount"`       //购买金额
 }
 
 type ProductList struct {
@@ -22,7 +24,7 @@ type ProductList struct {
 	Name     string `form:"name"`
 }
 type ProductOptional struct {
-	ID int `json:"id" form:"id"`
+	Id int `json:"id" form:"id"`
 }
 
 type ProductBuyList struct {

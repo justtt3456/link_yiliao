@@ -1,13 +1,13 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type RechargeMethod struct {
-	ID     int    `gorm:"column:id;primary_key"` //
+	Id     int    `gorm:"column:id;primary_key"` //
 	Name   string `gorm:"column:name"`           //
 	Code   string `gorm:"column:code"`           //
 	Icon   string `gorm:"column:icon"`           //
@@ -38,7 +38,7 @@ func (this *RechargeMethod) List() ([]RechargeMethod, error) {
 }
 func (this *RechargeMethod) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyRechargeMethod, this.ID)
+	key := fmt.Sprintf(LockKeyRechargeMethod, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

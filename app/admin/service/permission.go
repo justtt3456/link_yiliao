@@ -1,10 +1,10 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/model"
 )
 
 type PermissionService struct {
@@ -21,16 +21,16 @@ func (this PermissionService) List() []response.PermissionTree {
 	return buildPermissionTree(list, 0)
 }
 
-//所有权限树
+// 所有权限树
 func buildPermissionTree(res []model.Permission, pid int) []response.PermissionTree {
 	m := make([]response.PermissionTree, 0)
 	for _, v := range res {
 		s := response.PermissionTree{}
 		if v.Pid == pid {
-			children := buildPermissionTree(res, v.ID)
+			children := buildPermissionTree(res, v.Id)
 			if children != nil {
-				s.ID = v.ID
-				s.PID = v.Pid
+				s.Id = v.Id
+				s.PId = v.Pid
 				s.Label = v.Label
 				s.Frontend = v.Frontend
 				s.Backend = v.Backend
@@ -56,7 +56,7 @@ func (this PermissionCreateService) Create() error {
 		Frontend: this.Frontend,
 		Backend:  this.Backend,
 		Label:    this.Label,
-		Pid:      this.PID,
+		Pid:      this.PId,
 		IsBtn:    this.IsBtn,
 		Sort:     this.Sort,
 	}
@@ -68,14 +68,14 @@ type PermissionUpdateService struct {
 }
 
 func (this PermissionUpdateService) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Label == "" {
 		return errors.New("权限名称不能为空")
 	}
 	p := model.Permission{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !p.Get() {
 		return errors.New("记录不存在")
@@ -83,7 +83,7 @@ func (this PermissionUpdateService) Update() error {
 	p.Frontend = this.Frontend
 	p.Backend = this.Backend
 	p.Label = this.Label
-	p.Pid = this.PID
+	p.Pid = this.PId
 	p.IsBtn = this.IsBtn
 	p.Sort = this.Sort
 	return p.Update("frontend", "backend", "label", "pid", "is_btn", "sort")
@@ -94,11 +94,11 @@ type PermissionRemoveService struct {
 }
 
 func (this PermissionRemoveService) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	p := model.Permission{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return p.Remove()
 }

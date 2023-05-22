@@ -1,22 +1,22 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"github.com/sirupsen/logrus"
 )
 
 type Manual struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
-	UID        int    `gorm:"column:uid"`                        //
+	Id         int    `gorm:"column:id;primary_key"`             //
+	UId        int    `gorm:"column:uid"`                        //
 	Username   string `gorm:"column:username"`                   //
 	Type       int    `gorm:"column:type"`                       //1上分 2下分 3冻结 4解冻
 	Amount     int64  `gorm:"column:amount"`                     //金额
-	AdminID    int    `gorm:"column:admin_id"`                   //操作人
-	AgentID    int    `gorm:"column:agent_id"`                   //操作人
+	AdminId    int    `gorm:"column:admin_id"`                   //操作人
+	AgentId    int    `gorm:"column:agent_id"`                   //操作人
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //创建时间
-	Admin      Admin  `gorm:"foreignKey:AdminID"`
-	Agent      Agent  `gorm:"foreignKey:AgentID"`
+	Admin      Admin  `gorm:"foreignKey:AdminId"`
+	Agent      Agent  `gorm:"foreignKey:AgentId"`
 }
 
 // TableName sets the insert table name for this struct type

@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

@@ -10,7 +10,7 @@ type RoleData struct {
 	Page Page       `json:"page"`
 }
 type RoleInfo struct {
-	RoleID      int              `json:"role_id"`     //
+	RoleId      int              `json:"role_id"`     //
 	RoleName    string           `json:"role_name"`   //
 	Status      int              `json:"status"`      //
 	CreateTime  int64            `json:"create_time"` //创建时间

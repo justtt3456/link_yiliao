@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"finance/app/api/controller"
-	"finance/app/api/swag/response"
-	"finance/global"
-	"finance/model"
+	"china-russia/app/api/controller"
+	"china-russia/app/api/swag/response"
+	"china-russia/global"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,11 +12,11 @@ type IndexController struct {
 	controller.AuthController
 }
 
-//	@Summary	首页banner和公告
-//	@Tags		首页
-//	@Param		object	query		request.Request	false	"查询参数"
-//	@Success	200		{object}	response.IndexResponse
-//	@Router		/index [get]
+// @Summary	首页banner和公告
+// @Tags		首页
+// @Param		object	query		request.Request	false	"查询参数"
+// @Success	200		{object}	response.IndexResponse
+// @Router		/index [get]
 func (this IndexController) Index(c *gin.Context) {
 	res := response.Index{
 		Banner: this.banner(),

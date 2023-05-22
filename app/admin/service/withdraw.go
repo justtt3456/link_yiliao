@@ -1,12 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -32,27 +31,27 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 	res := make([]response.WithdrawInfo, 0)
 	for _, v := range list {
 		//实际金额
-		realAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.1f", float64(v.Amount)/model.UNITY), 64)
+		//realAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.1f", float64(v.Amount)/model.UNITY), 64)
 		i := response.WithdrawInfo{
-			ID:               v.ID,
-			UID:              v.UID,
-			WithdrawType:     v.WithdrawType,
-			BankName:         v.BankName,
-			BranchBank:       v.BranchBank,
-			RealName:         v.RealName,
-			CardNumber:       v.CardNumber,
-			BankPhone:        v.BankPhone,
-			Amount:           realAmount,
-			Fee:              float64(v.Fee) / model.UNITY,
-			TotalAmount:      float64(v.TotalAmount) / model.UNITY,
-			UsdtAmount:       float64(v.UsdtAmount) / model.UNITY,
+			Id:           v.Id,
+			UId:          v.UId,
+			WithdrawType: v.WithdrawType,
+			BankName:     v.BankName,
+			BranchBank:   v.BranchBank,
+			RealName:     v.RealName,
+			CardNumber:   v.CardNumber,
+			BankPhone:    v.BankPhone,
+			//Amount:           realAmount,
+			//Fee:              float64(v.Fee),
+			//TotalAmount:      float64(v.TotalAmount),
+			//UsdtAmount:       float64(v.UsdtAmount),
 			Description:      v.Description,
 			Operator:         v.Operator1,
 			ViewStatus:       v.ViewStatus,
 			Status:           v.Status,
 			SuccessTime:      v.SuccessTime,
 			OrderSn:          v.OrderSn,
-			PaymentID:        v.PaymentID,
+			PaymentId:        v.PaymentId,
 			PaymentName:      v.Payment.PayName,
 			TradeSn:          v.TradeSn,
 			CreateTime:       v.CreateTime,
@@ -77,7 +76,7 @@ func (this WithdrawUpdateService) Update() error {
 	for _, v := range ids {
 		id, _ := strconv.Atoi(v)
 		m := model.Withdraw{
-			ID: id,
+			Id: id,
 		}
 		if !m.Get() {
 			return errors.New("记录不存在")
@@ -85,7 +84,7 @@ func (this WithdrawUpdateService) Update() error {
 		if m.Status != model.StatusReview {
 			return errors.New("当前记录不允许操作")
 		}
-		user := model.Member{ID: m.UID}
+		user := model.Member{Id: m.UId}
 		if !user.Get() {
 			return errors.New("用户不存在")
 		}
@@ -93,21 +92,21 @@ func (this WithdrawUpdateService) Update() error {
 		case model.StatusRollback:
 			//生成账单
 			trade := model.Trade{
-				UID:       m.UID,
+				UId:       m.UId,
 				TradeType: 4,
-				ItemID:    m.ID,
-				Amount:    m.TotalAmount,
-				Before:    user.Balance,
-				After:     user.Balance + m.TotalAmount,
-				Desc:      "提现驳回",
+				ItemId:    m.Id,
+				//Amount:    m.TotalAmount,
+				Before: user.Balance,
+				//After:     user.Balance + m.TotalAmount,
+				Desc: "提现驳回",
 			}
 			if err := trade.Insert(); err != nil {
 				return err
 			}
 			//回滚余额
-			user.UseBalance += m.TotalAmount
-			user.TotalBalance += m.TotalAmount
-			if err := user.Update("use_balance", "total_balance"); err != nil {
+			//user.WithdrawBalance += m.TotalAmount
+			//user.TotalBalance += m.TotalAmount
+			if err := user.Update("withdraw_balance"); err != nil {
 				return err
 			}
 		case model.StatusAccept:
@@ -127,8 +126,8 @@ func (this WithdrawUpdateService) Update() error {
 
 func (this WithdrawListService) getWhere() (string, []interface{}) {
 	where := map[string]interface{}{}
-	if this.UID > 0 {
-		where[model.Withdraw{}.TableName()+".uid"] = this.UID
+	if this.UId > 0 {
+		where[model.Withdraw{}.TableName()+".uid"] = this.UId
 	}
 	if this.Username != "" {
 		where["Member.username"] = this.Username
@@ -155,11 +154,11 @@ type WithdrawUpdateInfoService struct {
 }
 
 func (this WithdrawUpdateInfoService) UpdateInfo() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Withdraw{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("记录不存在")

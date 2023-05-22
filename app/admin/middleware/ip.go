@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"china-russia/global"
+	"china-russia/model"
 	"encoding/json"
-	"finance/global"
-	"finance/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"

@@ -9,10 +9,10 @@ type RoleCreateRequest struct {
 	Ids      []int  `json:"ids"`
 }
 type RoleUpdateRequest struct {
-	RoleID   int    `json:"role_id"`
+	RoleId   int    `json:"role_id"`
 	RoleName string `json:"role_name"`
 	Ids      []int  `json:"ids"`
 }
 type RoleRemoveRequest struct {
-	RoleID int `json:"role_id" form:"role_id"`
+	RoleId int `json:"role_id" form:"role_id"`
 }

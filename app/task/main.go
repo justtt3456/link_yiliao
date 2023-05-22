@@ -1,9 +1,9 @@
 package main
 
 import (
-	"finance/app/task/ticker"
-	"finance/dao"
-	"finance/global"
+	"china-russia/app/task/ticker"
+	"china-russia/dao"
+	"china-russia/global"
 	"math/rand"
 	"time"
 )

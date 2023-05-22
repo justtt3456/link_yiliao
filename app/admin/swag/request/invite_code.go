@@ -7,13 +7,13 @@ type InviteCodeList struct {
 	Status   int    `form:"status"`
 }
 type InviteCodeCreate struct {
-	AgentID int    `json:"agent_id"` //代理id
+	AgentId int    `json:"agent_id"` //代理id
 	Code    string `json:"code"`     //邀请码
 }
 type InviteCodeUpdate struct {
-	ID   int    `json:"id"`   //
+	Id   int    `json:"id"`   //
 	Code string `json:"code"` //邀请码
 }
 type InviteCodeRemove struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }

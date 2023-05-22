@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (this NoticeList) PageList() response.NoticeData {
 	res := make([]response.Notice, 0)
 	for _, v := range list {
 		i := response.Notice{
-			ID:         v.ID,
+			Id:         v.Id,
 			Title:      v.Title,
 			Intro:      v.Intro,
 			Content:    v.Content,
@@ -91,7 +91,7 @@ type NoticeUpdate struct {
 }
 
 func (this NoticeUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Type != 1 && this.Type != 2 {
@@ -110,7 +110,7 @@ func (this NoticeUpdate) Update() error {
 		return errors.New("内容不能为空")
 	}
 	m := model.Notice{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("公告不存在")
@@ -129,11 +129,11 @@ type NoticeUpdateStatus struct {
 }
 
 func (this NoticeUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Notice{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("公告不存在")
@@ -147,11 +147,11 @@ type NoticeRemove struct {
 }
 
 func (this NoticeRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Notice{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

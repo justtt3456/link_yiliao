@@ -1,5 +1,7 @@
 package response
 
+import "github.com/shopspring/decimal"
+
 type MemberOptionalResponse struct {
 	Code int                `json:"code"`
 	Msg  string             `json:"msg"`
@@ -9,16 +11,16 @@ type MemberOptionalData struct {
 	List []MemberOptional `json:"list"`
 }
 type MemberOptional struct {
-	ID             int     `json:"id"`
-	Code           string  `json:"code"`
-	Name           string  `json:"name"`
-	Wave           float64 `json:"wave"`
-	OpenTime       string  `json:"open_time"`
-	WeekendTrading int     `json:"weekend_trading"`
-	Open           float64 `json:"open"`
-	Price          float64 `json:"price"`
-	Low            float64 `json:"low"`
-	High           float64 `json:"high"`
-	Change         float64 `json:"change"`
-	Vol            float64 `json:"vol"`
+	Id             int             `json:"id"`
+	Code           string          `json:"code"`
+	Name           string          `json:"name"`
+	Wave           decimal.Decimal `json:"wave"`
+	OpenTime       string          `json:"open_time"`
+	WeekendTrading int             `json:"weekend_trading"`
+	Open           decimal.Decimal `json:"open"`
+	Price          decimal.Decimal `json:"price"`
+	Low            decimal.Decimal `json:"low"`
+	High           decimal.Decimal `json:"high"`
+	Change         decimal.Decimal `json:"change"`
+	Vol            decimal.Decimal `json:"vol"`
 }

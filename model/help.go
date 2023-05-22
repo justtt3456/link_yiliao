@@ -1,14 +1,14 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type Help struct {
-	ID         int    `gorm:"column:id;primary_key"` //
+	Id         int    `gorm:"column:id;primary_key"` //
 	Title      string `gorm:"column:title"`          //
 	Content    string `gorm:"column:content"`        //
 	Category   int    `gorm:"column:category"`
@@ -44,7 +44,7 @@ func (this *Help) Get() bool {
 
 func (this *Help) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyHelp, this.ID)
+	key := fmt.Sprintf(LockKeyHelp, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

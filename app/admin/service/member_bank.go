@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/model"
-	//"finance/model"
+	//"china-russia/model"
 )
 
 type MemberBankList struct {
@@ -14,13 +14,13 @@ type MemberBankList struct {
 
 func (this MemberBankList) List() response.MemberBankList {
 	memberBank := model.MemberBank{
-		UID: this.UID,
+		UId: this.UId,
 	}
 	list := memberBank.List()
 	res := make([]response.MemberBank, 0)
 	for _, v := range list {
 		i := response.MemberBank{
-			ID:         v.ID,
+			Id:         v.Id,
 			BankName:   v.BankName,
 			CardNumber: v.CardNumber,
 			BranchBank: v.BranchBank,
@@ -38,7 +38,7 @@ type MemberBankUpdate struct {
 }
 
 func (this MemberBankUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 
@@ -55,7 +55,7 @@ func (this MemberBankUpdate) Update() error {
 		return errors.New("支行不能为空")
 	}
 	memberBank := model.MemberBank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !memberBank.Get() {
 		return errors.New("银行卡不存在")
@@ -74,7 +74,7 @@ type MemberBankRemove struct {
 func (this MemberBankRemove) Remove() error {
 
 	memberBank := model.MemberBank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !memberBank.Get() {
 		return errors.New("银行卡不存在")

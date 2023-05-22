@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"finance/extends"
-	"finance/global"
-	"finance/lang"
-	"finance/model"
+	"china-russia/extends"
+	"china-russia/global"
+	"china-russia/lang"
+	"china-russia/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -32,7 +32,7 @@ func Auth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		m := model.Member{ID: parseToken.Id}
+		m := model.Member{Id: parseToken.Id}
 		if !m.Get() {
 			c.JSON(http.StatusOK, gin.H{
 				"code": 10000,
@@ -51,8 +51,8 @@ func Auth() gin.HandlerFunc {
 		}
 
 		if c.Request.Method == http.MethodPost {
-			key := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(m.ID)
-			value := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(m.ID)
+			key := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(m.Id)
+			value := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(m.Id)
 			if global.REDIS.Get(key).Val() == value {
 				c.JSON(http.StatusOK, gin.H{
 					"code": 10001,

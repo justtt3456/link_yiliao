@@ -15,7 +15,7 @@ type BannerCreate struct {
 	Type  int    `json:"type"` //1=图片 2=视频
 }
 type BannerUpdate struct {
-	ID    int    `json:"id"`
+	Id    int    `json:"id"`
 	Lang  string `json:"lang"`
 	Image string `json:"image"`
 	Link  string `json:"link"`
@@ -23,9 +23,9 @@ type BannerUpdate struct {
 	Type  int    `json:"type"` //1=图片 2=视频
 }
 type BannerUpdateStatus struct {
-	ID     int `json:"id"`
+	Id     int `json:"id"`
 	Status int `json:"status"` //状态 1=开启 2=关闭
 }
 type BannerRemove struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }

@@ -1,13 +1,13 @@
 package service
 
 import (
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/common"
+	"china-russia/global"
+	"china-russia/lang"
+	"china-russia/model"
 	"errors"
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/common"
-	"finance/global"
-	"finance/lang"
-	"finance/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -58,7 +58,7 @@ func (this LoginService) DoLogin(c *gin.Context) (*response.Member, error) {
 	//用户登录日志
 	go memberLoginLog(member, ip)
 	//重置token
-	member.LastLoginIP = ip
+	member.LastLoginIp = ip
 	member.LastLoginTime = time.Now().Unix()
 	member.Token = common.RandStringRunes(32)
 	return member.Info(), member.Update("token", "last_login_ip", "last_login_time")
@@ -126,8 +126,8 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 		WithdrawSalt:     withdrawSalt,
 		WithdrawPassword: common.Md5String(this.WithdrawPassword + withdrawSalt),
 		Token:            common.RandStringRunes(32),
-		RegisterIP:       c.ClientIP(),
-		LastLoginIP:      c.ClientIP(),
+		RegisterIp:       c.ClientIP(),
+		LastLoginIp:      c.ClientIP(),
 		LastLoginTime:    time.Now().Unix(),
 		Code:             code,
 		IsBuy:            2,
@@ -143,12 +143,12 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	//绑定父级关系
 	relation := make([]model.MemberRelation, 0)
 	relation = append(relation, model.MemberRelation{
-		UID:   member.ID,
-		Puid:  member.ID,
+		UId:   member.Id,
+		Puid:  member.Id,
 		Level: 0,
 	})
 	//查询祖先
-	prelation := model.MemberRelation{UID: puser.ID}
+	prelation := model.MemberRelation{UId: puser.Id}
 	pres, err := prelation.GetByUid()
 	if err != nil {
 		logrus.Errorf("绑定关系查询失败%v", err)
@@ -156,7 +156,7 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if len(pres) > 0 {
 		for i := range pres {
 			relation = append(relation, model.MemberRelation{
-				UID:   member.ID,
+				UId:   member.Id,
 				Puid:  pres[i].Puid,
 				Level: pres[i].Level + 1,
 			})
@@ -176,7 +176,7 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 
 func memberLoginLog(member model.Member, ip string) {
 	m := model.MemberLoginLog{
-		UID:       member.ID,
+		UId:       member.Id,
 		Username:  member.Username,
 		LoginIP:   ip,
 		LoginTime: time.Now().Unix(),

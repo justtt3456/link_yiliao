@@ -3,12 +3,10 @@ package global
 import (
 	"flag"
 	"fmt"
-	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"log"
 )
 
-func Viper() *viper.Viper {
+func Viper() {
 	var config string
 
 	flag.StringVar(&config, "c", "", "choose config file.")
@@ -27,16 +25,15 @@ func Viper() *viper.Viper {
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	v.WatchConfig()
-
-	v.OnConfigChange(func(e fsnotify.Event) {
-		log.Println("config file changed:", e.Name)
-		if err := v.Unmarshal(&CONFIG); err != nil {
-			fmt.Println(err)
-		}
-	})
+	//v.WatchConfig()
+	//
+	//v.OnConfigChange(func(e fsnotify.Event) {
+	//	log.Println("config file changed:", e.Name)
+	//	if err := v.Unmarshal(&CONFIG); err != nil {
+	//		fmt.Println(err)
+	//	}
+	//})
 	if err := v.Unmarshal(&CONFIG); err != nil {
 		fmt.Println(err)
 	}
-	return v
 }

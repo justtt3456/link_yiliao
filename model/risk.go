@@ -1,15 +1,15 @@
 package model
 
 import (
+	"china-russia/global"
 	"encoding/json"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"log"
 )
 
 type Risk struct {
-	ID        int    `gorm:"column:id;primary_key"` //
+	Id        int    `gorm:"column:id;primary_key"` //
 	WinList   string `gorm:"column:win_list"`       //包赢名单，以|分割
 	LoseList  string `gorm:"column:lose_list"`      //包输名单，以|分割
 	WcLine    int    `gorm:"column:wc_line"`        //风控启动最小值。下单金额达到次标准则执行风控规则
@@ -45,7 +45,7 @@ func (this *Risk) Get() bool {
 }
 func (this *Risk) Update() error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyRisk, this.ID)
+	key := fmt.Sprintf(LockKeyRisk, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

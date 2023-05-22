@@ -1,14 +1,14 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type News struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Title      string `gorm:"column:title"`                      //
 	Content    string `gorm:"column:content"`                    //
 	Status     int    `gorm:"column:status"`                     //
@@ -44,7 +44,7 @@ func (this *News) Get() bool {
 
 func (this *News) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyNews, this.ID)
+	key := fmt.Sprintf(LockKeyNews, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

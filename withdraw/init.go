@@ -1,6 +1,9 @@
 package withdraw
 
-import "finance/model"
+import (
+	"china-russia/model"
+	"github.com/shopspring/decimal"
+)
 
 type PayInterface interface {
 	//发起代付
@@ -38,18 +41,18 @@ type PaymentResponse struct {
 type PaymentData struct {
 }
 
-//代付提现参数
+// 代付提现参数
 type WithdrawParam struct {
-	OrderNo     string  //订单号
-	Amount      float64 //金额
-	Symbol      string  //币种
-	Channel     string  //通道名称
-	Holder      string  //收款人
-	Account     string  //收款账号
-	AccountType string  //收款账号类型
-	Bank        string  //银行名称
-	Mobile      string  //手机号
-	Other       string  //额外参数
+	OrderNo     string          //订单号
+	Amount      decimal.Decimal //金额
+	Symbol      string          //币种
+	Channel     string          //通道名称
+	Holder      string          //收款人
+	Account     string          //收款账号
+	AccountType string          //收款账号类型
+	Bank        string          //银行名称
+	Mobile      string          //手机号
+	Other       string          //额外参数
 }
 
 func NewWithdraw(payment model.Payment) PayInterface {

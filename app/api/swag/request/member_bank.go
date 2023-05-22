@@ -7,14 +7,14 @@ type MemberBankCreate struct {
 	RealName   string `json:"real_name"`   //开户人
 }
 type MemberBankUpdate struct {
-	ID         int    `json:"id"`
+	Id         int    `json:"id"`
 	BankName   string `json:"bank_name"`   //银行
 	CardNumber string `json:"card_number"` //卡号
 	BranchBank string `json:"branch_bank"` //开户行（开户所在地）
 	RealName   string `json:"real_name"`   //开户人
 }
 type MemberBankRemove struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }
 
 type MemberUsdtCreate struct {

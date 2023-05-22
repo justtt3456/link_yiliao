@@ -1,19 +1,19 @@
 package model
 
 import (
+	"china-russia/common"
+	"china-russia/global"
 	"encoding/json"
-	"finance/common"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
 )
 
 type InviteCode struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
-	UID        int    `gorm:"column:uid"`                        //用户id
+	Id         int    `gorm:"column:id;primary_key"`             //
+	UId        int    `gorm:"column:uid"`                        //用户id
 	Username   string `gorm:"column:username"`                   //
-	AgentID    int    `gorm:"column:agent_id"`                   //代理id
+	AgentId    int    `gorm:"column:agent_id"`                   //代理id
 	AgentName  string `gorm:"column:agent_name"`                 //
 	Code       string `gorm:"column:code"`                       //邀请码
 	RegCount   int    `gorm:"column:reg_count"`                  //注册人数
@@ -69,7 +69,7 @@ func (i *InviteCode) Get() bool {
 
 func (i *InviteCode) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyInviteCode, i.ID)
+	key := fmt.Sprintf(LockKeyInviteCode, i.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -97,9 +97,9 @@ func (i *InviteCode) Remove() error {
 
 func (i InviteCode) Info() *InviteCode {
 	return &InviteCode{
-		ID:         i.ID,
-		UID:        i.UID,
-		AgentID:    i.AgentID,
+		Id:         i.Id,
+		UId:        i.UId,
+		AgentId:    i.AgentId,
 		Code:       i.Code,
 		RegCount:   i.RegCount,
 		CreateTime: i.CreateTime,

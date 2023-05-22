@@ -1,13 +1,13 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type Permission struct {
-	ID       int    `gorm:"column:id;primary_key"` //
+	Id       int    `gorm:"column:id;primary_key"` //
 	Backend  string `gorm:"column:backend"`        //
 	Frontend string `gorm:"column:frontend"`       //
 	Label    string `gorm:"column:label"`          //
@@ -40,13 +40,13 @@ func (this *Permission) Insert() error {
 	//if err != nil {
 	//	log.Println(err)
 	//}
-	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.ID), string(bytes))
+	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *Permission) Get() bool {
-	//if this.ID != 0 {
+	//if this.Id != 0 {
 	//	//取redis
-	//	s := global.REDIS.HGet(HashKeyPayment, strconv.Itoa(this.ID)).Val()
+	//	s := global.REDIS.HGet(HashKeyPayment, strconv.Itoa(this.Id)).Val()
 	//	if s != "" {
 	//		err := json.Unmarshal([]byte(s), this)
 	//		if err == nil {
@@ -65,12 +65,12 @@ func (this *Permission) Get() bool {
 	//if err != nil {
 	//	log.Println(err)
 	//}
-	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.ID), string(bytes))
+	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.Id), string(bytes))
 	return true
 }
 func (this *Permission) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyPermission, this.ID)
+	key := fmt.Sprintf(LockKeyPermission, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -85,21 +85,21 @@ func (this *Permission) Update(col string, cols ...interface{}) error {
 	//if err != nil {
 	//	log.Println(err)
 	//}
-	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.ID), string(bytes))
+	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *Permission) Remove() error {
-	if this.ID > 0 || this.Pid > 0 {
+	if this.Id > 0 || this.Pid > 0 {
 		res := global.DB.Where(this).Delete(this)
 		if res.Error != nil {
 			return res.Error
 		}
-		m := Permission{Pid: this.ID}
+		m := Permission{Pid: this.Id}
 		if len(m.List()) > 0 {
 			m.Remove()
 		}
 	}
 	//同步redis
-	//global.REDIS.HDel(HashKeyPayment, strconv.Itoa(this.ID))
+	//global.REDIS.HDel(HashKeyPayment, strconv.Itoa(this.Id))
 	return nil
 }

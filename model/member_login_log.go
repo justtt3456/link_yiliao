@@ -1,13 +1,13 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberLoginLog struct {
-	ID        int    `gorm:"column:id;primary_key"` //
-	UID       int    `gorm:"column:uid"`            //
+	Id        int    `gorm:"column:id;primary_key"` //
+	UId       int    `gorm:"column:uid"`            //
 	Username  string `gorm:"column:username"`       //
 	LoginIP   string `gorm:"column:login_ip"`       //
 	LoginTime int64  `gorm:"column:login_time"`     //

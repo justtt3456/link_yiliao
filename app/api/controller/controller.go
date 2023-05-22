@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"finance/model"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

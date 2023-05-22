@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"china-russia/extends"
+	"china-russia/global"
+	"china-russia/model"
 	"encoding/json"
-	"finance/extends"
-	"finance/global"
-	"finance/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -36,7 +36,7 @@ func Auth() gin.HandlerFunc {
 		u := model.Admin{}
 		err := json.Unmarshal([]byte(res), &u)
 		if err != nil {
-			u.ID = parseToken.Id
+			u.Id = parseToken.Id
 			if !u.Get() {
 				c.JSON(http.StatusOK, gin.H{
 					"code": 10000,
@@ -54,7 +54,7 @@ func Auth() gin.HandlerFunc {
 				return
 			}
 			bytes, _ := json.Marshal(u)
-			global.REDIS.Set(fmt.Sprintf(model.StringKeyAdmin, u.ID), string(bytes), u.ExpireTime())
+			global.REDIS.Set(fmt.Sprintf(model.StringKeyAdmin, u.Id), string(bytes), u.ExpireTime())
 		}
 		if u.Token != parseToken.Key {
 			c.JSON(http.StatusOK, gin.H{
@@ -75,8 +75,8 @@ func Auth() gin.HandlerFunc {
 		}
 
 		if c.Request.Method == http.MethodPost {
-			key := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(u.ID)
-			value := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(u.ID)
+			key := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(u.Id)
+			value := c.ClientIP() + c.Request.URL.Path + fmt.Sprint(u.Id)
 			if global.REDIS.Get(key).Val() == value {
 				c.JSON(http.StatusOK, gin.H{
 					"code": 10001,
@@ -106,7 +106,7 @@ func Permission(c *gin.Context, admin model.Admin) bool {
 	}
 	if !ignorePath[c.Request.URL.Path] {
 		if admin.Role != 1 { //非超级管理员
-			p := model.PermissionMap{RoleID: admin.Role}
+			p := model.PermissionMap{RoleId: admin.Role}
 			return p.ValidPermission(c.Request.URL.Path)
 		}
 	}

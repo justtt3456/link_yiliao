@@ -1,12 +1,12 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"github.com/sirupsen/logrus"
 )
 
 type Country struct {
-	ID        int    `gorm:"column:id;primary_key"` //
+	Id        int    `gorm:"column:id;primary_key"` //
 	ZhName    string `gorm:"column:zh_name"`        //
 	EnName    string `gorm:"column:en_name"`        //
 	Code      string `gorm:"column:code"`           //

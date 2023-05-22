@@ -10,8 +10,8 @@ type MessageData struct {
 	Page Page          `json:"page"`
 }
 type MessageInfo struct {
-	ID         int    `json:"id"`      //
-	UID        int    `json:"uid"`     //
+	Id         int    `json:"id"`      //
+	UId        int    `json:"uid"`     //
 	Title      string `json:"title"`   //标题
 	Content    string `json:"content"` //内容
 	Status     int    `json:"status"`

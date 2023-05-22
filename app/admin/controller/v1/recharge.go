@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"finance/app/admin/service"
+	"china-russia/app/admin/service"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"github.com/gin-gonic/gin"
 )
 

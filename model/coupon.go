@@ -1,13 +1,14 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
 type Coupon struct {
-	ID    int64 `gorm:"column:id;primary_key"` //
-	Price int64 `gorm:"column:price"`          //优惠券面额
+	Id    int64           `gorm:"column:id;primary_key"` //
+	Price decimal.Decimal `gorm:"column:price"`          //优惠券面额
 }
 
 // TableName sets the insert table name for this struct type

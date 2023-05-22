@@ -17,7 +17,7 @@ type NewsCreate struct {
 	Lang    string `json:"lang"`    //
 }
 type NewsUpdate struct {
-	ID      int    `json:"id"`
+	Id      int    `json:"id"`
 	Title   string `json:"title"`   //
 	Content string `json:"content"` //
 	Status  int    `json:"status"`  //
@@ -27,9 +27,9 @@ type NewsUpdate struct {
 	Lang    string `json:"lang"`    //
 }
 type NewsUpdateStatus struct {
-	ID     int `json:"id"`
+	Id     int `json:"id"`
 	Status int `json:"status"` //状态
 }
 type NewsRemove struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }

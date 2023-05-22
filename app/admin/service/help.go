@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (this HelpList) PageList() response.HelpData {
 	res := make([]response.Help, 0)
 	for _, v := range list {
 		i := response.Help{
-			ID:         v.ID,
+			Id:         v.Id,
 			Title:      v.Title,
 			Content:    v.Content,
 			CreateTime: v.CreateTime,
@@ -91,7 +91,7 @@ type HelpUpdate struct {
 }
 
 func (this HelpUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Lang == "" {
@@ -107,7 +107,7 @@ func (this HelpUpdate) Update() error {
 		return errors.New("分类不能为空")
 	}
 	m := model.Help{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("记录不存在")
@@ -126,11 +126,11 @@ type HelpUpdateStatus struct {
 }
 
 func (this HelpUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Help{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("记录不存在")
@@ -144,11 +144,11 @@ type HelpRemove struct {
 }
 
 func (this HelpRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Help{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

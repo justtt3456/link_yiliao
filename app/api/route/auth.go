@@ -1,7 +1,7 @@
 package route
 
 import (
-	"finance/app/api/controller/v1"
+	"china-russia/app/api/controller/v1"
 	"github.com/gin-gonic/gin"
 )
 

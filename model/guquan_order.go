@@ -1,22 +1,23 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
 type OrderGuquan struct {
-	ID           int    `gorm:"column:id;primary_key"`             //
-	UID          int    `gorm:"column:uid"`                        //关联用户id
-	Pid          int    `gorm:"column:pid"`                        //关联商品种类id
-	PayMoney     int64  `gorm:"column:pay_money"`                  //购买付款金额 =手数
-	AfterBalance int64  `gorm:"column:after_balance"`              //购买后余额
-	Rate         int    `gorm:"column:rate"`                       //中签率
-	CreateTime   int64  `gorm:"column:create_time;autoCreateTime"` //创建时间
-	UpdateTime   int64  `gorm:"column:update_time;autoUpdateTime"` //系统开奖时间
-	Member       Member `gorm:"foreignKey:UID;"`                   //BeLongsTo 关联用户 自身外键UID
-	Guquan       Guquan `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
+	Id           int             `gorm:"column:id;primary_key"`             //
+	UId          int             `gorm:"column:uid"`                        //关联用户id
+	Pid          int             `gorm:"column:pid"`                        //关联商品种类id
+	PayMoney     decimal.Decimal `gorm:"column:pay_money"`                  //购买付款金额 =手数
+	AfterBalance decimal.Decimal `gorm:"column:after_balance"`              //购买后余额
+	Rate         decimal.Decimal `gorm:"column:rate"`                       //中签率
+	CreateTime   int64           `gorm:"column:create_time;autoCreateTime"` //创建时间
+	UpdateTime   int64           `gorm:"column:update_time;autoUpdateTime"` //系统开奖时间
+	Member       Member          `gorm:"foreignKey:UId;"`                   //BeLongsTo 关联用户 自身外键UId
+	Guquan       Guquan          `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
 }
 
 // TableName sets the insert table name for this struct type
@@ -61,14 +62,14 @@ func (o *OrderGuquan) Count() (int64, error) {
 	return count, nil
 }
 
-func (o *OrderGuquan) Sum() (int64, error) {
-	var count int64
+func (o *OrderGuquan) Sum() decimal.Decimal {
+	var count decimal.Decimal
 	err := global.DB.Model(o).Where(o).Pluck("COALESCE(SUM(pay_money),0) as count", &count)
 	if err.Error != nil {
 		logrus.Error(err.Error)
-		return 0, err.Error
+		return decimal.Zero
 	}
-	return count, nil
+	return count
 }
 
 func (this *OrderGuquan) Sum2(where string, args []interface{}, field string) int64 {
@@ -91,7 +92,7 @@ func (this *OrderGuquan) List(where string, args []interface{}) []*OrderGuquan {
 	return res
 }
 
-//订单列表 使用joins联合查询 或使用Preload 根据需求决定
+// 订单列表 使用joins联合查询 或使用Preload 根据需求决定
 func (this *OrderGuquan) PageList(where string, args []interface{}, page, pageSize int) ([]OrderGuquan, common.Page) {
 	res := make([]OrderGuquan, 0)
 	pageUtil := common.Page{

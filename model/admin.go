@@ -1,9 +1,9 @@
 package model
 
 import (
+	"china-russia/common"
+	"china-russia/global"
 	"encoding/json"
-	"finance/common"
-	"finance/global"
 	"fmt"
 	"log"
 	"time"
@@ -12,7 +12,7 @@ import (
 )
 
 type Admin struct {
-	ID         int    `gorm:"column:id;primary_key"` //
+	Id         int    `gorm:"column:id;primary_key"` //
 	Username   string `gorm:"column:username"`       //
 	Password   string `gorm:"column:password"`       //
 	Salt       string `gorm:"column:salt"`           //
@@ -44,8 +44,8 @@ func (this *Admin) Insert() error {
 	return nil
 }
 func (this *Admin) Get() bool {
-	if this.ID != 0 {
-		key := fmt.Sprintf(StringKeyAdmin, this.ID)
+	if this.Id != 0 {
+		key := fmt.Sprintf(StringKeyAdmin, this.Id)
 		//取redis
 		s := global.REDIS.Get(key).Val()
 		if s != "" {
@@ -61,7 +61,7 @@ func (this *Admin) Get() bool {
 		logrus.Error(res.Error)
 		return false
 	}
-	key := fmt.Sprintf(StringKeyAdmin, this.ID)
+	key := fmt.Sprintf(StringKeyAdmin, this.Id)
 	//同步redis
 	bytes, err := json.Marshal(this)
 	if err != nil {
@@ -72,7 +72,7 @@ func (this *Admin) Get() bool {
 }
 func (this *Admin) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyAdmin, this.ID)
+	key := fmt.Sprintf(LockKeyAdmin, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -84,10 +84,10 @@ func (this *Admin) Update(col string, cols ...interface{}) error {
 	}
 	//同步redis
 	if this.Token == "" {
-		global.REDIS.Del(fmt.Sprintf(StringKeyAdmin, this.ID))
+		global.REDIS.Del(fmt.Sprintf(StringKeyAdmin, this.Id))
 	} else {
 		bytes, _ := json.Marshal(this)
-		global.REDIS.Set(fmt.Sprintf(StringKeyAdmin, this.ID), string(bytes), this.ExpireTime())
+		global.REDIS.Set(fmt.Sprintf(StringKeyAdmin, this.Id), string(bytes), this.ExpireTime())
 	}
 	return nil
 }
@@ -95,7 +95,7 @@ func (this *Admin) Update(col string, cols ...interface{}) error {
 func (this *Admin) Info() {
 	//加密token
 	//jwtService := extends.JwtUtils{}
-	//token := jwtService.NewToken(this.ID, this.Token)
+	//token := jwtService.NewToken(this.Id, this.Token)
 
 }
 

@@ -1,7 +1,7 @@
 package ticker
 
 import (
-	"finance/app/task/repository"
+	"china-russia/app/task/repository"
 	"time"
 )
 

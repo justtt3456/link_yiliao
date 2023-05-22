@@ -19,7 +19,7 @@ type PaymentAddRequest struct {
 	Type           int    `json:"type"`            //1=微信  2=支付宝
 }
 type PaymentUpdateRequest struct {
-	ID             int    `json:"id"`
+	Id             int    `json:"id"`
 	PayName        string `json:"pay_name"`        //支付方式名称
 	RechargeURL    string `json:"submit_url"`      //充值提交地址
 	WithdrawURL    string `json:"query_url"`       //提现提交地址
@@ -33,5 +33,5 @@ type PaymentUpdateRequest struct {
 	Type           int    `json:"type"`            //1=微信  2=支付宝
 }
 type PaymentRemoveRequest struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }

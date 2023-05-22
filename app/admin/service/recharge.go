@@ -1,11 +1,12 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -28,18 +29,18 @@ func (this RechargeService) PageList() response.RechargeData {
 	sli := make([]response.RechargeInfo, 0)
 	for _, v := range list {
 		item := response.RechargeInfo{
-			ID:          v.ID,
-			OrderSn:     v.OrderSn,
-			UID:         v.UID,
-			Type:        v.Type,
-			Amount:      float64(v.Amount) / model.UNITY,
-			RealAmount:  float64(v.RealAmount) / model.UNITY,
-			From:        v.From,
-			To:          v.To,
-			Voucher:     v.Voucher,
-			PaymentID:   v.PaymentID,
-			Status:      v.Status,
-			UsdtAmount:  float64(v.UsdtAmount) / model.UNITY,
+			Id:      v.Id,
+			OrderSn: v.OrderSn,
+			UId:     v.UId,
+			Type:    v.Type,
+			//Amount:      float64(v.Amount),
+			//RealAmount:  float64(v.RealAmount),
+			From:      v.From,
+			To:        v.To,
+			Voucher:   v.Voucher,
+			PaymentId: v.PaymentId,
+			Status:    v.Status,
+			//UsdtAmount:  float64(v.UsdtAmount),
 			Operator:    v.Operator,
 			Description: v.Description,
 			UpdateTime:  v.UpdateTime,
@@ -72,7 +73,7 @@ func (this RechargeUpdate) Update(admin model.Admin) error {
 	for _, v := range ids {
 		id, _ := strconv.Atoi(v)
 		m := model.Recharge{
-			ID: id,
+			Id: id,
 		}
 		if !m.Get() {
 			return errors.New("记录不存在")
@@ -80,17 +81,17 @@ func (this RechargeUpdate) Update(admin model.Admin) error {
 		if m.Status != model.StatusReview {
 			return errors.New("当前状态无法修改")
 		}
-		member := model.Member{ID: m.UID}
+		member := model.Member{Id: m.UId}
 		if !member.Get() {
 			return errors.New("用户不存在")
 		}
 		if this.Status == model.StatusAccept {
 			r := RechargeHandle{}
-			r.Recharge(member, m.ID, m.Amount, 1, 3, 1)
+			r.Recharge(member, m.Id, m.Amount, 1, 3, 1)
 		}
 		m.Status = this.Status
 		m.Description = this.Description
-		m.Operator = admin.ID
+		m.Operator = admin.Id
 		//更新状态 说明 操作者
 		m.Update("status", "description", "operator")
 	}
@@ -99,8 +100,8 @@ func (this RechargeUpdate) Update(admin model.Admin) error {
 
 func (this RechargeService) getWhere() (string, []interface{}) {
 	where := map[string]interface{}{}
-	if this.UID > 0 {
-		where[model.Recharge{}.TableName()+".uid"] = this.UID
+	if this.UId > 0 {
+		where[model.Recharge{}.TableName()+".uid"] = this.UId
 	}
 	if this.OrderSn != "" {
 		where[model.Recharge{}.TableName()+".order_sn"] = this.OrderSn
@@ -127,15 +128,15 @@ func (this RechargeService) getWhere() (string, []interface{}) {
 type RechargeHandle struct {
 }
 
-func (RechargeHandle) Recharge(member model.Member, item int, amount int64, way int, tradeType int, isfront int) error {
+func (RechargeHandle) Recharge(member model.Member, item int, amount decimal.Decimal, way int, tradeType int, isfront int) error {
 	//账单
 	trade := model.Trade{
-		UID:        member.ID,
+		UId:        member.Id,
 		TradeType:  tradeType,
-		ItemID:     item,
+		ItemId:     item,
 		Amount:     amount,
 		Before:     member.Balance,
-		After:      member.Balance + amount,
+		After:      member.Balance.Add(amount),
 		IsFrontend: isfront,
 	}
 	switch way {
@@ -151,20 +152,20 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount int64, way 
 		return err
 	}
 	//上分
-	member.Balance += amount
-	member.TotalBalance += amount
-	return member.Update("balance", "total_balance")
+	member.Balance = member.Balance.Add(amount)
+	//member.TotalBalance = member.TotalBalance.Add(amount)
+	return member.Update("balance")
 }
 
-func (RechargeHandle) TopupUseBalance(member model.Member, item int, amount int64, tradeType int, isfront int) error {
+func (RechargeHandle) TopupUseBalance(member model.Member, item int, amount decimal.Decimal, tradeType int, isfront int) error {
 	//账单
 	trade := model.Trade{
-		UID:        member.ID,
-		TradeType:  tradeType,
-		ItemID:     item,
-		Amount:     amount,
-		Before:     member.UseBalance,
-		After:      member.UseBalance + amount,
+		UId:       member.Id,
+		TradeType: tradeType,
+		ItemId:    item,
+		//Amount:     amount,
+		Before: member.WithdrawBalance,
+		//After:      member.WithdrawBalance + amount,
 		Desc:       "提现冲正回调",
 		IsFrontend: isfront,
 	}
@@ -175,7 +176,7 @@ func (RechargeHandle) TopupUseBalance(member model.Member, item int, amount int6
 		return err
 	}
 	//上分
-	member.UseBalance += amount
-	member.TotalBalance += amount
-	return member.Update("use_balance", "total_balance")
+	//member.WithdrawBalance += amount
+	//member.TotalBalance += amount
+	return member.Update("withdraw_balance")
 }

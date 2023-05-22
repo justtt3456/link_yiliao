@@ -1,10 +1,10 @@
 package service
 
 import (
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/global"
-	"finance/model"
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/global"
+	"china-russia/model"
 )
 
 type News struct {
@@ -25,7 +25,7 @@ func (this News) PageList() response.NewsData {
 	res := make([]response.News, 0)
 	for _, v := range list {
 		item := response.News{
-			ID:         v.ID,
+			Id:         v.Id,
 			Title:      v.Title,
 			Content:    v.Content,
 			CreateTime: v.CreateTime,

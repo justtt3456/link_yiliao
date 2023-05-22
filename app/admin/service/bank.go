@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (this BankList) PageList() response.BankData {
 	res := make([]response.BankInfo, 0)
 	for _, v := range list {
 		i := response.BankInfo{
-			ID:         v.ID,
+			Id:         v.Id,
 			BankName:   v.BankName,
 			Sort:       v.Sort,
 			Status:     v.Status,
@@ -83,7 +83,7 @@ type BankUpdate struct {
 }
 
 func (this BankUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.BankName == "" {
@@ -96,7 +96,7 @@ func (this BankUpdate) Update() error {
 		return errors.New("银行编码不能为空")
 	}
 	m := model.Bank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("银行不存在")
@@ -114,11 +114,11 @@ type BankUpdateStatus struct {
 }
 
 func (this BankUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Bank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("银行不存在")
@@ -132,11 +132,11 @@ type BankRemove struct {
 }
 
 func (this BankRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Bank{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

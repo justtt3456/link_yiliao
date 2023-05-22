@@ -1,24 +1,25 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
 type Trade struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
-	UID        int    `gorm:"column:uid"`                        //
-	TradeType  int    `gorm:"column:trade_type"`                 //账单类型 1=购买餐品  2=购买股权 3=充值 4=提现 5=可用转可提 6=可提转可用 7=注册买产品礼金 8=注册实名认证礼金 9=送优惠券 10=使用优惠券 11=余额宝转入 12=余额宝转出  13=余额宝收益 14=后台上分 15=后台下分 16=每日收益 17=股权收益 18=一级返佣 19=二级返佣 20=三级返佣
-	ItemID     int    `gorm:"column:item_id"`                    //关联id
-	Amount     int64  `gorm:"column:amount"`                     //金额
-	Before     int64  `gorm:"column:before"`                     //
-	After      int64  `gorm:"column:after"`                      //
-	Desc       string `gorm:"column:desc"`                       //
-	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
-	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //
-	IsFrontend int    `gorm:"column:is_frontend"`                //是否前端展示
-	Member     Member `gorm:"foreignKey:UID"`
+	Id         int             `gorm:"column:id;primary_key"`             //
+	UId        int             `gorm:"column:uid"`                        //
+	TradeType  int             `gorm:"column:trade_type"`                 //账单类型 1=购买餐品  2=购买股权 3=充值 4=提现 5=可用转可提 6=可提转可用 7=注册买产品礼金 8=注册实名认证礼金 9=送优惠券 10=使用优惠券 11=余额宝转入 12=余额宝转出  13=余额宝收益 14=后台上分 15=后台下分 16=每日收益 17=股权收益 18=一级返佣 19=二级返佣 20=三级返佣
+	ItemId     int             `gorm:"column:item_id"`                    //关联id
+	Amount     decimal.Decimal `gorm:"column:amount"`                     //金额
+	Before     decimal.Decimal `gorm:"column:before"`                     //
+	After      decimal.Decimal `gorm:"column:after"`                      //
+	Desc       string          `gorm:"column:desc"`                       //
+	CreateTime int64           `gorm:"column:create_time;autoCreateTime"` //
+	UpdateTime int64           `gorm:"column:update_time;autoUpdateTime"` //
+	IsFrontend int             `gorm:"column:is_frontend"`                //是否前端展示
+	Member     Member          `gorm:"foreignKey:UId"`
 }
 
 // TableName sets the insert table name for this struct type
@@ -62,12 +63,12 @@ func (this *Trade) PageList(where string, args []interface{}, page, pageSize int
 	pageUtil.SetPage(pageSize, total)
 	return res, pageUtil
 }
-func (this *Trade) Sum(where string, args []interface{}, field string) int64 {
-	var total int64
+func (this *Trade) Sum(where string, args []interface{}, field string) decimal.Decimal {
+	var total decimal.Decimal
 	tx := global.DB.Model(this).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)
-		return 0
+		return decimal.Zero
 	}
 	return total
 }

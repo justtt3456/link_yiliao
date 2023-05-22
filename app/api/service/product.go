@@ -1,16 +1,16 @@
 package service
 
 import (
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/common"
+	"china-russia/global"
+	"china-russia/lang"
+	"china-russia/model"
 	"errors"
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/common"
-	"finance/global"
-	"finance/lang"
-	"finance/model"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
-	"strconv"
 	"time"
 )
 
@@ -34,9 +34,9 @@ func (this ProductList) PageList() response.ProductListData {
 	FullDelivery := acts.List()
 	for i := range FullDelivery {
 		act = append(act, response.ManSongActive{
-			Amount: float64(FullDelivery[i].Amout) / model.UNITY,
-			Price:  float64(FullDelivery[i].Coupon.Price) / model.UNITY,
-			Id:     FullDelivery[i].Coupon.ID,
+			Amount: FullDelivery[i].Amount,
+			Price:  FullDelivery[i].Coupon.Price,
+			Id:     FullDelivery[i].Coupon.Id,
 		})
 	}
 	for _, v := range list {
@@ -44,7 +44,7 @@ func (this ProductList) PageList() response.ProductListData {
 		giftName := ""
 		if v.GiftId > 0 {
 			giftModel := model.Product{
-				ID: v.GiftId,
+				Id: v.GiftId,
 			}
 			if giftModel.Get() {
 				giftName = giftModel.Name
@@ -52,7 +52,7 @@ func (this ProductList) PageList() response.ProductListData {
 		}
 
 		i := response.Product{
-			ID:           v.ID,
+			Id:           v.Id,
 			Name:         v.Name,
 			Category:     v.Category,
 			CategoryName: v.ProductCategory.Name,
@@ -60,10 +60,10 @@ func (this ProductList) PageList() response.ProductListData {
 			Tag:          v.Tag,
 			TimeLimit:    v.TimeLimit,
 			IsRecommend:  v.IsRecommend,
-			Dayincome:    float64(v.Dayincome) / model.UNITY,
-			Price:        float64(v.Price) / model.UNITY,
-			TotalPrice:   float64(v.TotalPrice) / model.UNITY,
-			OtherPrice:   float64(v.OtherPrice) / model.UNITY,
+			Dayincome:    v.DayIncome,
+			Price:        v.Price,
+			TotalPrice:   v.TotalPrice,
+			OtherPrice:   v.OtherPrice,
 			MoreBuy:      v.MoreBuy,
 			Desc:         v.Desc,
 			CreateTime:   v.CreateTime,
@@ -72,7 +72,7 @@ func (this ProductList) PageList() response.ProductListData {
 			BuyTimeLimit: v.BuyTimeLimit,
 			Type:         v.Type,
 			DelayTime:    v.DelayTime,
-			Progress:     float64(v.Progress) / model.UNITY,
+			Progress:     v.Progress,
 			GiftName:     giftName,
 		}
 		if v.IsManjian == 1 {
@@ -97,15 +97,15 @@ func (this RecommendList) PageList() response.ProductListData {
 	FullDelivery := acts.List()
 	for i := range FullDelivery {
 		act = append(act, response.ManSongActive{
-			Amount: float64(FullDelivery[i].Amout) / model.UNITY,
-			Price:  float64(FullDelivery[i].Coupon.Price) / model.UNITY,
-			Id:     FullDelivery[i].Coupon.ID,
+			Amount: FullDelivery[i].Amount,
+			Price:  FullDelivery[i].Coupon.Price,
+			Id:     FullDelivery[i].Coupon.Id,
 		})
 	}
 	for _, v := range list {
 
 		i := response.Product{
-			ID:           v.ID,
+			Id:           v.Id,
 			Name:         v.Name,
 			Category:     v.Category,
 			CategoryName: v.ProductCategory.Name,
@@ -113,10 +113,10 @@ func (this RecommendList) PageList() response.ProductListData {
 			Tag:          v.Tag,
 			TimeLimit:    v.TimeLimit,
 			IsRecommend:  v.IsRecommend,
-			Dayincome:    float64(v.Dayincome) / model.UNITY,
-			Price:        float64(v.Price) / model.UNITY,
-			TotalPrice:   float64(v.TotalPrice) / model.UNITY,
-			OtherPrice:   float64(v.OtherPrice) / model.UNITY,
+			Dayincome:    v.DayIncome,
+			Price:        v.Price,
+			TotalPrice:   v.TotalPrice,
+			OtherPrice:   v.OtherPrice,
 			MoreBuy:      v.MoreBuy,
 			Desc:         v.Desc,
 			CreateTime:   v.CreateTime,
@@ -125,7 +125,7 @@ func (this RecommendList) PageList() response.ProductListData {
 			BuyTimeLimit: v.BuyTimeLimit,
 			Type:         v.Type,
 			DelayTime:    v.DelayTime,
-			Progress:     float64(v.Progress) / model.UNITY,
+			Progress:     v.Progress,
 		}
 		if v.IsManjian == 1 {
 			i.ManSongActive = act
@@ -142,7 +142,7 @@ type GetProduct struct {
 func (this GetProduct) GetOne() response.Product {
 
 	m := model.Product{
-		ID:     this.Id,
+		Id:     this.Id,
 		Status: 1,
 	}
 	m.Get()
@@ -152,32 +152,32 @@ func (this GetProduct) GetOne() response.Product {
 	FullDelivery := acts.List()
 	for i := range FullDelivery {
 		act = append(act, response.ManSongActive{
-			Amount: float64(FullDelivery[i].Amout) / model.UNITY,
-			Price:  float64(FullDelivery[i].Coupon.Price) / model.UNITY,
-			Id:     FullDelivery[i].Coupon.ID,
+			Amount: FullDelivery[i].Amount,
+			Price:  FullDelivery[i].Coupon.Price,
+			Id:     FullDelivery[i].Coupon.Id,
 		})
 	}
 
 	//获取当前项目进度
-	startProgress := float64(m.Progress) / model.UNITY
-	progress := 0.00
-	if m.TotalPrice >= m.OtherPrice {
-		usedAmount := m.TotalPrice - m.OtherPrice
-		trueProgress, _ := strconv.ParseFloat(fmt.Sprintf("%.3f", float64(usedAmount)/float64(m.TotalPrice)), 64)
-		if startProgress > trueProgress {
+	startProgress := m.Progress
+	var progress decimal.Decimal
+	if m.OtherPrice.LessThanOrEqual(m.TotalPrice) {
+		usedAmount := m.TotalPrice.Sub(m.OtherPrice)
+		trueProgress := usedAmount.Div(m.TotalPrice).Round(2)
+		if trueProgress.LessThan(startProgress) {
 			progress = startProgress
 		} else {
 			progress = trueProgress
 		}
 	} else {
-		progress = 1.00
+		progress = decimal.NewFromFloat(0)
 	}
 
 	//获取赠品产品名称
 	giftName := ""
 	if m.GiftId > 0 {
 		giftModel := model.Product{
-			ID:     m.GiftId,
+			Id:     m.GiftId,
 			Status: 1,
 		}
 		if giftModel.Get() {
@@ -186,7 +186,7 @@ func (this GetProduct) GetOne() response.Product {
 	}
 
 	res := response.Product{
-		ID:           m.ID,
+		Id:           m.Id,
 		Name:         m.Name,
 		Category:     m.Category,
 		CategoryName: m.ProductCategory.Name,
@@ -194,10 +194,10 @@ func (this GetProduct) GetOne() response.Product {
 		Tag:          m.Tag,
 		TimeLimit:    m.TimeLimit,
 		IsRecommend:  m.IsRecommend,
-		Dayincome:    float64(m.Dayincome) / model.UNITY,
-		Price:        float64(m.Price) / model.UNITY,
-		TotalPrice:   float64(m.TotalPrice) / model.UNITY,
-		OtherPrice:   float64(m.OtherPrice) / model.UNITY,
+		Dayincome:    m.DayIncome,
+		Price:        m.Price,
+		TotalPrice:   m.TotalPrice,
+		OtherPrice:   m.OtherPrice,
 		MoreBuy:      m.MoreBuy,
 		Desc:         m.Desc,
 		CreateTime:   m.CreateTime,
@@ -237,12 +237,12 @@ type ProductOptional struct {
 }
 
 func (this ProductOptional) Optional(member model.Member) (error, bool) {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New(lang.Lang("Parameter error")), false
 	}
 	mo := model.MemberOptional{
-		PID: this.ID,
-		UID: member.ID,
+		PId: this.Id,
+		UId: member.Id,
 	}
 	if mo.Get() {
 		return nil, true
@@ -261,7 +261,7 @@ func (this ProductCategory) Category() response.ProductCategoryData {
 	res := make([]response.ProductCategoryItem, 0)
 	for _, v := range list {
 		i := response.ProductCategoryItem{
-			ID:   v.ID,
+			Id:   v.Id,
 			Name: v.Name,
 		}
 		res = append(res, i)
@@ -280,15 +280,15 @@ func (this GuQuanList) List() *response.GuquanListResp {
 		return nil
 	}
 	return &response.GuquanListResp{
-		Id:              m.ID,
+		Id:              m.Id,
 		TotalGuquan:     m.TotalGuquan,
 		OtherGuquan:     m.OtherGuquan,
-		ReleaseRate:     float64(m.ReleaseRate) / model.UNITY,
-		Price:           float64(m.Price) / model.UNITY,
+		ReleaseRate:     m.ReleaseRate,
+		Price:           m.Price,
 		LimitBuy:        m.LimitBuy,
-		LuckyRate:       float64(m.LuckyRate) / model.UNITY,
-		ReturnRate:      float64(m.LuckyRate) / model.UNITY,
-		ReturnLuckyRate: float64(m.ReturnLuckyRate) / model.UNITY,
+		LuckyRate:       m.LuckyRate,
+		ReturnRate:      m.ReturnRate,
+		ReturnLuckyRate: m.ReturnLuckyRate,
 		PreStartTime:    m.PreStartTime,
 		PreEndTime:      m.PreEndTime,
 		OpenTime:        m.OpenTime,
@@ -307,12 +307,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	if member.IsReal != 2 {
 		return errors.New("请实名认证！")
 	}
-	//产品ID
+	//产品Id
 	if this.Id <= 0 {
-		return errors.New("产品ID格式不正确！")
+		return errors.New("产品Id格式不正确！")
 	}
 	//金额分析
-	if this.Amount <= 0 {
+	if this.Amount.LessThanOrEqual(decimal.Zero) {
 		return errors.New("购买金额必须大于0！")
 	}
 	//交易密码验证
@@ -320,15 +320,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		return errors.New("交易密码错误")
 	}
 
-	//金额分析
-	amount := int64(this.Amount * model.UNITY)
-
 	//优惠券分析
-	var couponAmount int64
+	var couponAmount decimal.Decimal
 	if this.UseId != 0 {
 		MemberCoupon := model.MemberCoupon{
-			Uid:   int64(member.ID),
-			ID:    this.UseId,
+			Uid:   int64(member.Id),
+			Id:    this.UseId,
 			IsUse: 1,
 		}
 		if !MemberCoupon.Get() {
@@ -338,7 +335,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	}
 
 	//添加Redis乐观锁
-	lockKey := fmt.Sprintf("redisLock:api:submitProductOrder:memberId_%s_productId_%d_amount_%d", member.ID, this.Id, amount)
+	lockKey := fmt.Sprintf("redisLock:api:submitProductOrder:memberId_%s_productId_%d_amount_%d", member.Id, this.Id, this.Amount)
 	redisLock := common.RedisLock{RedisClient: global.REDIS}
 	lockResult := redisLock.Lock(lockKey)
 	if !lockResult {
@@ -347,13 +344,13 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 	//获取会员当前最新余额
 	memberModel := model.Member{
-		ID: member.ID,
+		Id: member.Id,
 	}
 	memberModel.Get()
 
 	//所需用户金额
-	needAmount := amount - couponAmount
-	if needAmount > memberModel.Balance {
+	needAmount := this.Amount.Sub(couponAmount)
+	if memberModel.Balance.LessThan(needAmount) {
 		//解锁
 		redisLock.Unlock(lockKey)
 		return errors.New("余额不足,请先充值！")
@@ -362,10 +359,10 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	//检查用户是否在注册24小时内第一次购买产品或股权
 	var isSendRigster bool
 	if member.RegTime+24*3600 >= time.Now().Unix() {
-		guquan := model.OrderGuquan{UID: member.ID}
-		product := model.OrderProduct{UID: member.ID}
+		guquan := model.OrderGuquan{UId: member.Id}
+		product := model.OrderProduct{UId: member.Id}
 		guquanNum, _ := guquan.Count()
-		productNum := product.Count("uid = ?", []interface{}{member.ID})
+		productNum := product.Count("uid = ?", []interface{}{member.Id})
 		if guquanNum == 0 && productNum == 0 {
 			isSendRigster = true
 		}
@@ -379,7 +376,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	switch this.Cate {
 	case 1:
 		//产品
-		p := model.Product{ID: this.Id, Status: 1}
+		p := model.Product{Id: this.Id, Status: 1}
 		if !p.Get() {
 			//解锁
 			redisLock.Unlock(lockKey)
@@ -391,12 +388,13 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			redisLock.Unlock(lockKey)
 			return errors.New("产品为赠品！不能购买")
 		}
-		if int64(this.Amount*model.UNITY) < p.Price {
+
+		if this.Amount.LessThan(p.Price) {
 			//解锁
 			redisLock.Unlock(lockKey)
-			return errors.New(fmt.Sprintf("购买金额必须大于%v！", float64(p.Price)/model.UNITY))
+			return errors.New(fmt.Sprintf("购买金额必须大于%v！", p.Price))
 		}
-		if int(this.Amount) > p.MoreBuy {
+		if p.MoreBuy.LessThan(this.Amount) {
 			//解锁
 			redisLock.Unlock(lockKey)
 			return errors.New(fmt.Sprintf("购买金额必须小于%v！", p.MoreBuy))
@@ -404,14 +402,15 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 		money := model.OrderProduct{}
 		wheres := "uid = ? and pid=?"
-		agrss := []interface{}{member.ID, this.Id}
+		agrss := []interface{}{member.Id, this.Id}
 		pmoney := money.Sum(wheres, agrss, "pay_money")
-		if int(float64((pmoney+int64(this.Amount*model.UNITY)))/model.UNITY) > p.MoreBuy {
+
+		if p.MoreBuy.LessThan(pmoney.Add(this.Amount)) {
 			//解锁
 			redisLock.Unlock(lockKey)
 			return errors.New(fmt.Sprintf("您购买的产品已达到上限%v", p.MoreBuy))
 		}
-		if p.OtherPrice < int64(this.Amount*model.UNITY) {
+		if p.OtherPrice.LessThan(this.Amount) {
 			//解锁
 			redisLock.Unlock(lockKey)
 			return errors.New("项目可投余额不足")
@@ -419,14 +418,14 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 		//购买
 		inc := &model.OrderProduct{
-			UID:          member.ID,
-			Pid:          p.ID,
-			PayMoney:     amount,
+			UId:          member.Id,
+			Pid:          p.Id,
+			PayMoney:     this.Amount,
 			IsReturnTop:  1,
-			AfterBalance: memberModel.Balance - needAmount,
+			AfterBalance: memberModel.Balance.Sub(needAmount),
 			CreateTime:   time.Now().Unix(),
 			UpdateTime:   time.Now().Unix(),
-			IncomeRate:   p.Dayincome,
+			IncomeRate:   p.DayIncome,
 			EndTime:      time.Now().Unix() + int64(p.TimeLimit*86400),
 		}
 		err := inc.Insert()
@@ -437,7 +436,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//减去可投余额
-		p.OtherPrice -= amount
+		p.OtherPrice = p.OtherPrice.Sub(this.Amount)
 		err = p.Update("other_price")
 		if err != nil {
 			logrus.Errorf("购买产品减去可投余额失败%v", err)
@@ -445,12 +444,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 		//加入账变记录
 		trade := model.Trade{
-			UID:        member.ID,
+			UId:        member.Id,
 			TradeType:  1,
-			ItemID:     inc.ID,
+			ItemId:     inc.Id,
 			Amount:     needAmount,
 			Before:     memberModel.Balance,
-			After:      memberModel.Balance - needAmount,
+			After:      memberModel.Balance.Sub(needAmount),
 			Desc:       "购买产品",
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
@@ -462,7 +461,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//扣减可用余额
-		memberModel.Balance -= needAmount
+		memberModel.Balance = memberModel.Balance.Sub(needAmount)
 		memberModel.IsBuy = 1
 		err = memberModel.Update("balance", "is_buy")
 		if err != nil {
@@ -470,12 +469,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//优惠券使用记录
-		if couponAmount > 0 {
+		if decimal.Zero.LessThan(couponAmount) {
 			//使用优惠券记录
 			trade3 := model.Trade{
-				UID:        member.ID,
+				UId:        member.Id,
 				TradeType:  10,
-				ItemID:     int(this.UseId),
+				ItemId:     int(this.UseId),
 				Amount:     couponAmount,
 				Before:     memberModel.Balance,
 				After:      memberModel.Balance,
@@ -490,7 +489,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			}
 			//更改优惠券状态
 			MemberCoupon2 := model.MemberCoupon{
-				ID: this.UseId,
+				Id: this.UseId,
 			}
 			MemberCoupon2.IsUse = 2
 			err = MemberCoupon2.Update("is_use")
@@ -506,21 +505,21 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
 			if isRetreatStatus == true {
 				//可用余额转换比例分析, 默认为90%
-				if config.IncomeBalanceRate == 0 {
-					config.IncomeBalanceRate = 9000
+				if config.IncomeBalanceRate.Equal(decimal.Zero) {
+					config.IncomeBalanceRate = decimal.NewFromFloat(0.9)
 				}
 				//可用余额,可提现余额分析
-				balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * int64(config.RegisterSend)
-				useBalanceAmount := int64(config.RegisterSend) - balanceAmount
+				balanceAmount := config.IncomeBalanceRate.Mul(config.RegisterSend)
+				useBalanceAmount := config.RegisterSend.Sub(balanceAmount)
 
 				//赠送礼金 加入账变记录
 				trade2 := model.Trade{
-					UID:        member.ID,
+					UId:        member.Id,
 					TradeType:  7,
-					ItemID:     inc.ID,
+					ItemId:     inc.Id,
 					Amount:     useBalanceAmount,
-					Before:     memberModel.UseBalance,
-					After:      memberModel.UseBalance + useBalanceAmount,
+					Before:     memberModel.WithdrawBalance,
+					After:      memberModel.WithdrawBalance.Add(useBalanceAmount),
 					Desc:       "第一次购买赠送礼金",
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
@@ -532,12 +531,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				}
 
 				trade2 = model.Trade{
-					UID:        member.ID,
+					UId:        member.Id,
 					TradeType:  7,
-					ItemID:     inc.ID,
+					ItemId:     inc.Id,
 					Amount:     balanceAmount,
 					Before:     memberModel.Balance,
-					After:      memberModel.Balance + balanceAmount,
+					After:      memberModel.Balance.Add(balanceAmount),
 					Desc:       "第一次购买赠送礼金",
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
@@ -549,17 +548,17 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				}
 
 				//更改会员当前余额信息
-				memberModel.Balance += balanceAmount
-				memberModel.UseBalance += useBalanceAmount
+				memberModel.Balance = memberModel.Balance.Add(balanceAmount)
+				memberModel.WithdrawBalance = memberModel.Balance.Add(useBalanceAmount)
 			} else {
 				//赠送礼金 加入账变记录
 				trade2 := model.Trade{
-					UID:        member.ID,
+					UId:        member.Id,
 					TradeType:  7,
-					ItemID:     inc.ID,
-					Amount:     int64(config.RegisterSend),
-					Before:     memberModel.UseBalance,
-					After:      memberModel.UseBalance + int64(config.RegisterSend),
+					ItemId:     inc.Id,
+					Amount:     config.RegisterSend,
+					Before:     memberModel.WithdrawBalance,
+					After:      memberModel.WithdrawBalance.Add(config.RegisterSend),
 					Desc:       "第一次购买赠送礼金",
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
@@ -571,13 +570,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				}
 
 				//更改会员当前余额信息
-				memberModel.Balance += 0
-				memberModel.UseBalance += int64(config.RegisterSend)
+				memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(config.RegisterSend)
 			}
 
-			memberModel.TotalBalance += int64(config.RegisterSend)
-			memberModel.Income += int64(config.RegisterSend)
-			err = memberModel.Update("total_balance", "balance", "use_balance", "income")
+			//memberModel.TotalBalance = memberModel.TotalBalance.Add(config.RegisterSend)
+			memberModel.TotalIncome = memberModel.TotalIncome.Add(config.RegisterSend)
+			err = memberModel.Update("balance", "withdraw_balance", "total_income")
 			if err != nil {
 				logrus.Errorf("更改会员余额信息失败%v", err)
 			}
@@ -588,12 +586,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			//获取会员当前最新余额
 			memberModel.Get()
 			full := model.FullDelivery{}
-			if full.Find(amount) {
+			if full.Find(this.Amount) {
 				//满送活动加入账变记录
 				//trade3 := model.Trade{
-				//	UID:        member.ID,
+				//	UId:        member.Id,
 				//	TradeType:  9,
-				//	ItemID:     int(full.Coupon.ID),
+				//	ItemId:     int(full.Coupon.Id),
 				//	Amount:     full.Coupon.Price,
 				//	Before:     memberModel.Balance,
 				//	After:      memberModel.Balance + full.Coupon.Price,
@@ -607,13 +605,13 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				//	logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
 				//}
 				MemberCoupon := model.MemberCoupon{
-					Uid:      int64(member.ID),
-					CouponId: full.Coupon.ID,
+					Uid:      int64(member.Id),
+					CouponId: full.Coupon.Id,
 					IsUse:    1,
 				}
 				err = MemberCoupon.Insert()
 				if err != nil {
-					logrus.Errorf("赠赠送优惠券记录失败%v %v", err, member.ID)
+					logrus.Errorf("赠赠送优惠券记录失败%v %v", err, member.Id)
 				}
 				//更改会员当前余额
 				//memberModel.Balance += full.Coupon.Price
@@ -625,8 +623,8 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//更改用户收益
-		memberModel.WillIncome += amount * int64(p.Dayincome*p.TimeLimit) / int64(model.UNITY)
-		err = memberModel.Update("wll_income")
+		memberModel.PreIncome = memberModel.PreIncome.Add(this.Amount).Mul(p.DayIncome.Mul(decimal.NewFromInt(int64(p.TimeLimit))))
+		err = memberModel.Update("pre_income")
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
 		}
@@ -644,7 +642,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		//赠品分析
 		if p.GiftId > 0 {
 			giftModel := model.Product{
-				ID:     p.GiftId,
+				Id:     p.GiftId,
 				Status: 1,
 				Type:   5,
 			}
@@ -654,12 +652,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				//获取会员当前最新余额信息
 				memberModel.Get()
 				//赠品金额 @todo
-				giftAmount := amount * int64(config.GiftRate) / int64(model.UNITY)
+				giftAmount := this.Amount.Mul(config.GiftRate)
 
 				//赠品订单
 				orderModel := &model.OrderProduct{
-					UID:          member.ID,
-					Pid:          giftModel.ID,
+					UId:          member.Id,
+					Pid:          giftModel.Id,
 					PayMoney:     giftAmount,
 					IsReturnTop:  1,
 					AfterBalance: memberModel.Balance,
@@ -675,9 +673,9 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 				//加入账变记录
 				logModel := model.Trade{
-					UID:        member.ID,
+					UId:        member.Id,
 					TradeType:  1,
-					ItemID:     orderModel.ID,
+					ItemId:     orderModel.Id,
 					Amount:     giftAmount,
 					Before:     memberModel.Balance,
 					After:      memberModel.Balance,
@@ -692,8 +690,8 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				}
 
 				//更改用户收益
-				memberModel.WillIncome += giftAmount * int64(giftModel.Dayincome*p.TimeLimit) / int64(model.UNITY)
-				err = memberModel.Update("wll_income")
+				memberModel.PreIncome = memberModel.PreIncome.Add(giftAmount.Mul(giftModel.DayIncome.Mul(decimal.NewFromInt(int64(p.TimeLimit)))))
+				err = memberModel.Update("pre_income")
 				if err != nil {
 					logrus.Errorf("赠送赠品更改会员收益信息失败%v", err)
 				}
@@ -706,7 +704,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 	case 2:
 		//股权
-		p := model.Guquan{ID: int64(this.Id)}
+		p := model.Guquan{Id: int64(this.Id)}
 		if !p.Get(true) {
 			//解锁
 			redisLock.Unlock(lockKey)
@@ -722,7 +720,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			redisLock.Unlock(lockKey)
 			return errors.New("股权预售时间已结束")
 		}
-		if int64(this.Amount) < p.LimitBuy {
+		if this.Amount.LessThan(decimal.NewFromInt(p.LimitBuy)) {
 			//解锁
 			redisLock.Unlock(lockKey)
 			return errors.New(fmt.Sprintf("购买金额必须大于%v！", p.LimitBuy))
@@ -730,11 +728,11 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 		//购买
 		inc := &model.OrderGuquan{
-			UID:          member.ID,
-			Pid:          int(p.ID),
-			PayMoney:     amount,
-			Rate:         int(model.UNITY),
-			AfterBalance: memberModel.Balance - amount,
+			UId:          member.Id,
+			Pid:          int(p.Id),
+			PayMoney:     this.Amount,
+			Rate:         decimal.NewFromInt(1),
+			AfterBalance: memberModel.Balance.Sub(this.Amount),
 			CreateTime:   time.Now().Unix(),
 			UpdateTime:   time.Now().Unix(),
 		}
@@ -746,7 +744,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//减去可投余额
-		p.OtherGuquan -= int64(this.Amount)
+		p.OtherGuquan = p.OtherGuquan.Sub(this.Amount)
 		err = p.Update("other_guquan")
 		if err != nil {
 			logrus.Errorf("购买产品减去可投余额失败%v", err)
@@ -754,12 +752,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 
 		//加入账变记录
 		trade := model.Trade{
-			UID:        member.ID,
+			UId:        member.Id,
 			TradeType:  2,
-			ItemID:     inc.ID,
-			Amount:     amount,
+			ItemId:     inc.Id,
+			Amount:     this.Amount,
 			Before:     memberModel.Balance,
-			After:      memberModel.Balance - amount,
+			After:      memberModel.Balance.Sub(this.Amount),
 			Desc:       "购买股权",
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
@@ -771,9 +769,9 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//扣减余额
-		memberModel.Balance -= amount
+		memberModel.Balance = memberModel.Balance.Mul(this.Amount)
 		memberModel.IsBuy = 1
-		memberModel.Guquan += amount / int64(model.UNITY)
+		memberModel.Guquan = memberModel.Guquan.Add(this.Amount)
 		err = memberModel.Update("balance", "is_buy", "guquan")
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
@@ -786,21 +784,21 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 			isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
 			if isRetreatStatus == true {
 				//可用余额转换比例分析, 默认为90%
-				if config.IncomeBalanceRate == 0 {
-					config.IncomeBalanceRate = 9000
+				if config.IncomeBalanceRate.LessThanOrEqual(decimal.Zero) {
+					config.IncomeBalanceRate = decimal.NewFromFloat(0.9)
 				}
 				//可用余额,可提现余额分析
-				balanceAmount := int64(config.IncomeBalanceRate) / int64(model.UNITY) * int64(config.RegisterSend)
-				useBalanceAmount := int64(config.RegisterSend) - balanceAmount
+				balanceAmount := config.IncomeBalanceRate.Mul(config.RegisterSend)
+				useBalanceAmount := config.RegisterSend.Sub(balanceAmount)
 
 				//赠送礼金 加入账变记录
 				trade2 := model.Trade{
-					UID:        member.ID,
+					UId:        member.Id,
 					TradeType:  7,
-					ItemID:     inc.ID,
+					ItemId:     inc.Id,
 					Amount:     useBalanceAmount,
-					Before:     memberModel.UseBalance,
-					After:      memberModel.UseBalance + useBalanceAmount,
+					Before:     memberModel.WithdrawBalance,
+					After:      memberModel.WithdrawBalance.Add(useBalanceAmount),
 					Desc:       "第一次购买赠送礼金",
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
@@ -812,12 +810,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				}
 
 				trade2 = model.Trade{
-					UID:        member.ID,
+					UId:        member.Id,
 					TradeType:  7,
-					ItemID:     inc.ID,
+					ItemId:     inc.Id,
 					Amount:     balanceAmount,
 					Before:     memberModel.Balance,
-					After:      memberModel.Balance + balanceAmount,
+					After:      memberModel.Balance.Add(balanceAmount),
 					Desc:       "第一次购买赠送礼金",
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
@@ -829,17 +827,17 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				}
 
 				//更改会员当前余额信息
-				memberModel.Balance += balanceAmount
-				memberModel.UseBalance += useBalanceAmount
+				memberModel.Balance = memberModel.Balance.Add(balanceAmount)
+				memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(useBalanceAmount)
 			} else {
 				//赠送礼金 加入账变记录
 				trade2 := model.Trade{
-					UID:        member.ID,
+					UId:        member.Id,
 					TradeType:  7,
-					ItemID:     inc.ID,
-					Amount:     int64(config.RegisterSend),
+					ItemId:     inc.Id,
+					Amount:     config.RegisterSend,
 					Before:     memberModel.Balance,
-					After:      memberModel.Balance + int64(config.RegisterSend),
+					After:      memberModel.Balance.Add(config.RegisterSend),
 					Desc:       "第一次购买赠送礼金",
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
@@ -850,13 +848,12 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
 				}
 				//更改会员余额
-				memberModel.Balance += 0
-				memberModel.UseBalance += int64(config.RegisterSend)
+				memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(config.RegisterSend)
 			}
 
-			memberModel.TotalBalance += int64(config.RegisterSend)
-			memberModel.Income += int64(config.RegisterSend)
-			err = memberModel.Update("total_balance", "balance", "use_balance", "income")
+			//memberModel.TotalBalance = memberModel.TotalBalance.Add(config.RegisterSend)
+			memberModel.TotalIncome = memberModel.TotalIncome.Add(config.RegisterSend)
+			err = memberModel.Update("balance", "withdraw_balance", "total_income")
 			if err != nil {
 				logrus.Errorf("更改会员余额信息失败%v", err)
 			}
@@ -876,7 +873,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder *model.OrderProduct) {
 	//1级代理佣金计算  18=一级返佣 19=二级返佣 20=三级返佣
 	agent := model.MemberRelation{
-		UID:   productOrder.UID,
+		UId:   productOrder.UId,
 		Level: level,
 	}
 	//当代理不存在时
@@ -884,29 +881,29 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		return
 	}
 
-	var income int64
+	var income decimal.Decimal
 	var t int
 	if level == 1 {
-		income = int64(c.OneSend) * productOrder.PayMoney / int64(model.UNITY)
+		income = c.OneSend.Mul(productOrder.PayMoney)
 		//检测会员的订单
 		ordersModel := model.OrderProduct{
-			UID:         productOrder.UID,
+			UId:         productOrder.UId,
 			IsReturnTop: 2,
 		}
 		//会员第一次下单, 直接上级发放红包
 		if !ordersModel.Get() {
-			income += c.OneSendMoeny
+			income = income.Add(c.OneSendMoeny)
 		}
 		t = 18
 	} else if level == 2 {
-		income = int64(c.TwoSend) * productOrder.PayMoney / int64(model.UNITY)
+		income = c.TwoSend.Mul(productOrder.PayMoney)
 		t = 19
 	} else if level == 3 {
-		income = int64(c.ThreeSend) * productOrder.PayMoney / int64(model.UNITY)
+		income = c.ThreeSend.Mul(productOrder.PayMoney)
 		t = 20
 	}
 
-	memberModel := model.Member{ID: agent.Puid}
+	memberModel := model.Member{Id: agent.Puid}
 	//获取代理当前余额
 	memberModel.Get()
 
@@ -914,12 +911,12 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 	isRetreatStatus := common.ParseRetreatStatus(c.RetreatStartDate)
 	if isRetreatStatus == true && level != 1 {
 		trade := model.Trade{
-			UID:        agent.Puid,
+			UId:        agent.Puid,
 			TradeType:  t,
-			ItemID:     productOrder.UID,
+			ItemId:     productOrder.UId,
 			Amount:     income,
 			Before:     memberModel.Balance,
-			After:      memberModel.Balance + income,
+			After:      memberModel.Balance.Add(income),
 			Desc:       fmt.Sprintf("%v级返佣", level),
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
@@ -927,31 +924,31 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 		err := trade.Insert()
 		if err != nil {
-			logrus.Errorf("%v级返佣收益存入账单失败  用户ID %v err= &v", level, productOrder.UID, err)
+			logrus.Errorf("%v级返佣收益存入账单失败  用户Id %v err= &v", level, productOrder.UId, err)
 		}
 
-		memberModel.TotalBalance += income
-		memberModel.Balance += income
-		memberModel.Income += income
-		err = memberModel.Update("total_balance", "balance", "income")
+		//memberModel.TotalBalance = memberModel.TotalBalance.Add(income)
+		memberModel.Balance = memberModel.Balance.Add(income)
+		memberModel.TotalIncome = memberModel.TotalIncome.Add(income)
+		err = memberModel.Update("balance", "total_income")
 		if err != nil {
-			logrus.Errorf("%v级返佣收益修改余额失败 用户ID %v 收益 %v  err= &v", level, productOrder.UID, income, err)
+			logrus.Errorf("%v级返佣收益修改余额失败 用户Id %v 收益 %v  err= &v", level, productOrder.UId, income, err)
 		}
 
 		//修改产品状态
 		productOrder.IsReturnTop = 2
 		err = productOrder.Update("is_return_top")
 		if err != nil {
-			logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
+			logrus.Errorf("修改产品状态失败   订单Id %v err= &v", productOrder.Id, err)
 		}
 	} else {
 		trade := model.Trade{
-			UID:        agent.Puid,
+			UId:        agent.Puid,
 			TradeType:  t,
-			ItemID:     productOrder.UID,
+			ItemId:     productOrder.UId,
 			Amount:     income,
-			Before:     memberModel.UseBalance,
-			After:      memberModel.UseBalance + income,
+			Before:     memberModel.WithdrawBalance,
+			After:      memberModel.WithdrawBalance.Add(income),
 			Desc:       fmt.Sprintf("%v级返佣", level),
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
@@ -959,64 +956,64 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 		err := trade.Insert()
 		if err != nil {
-			logrus.Errorf("%v级返佣收益存入账单失败  用户ID %v err= &v", level, productOrder.UID, err)
+			logrus.Errorf("%v级返佣收益存入账单失败  用户Id %v err= &v", level, productOrder.UId, err)
 		}
 
-		memberModel.TotalBalance += income
-		memberModel.Balance += income
-		memberModel.Income += income
-		err = memberModel.Update("total_balance", "balance", "income")
+		//memberModel.TotalBalance = memberModel.TotalBalance.Add(income)
+		memberModel.Balance = memberModel.Balance.Add(income)
+		memberModel.TotalIncome = memberModel.TotalIncome.Add(income)
+		err = memberModel.Update("balance", "total_income")
 		if err != nil {
-			logrus.Errorf("%v级返佣收益修改余额失败 用户ID %v 收益 %v  err= &v", level, productOrder.UID, income, err)
+			logrus.Errorf("%v级返佣收益修改余额失败 用户Id %v 收益 %v  err= &v", level, productOrder.UId, income, err)
 		}
 
 		//修改产品状态
 		productOrder.IsReturnTop = 2
 		err = productOrder.Update("is_return_top")
 		if err != nil {
-			logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
+			logrus.Errorf("修改产品状态失败   订单Id %v err= &v", productOrder.Id, err)
 		}
 	}
 
 	//释放一级,二级,三级代理的可用余额
-	if isRetreatStatus == true && memberModel.Balance > 0 {
-		var freeAmount int64
+	if isRetreatStatus == true && decimal.Zero.LessThan(memberModel.Balance) {
+		var freeAmount decimal.Decimal
 		var t2 int
 		switch level {
 		case 1:
-			if c.OneReleaseRate == 0 {
+			if c.OneReleaseRate.LessThanOrEqual(decimal.Zero) {
 				return
 				//c.OneReleaseRate = 1000
 			}
 			t2 = 25
-			freeAmount = int64(c.OneReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
+			freeAmount = c.OneReleaseRate.Mul(productOrder.PayMoney)
 		case 2:
-			if c.TwoReleaseRate == 0 {
+			if c.TwoReleaseRate.LessThanOrEqual(decimal.Zero) {
 				return
 				//c.TwoReleaseRate = 500
 			}
 			t2 = 26
-			freeAmount = int64(c.TwoReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
+			freeAmount = c.TwoReleaseRate.Mul(productOrder.PayMoney)
 		case 3:
-			if c.ThreeReleaseRate == 0 {
+			if c.ThreeReleaseRate.LessThanOrEqual(decimal.Zero) {
 				return
 				//c.ThreeReleaseRate = 200
 			}
 			t2 = 27
-			freeAmount = int64(c.ThreeReleaseRate) * productOrder.PayMoney / int64(model.UNITY)
+			freeAmount = c.ThreeReleaseRate.Mul(productOrder.PayMoney)
 		}
 		//可用余额分析
-		if memberModel.Balance < freeAmount {
+		if memberModel.Balance.LessThan(freeAmount) {
 			freeAmount = memberModel.Balance
 		}
 
 		trade2 := model.Trade{
-			UID:        agent.Puid,
+			UId:        agent.Puid,
 			TradeType:  t2,
-			ItemID:     productOrder.UID,
+			ItemId:     productOrder.UId,
 			Amount:     freeAmount,
-			Before:     memberModel.UseBalance,
-			After:      memberModel.UseBalance + freeAmount,
+			Before:     memberModel.WithdrawBalance,
+			After:      memberModel.WithdrawBalance.Add(freeAmount),
 			Desc:       fmt.Sprintf("%v级释放可用余额", level),
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
@@ -1024,14 +1021,14 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 		err := trade2.Insert()
 		if err != nil {
-			logrus.Errorf("%v级释放可用余额失败  代理UID %v err= &v", level, agent.Puid, err)
+			logrus.Errorf("%v级释放可用余额失败  代理UId %v err= &v", level, agent.Puid, err)
 		}
 
-		memberModel.Balance -= freeAmount
-		memberModel.UseBalance += freeAmount
-		err = memberModel.Update("balance", "use_balance")
+		memberModel.Balance = memberModel.Balance.Sub(freeAmount)
+		memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(freeAmount)
+		err = memberModel.Update("balance", "withdraw_balance")
 		if err != nil {
-			logrus.Errorf("%v级释放可用余额失败 代理UID %v 收益 %v  err= &v", level, agent.Puid, freeAmount, err)
+			logrus.Errorf("%v级释放可用余额失败 代理UId %v 收益 %v  err= &v", level, agent.Puid, freeAmount, err)
 		}
 	}
 }
@@ -1049,7 +1046,7 @@ func (this BuyProducList) List(member *model.Member) *response.BuyListResp {
 	}
 	m := model.OrderProduct{}
 	res := response.BuyListResp{}
-	list, page := m.PageList("uid = ?", []interface{}{member.ID}, this.Page, this.PageSize)
+	list, page := m.PageList("uid = ?", []interface{}{member.Id}, this.Page, this.PageSize)
 	if len(list) == 0 {
 		return &res
 	}
@@ -1060,16 +1057,16 @@ func (this BuyProducList) List(member *model.Member) *response.BuyListResp {
 		if list[i].IsReturnCapital == 1 {
 			orderStatus = 2
 		}
-		product := model.Product{ID: m.Pid}
+		product := model.Product{Id: m.Pid}
 		if !product.Get() {
 			continue
 		}
 		//每日收益
-		income := float64(list[i].PayMoney*int64(list[i].IncomeRate)) / model.UNITY / model.UNITY
+		income := list[i].PayMoney.Mul(list[i].IncomeRate)
 		items = append(items, response.BuyList{
 			Name:    list[i].Product.Name,
 			BuyTime: int(list[i].CreateTime),
-			Amount:  float64(list[i].PayMoney) / model.UNITY,
+			Amount:  list[i].PayMoney,
 			Status:  orderStatus,
 			Income:  income,
 			EndTime: list[i].EndTime,
@@ -1086,12 +1083,8 @@ type BuyGuquanList struct {
 
 func (this *BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 	var res response.BuyGuquanResp
-	m := model.OrderGuquan{UID: member.ID}
-	money, err := m.Sum()
-	if err != nil || money == 0 {
-		return nil
-	}
-
+	m := model.OrderGuquan{UId: member.Id}
+	money := m.Sum()
 	guquan := model.Guquan{}
 	guquan.Get(true)
 
@@ -1106,12 +1099,12 @@ func (this *BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 		res.Status = "待发行"
 	}
 
-	res.Num = money / int64(model.UNITY)
-	res.Price = float64(guquan.Price) / model.UNITY
+	res.Num = money
+	res.Price = guquan.Price
 	res.CreateTime = m.CreateTime
-	weiMoney := (money * int64(int(model.UNITY)-m.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
-	huiMoney := (money * int64(m.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
-	res.TotalPrice = float64(weiMoney+huiMoney) / model.UNITY
+	weiMoney := money.Mul(decimal.NewFromInt(1).Sub(m.Rate)).Add(guquan.ReturnRate)
+	huiMoney := money.Mul(m.Rate).Mul(guquan.ReturnLuckyRate)
+	res.TotalPrice = weiMoney.Add(huiMoney)
 	return &res
 
 }
@@ -1131,38 +1124,39 @@ func (this *BuyGuquanPageList) PageList(member *model.Member) *response.BuyGuqua
 	}
 
 	//获取列表
-	orderModel := model.OrderGuquan{UID: member.ID}
-	list, page := orderModel.PageList("uid=?", []interface{}{member.ID}, this.Page, this.PageSize)
+	orderModel := model.OrderGuquan{UId: member.Id}
+	list, page := orderModel.PageList("uid=?", []interface{}{member.Id}, this.Page, this.PageSize)
 
 	//获取股权信息
 	guquan := model.Guquan{}
 	guquan.Get(true)
 
-	now := time.Now().Unix()
-	Status := ""
-	if now >= guquan.ReturnTime {
-		Status = "完成"
-	} else if now >= guquan.OpenTime {
-		Status = "待回收"
-	} else {
-		Status = "待发行"
-	}
+	//now := time.Now().Unix()
+	//Status := ""
+	//if now >= guquan.ReturnTime {
+	//	Status = "完成"
+	//} else if now >= guquan.OpenTime {
+	//	Status = "待回收"
+	//} else {
+	//	Status = "待发行"
+	//}
 
 	res := make([]response.BuyGuquanList, 0)
 	for _, v := range list {
+		fmt.Println(v.PayMoney)
 		//未中签回购金额
-		weiMoney := (v.PayMoney * int64(int(model.UNITY)-v.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
-		//中签回购金额
-		huiMoney := (v.PayMoney * int64(v.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
-		i := response.BuyGuquanList{
-			ID:         v.ID,
-			Num:        v.PayMoney / int64(model.UNITY),
-			Price:      float64(guquan.Price) / model.UNITY,
-			CreateTime: v.CreateTime,
-			TotalPrice: float64(weiMoney+huiMoney) / model.UNITY,
-			Status:     Status,
-		}
-		res = append(res, i)
+		//weiMoney := (v.PayMoney * int64(int(model.UNITY)-v.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
+		////中签回购金额
+		//huiMoney := (v.PayMoney * int64(v.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
+		//i := response.BuyGuquanList{
+		//	Id:         v.Id,
+		//	Num:        v.PayMoney / int64(model.UNITY),
+		//	Price:      float64(guquan.Price),
+		//	CreateTime: v.CreateTime,
+		//	TotalPrice: float64(weiMoney + huiMoney),
+		//	Status:     Status,
+		//}
+		//res = append(res, i)
 	}
 
 	return &response.BuyGuquanPageListResp{List: res, Page: FormatPage(page)}
@@ -1187,13 +1181,13 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	//}
 
 	//获取订单信息
-	orderModel := model.OrderGuquan{ID: this.Id, UID: member.ID}
+	orderModel := model.OrderGuquan{Id: this.Id, UId: member.Id}
 	if !orderModel.Get() {
 		return nil
 	}
 
 	//获取用户信息
-	memberVerfiy := model.MemberVerified{UID: orderModel.UID}
+	memberVerfiy := model.MemberVerified{UId: orderModel.UId}
 	memberVerfiy.Get()
 
 	//合同起始时
@@ -1201,54 +1195,54 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	endDate := time.Unix(int64(guquan.ReturnTime), 0).Format("2006年01月02日")
 	days := int(guquan.ReturnTime-guquan.OpenTime) / 86400
 	createDate := time.Unix(int64(orderModel.CreateTime), 0).Format("2006年01月02日")
-
-	//中签回购金额
-	huiMoney := (orderModel.PayMoney * int64(orderModel.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
-	//未中签回购金额
-	weiMoney := (orderModel.PayMoney * int64(int(model.UNITY)-orderModel.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
-
-	//原始股权总金额
-	sourceAmount := float64(orderModel.PayMoney) / float64(model.UNITY) * float64(guquan.Price) / float64(model.UNITY)
-	//中签回购利润
-	winProfit := float64(guquan.ReturnLuckyRate)*100/model.UNITY - 100
-	//未中签加购利润
-	notWinProfit := float64(guquan.ReturnRate) * 100 / model.UNITY
-
-	//总股权数量
-	totalQuantity := orderModel.PayMoney / int64(model.UNITY)
-	//中签股权数量
-	winQuantity := orderModel.PayMoney * int64(orderModel.Rate) / (int64(model.UNITY) * int64(model.UNITY))
-	//未中签股权数量
-	notWinQuantity := totalQuantity - winQuantity
+	//
+	////中签回购金额
+	//huiMoney := (orderModel.PayMoney * int64(orderModel.Rate) / int64(model.UNITY)) * int64(guquan.ReturnLuckyRate) / int64(model.UNITY)
+	////未中签回购金额
+	//weiMoney := (orderModel.PayMoney * int64(int(model.UNITY)-orderModel.Rate) / int64(model.UNITY)) * (int64(model.UNITY) + int64(guquan.ReturnRate)) / int64(model.UNITY)
+	//
+	////原始股权总金额
+	//sourceAmount := float64(orderModel.PayMoney) / float64(model.UNITY) * float64(guquan.Price) / float64(model.UNITY)
+	////中签回购利润
+	//winProfit := float64(guquan.ReturnLuckyRate)*100/model.UNITY - 100
+	////未中签加购利润
+	//notWinProfit := float64(guquan.ReturnRate) * 100
+	//
+	////总股权数量
+	//totalQuantity := orderModel.PayMoney / int64(model.UNITY)
+	////中签股权数量
+	//winQuantity := orderModel.PayMoney * int64(orderModel.Rate) / (int64(model.UNITY) * int64(model.UNITY))
+	////未中签股权数量
+	//notWinQuantity := totalQuantity - winQuantity
 
 	return &response.StockCertificateResp{
-		ID:         orderModel.ID,
+		Id:         orderModel.Id,
 		RealName:   memberVerfiy.RealName,
-		IdCardNo:   memberVerfiy.IDNumber,
+		IdCardNo:   memberVerfiy.IdNumber,
 		StartDate:  startDate,
 		EndDate:    endDate,
 		CreateDate: createDate,
 		Days:       days,
 
 		//股权总数
-		Quantity: orderModel.PayMoney / int64(model.UNITY),
+		//Quantity: orderModel.PayMoney / int64(model.UNITY),
 		//原订单价格
-		Price: float64(guquan.Price) / model.UNITY,
+		//Price: float64(guquan.Price),
 		//原始股权总金额
-		TotalAmount: sourceAmount,
+		//TotalAmount: sourceAmount,
 
 		//中签股权数
-		WinQuantity: winQuantity,
+		//WinQuantity: winQuantity,
 		//中签回购利润
-		WinProfit: winProfit,
+		//WinProfit: winProfit,
 		//中签股权回购总金额
-		WinRepurchaseAmount: float64(huiMoney) / model.UNITY,
+		//WinRepurchaseAmount: float64(huiMoney),
 
 		//未中签股权数
-		NotWinQuantity: notWinQuantity,
+		//NotWinQuantity: notWinQuantity,
 		//未中签回购利润
-		NotWinProfit: notWinProfit,
+		//NotWinProfit: notWinProfit,
 		//未中签回购金额
-		NotWinRepurchaseAmount: float64(weiMoney) / model.UNITY,
+		//NotWinRepurchaseAmount: float64(weiMoney),
 	}
 }

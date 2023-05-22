@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"finance/app/api/controller"
-	"finance/common"
-	"finance/lang"
+	"china-russia/app/api/controller"
+	"china-russia/common"
+	"china-russia/lang"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

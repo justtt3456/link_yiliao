@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (this UpgradeList) PageList() response.UpgradeData {
 	res := make([]response.UpgradeInfo, 0)
 	for _, v := range list {
 		i := response.UpgradeInfo{
-			ID:          v.ID,
+			Id:          v.Id,
 			Platform:    v.Platform,
 			Version:     v.Version,
 			DownloadURL: v.DownloadURL,
@@ -85,7 +85,7 @@ type UpgradeUpdate struct {
 }
 
 func (this UpgradeUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Platform == "" {
@@ -98,7 +98,7 @@ func (this UpgradeUpdate) Update() error {
 		return errors.New("下载链接不能为空")
 	}
 	m := model.Upgrade{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("版本不存在")
@@ -117,11 +117,11 @@ type UpgradeUpdateStatus struct {
 }
 
 func (this UpgradeUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Upgrade{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("版本不存在")
@@ -135,11 +135,11 @@ type UpgradeRemove struct {
 }
 
 func (this UpgradeRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Upgrade{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

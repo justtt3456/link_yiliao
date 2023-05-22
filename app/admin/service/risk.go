@@ -1,10 +1,10 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/model"
 )
 
 type Risk struct {
@@ -16,7 +16,7 @@ func (this Risk) Get() (*response.RiskInfo, error) {
 		return nil, errors.New("参数错误")
 	}
 	return &response.RiskInfo{
-		ID:        risk.ID,
+		Id:        risk.Id,
 		WinList:   risk.WinList,
 		LoseList:  risk.LoseList,
 		WcLine:    risk.WcLine,
@@ -32,7 +32,7 @@ type RiskUpdate struct {
 }
 
 func (this RiskUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.WcLine == 0 {
@@ -42,7 +42,7 @@ func (this RiskUpdate) Update() error {
 		return errors.New("亏损模式不能为空")
 	}
 	m := model.Risk{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("记录不存在")

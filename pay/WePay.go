@@ -3,8 +3,8 @@ package pay
 import (
 	"bytes"
 	"encoding/json"
-	"finance/common"
-	"finance/model"
+	"china-russia/common"
+	"china-russia/model"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"

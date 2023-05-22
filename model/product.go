@@ -1,9 +1,10 @@
 package model
 
 import (
+	"china-russia/common"
+	"china-russia/global"
 	"encoding/json"
-	"finance/common"
-	"finance/global"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"log"
 	"strconv"
@@ -11,7 +12,7 @@ import (
 )
 
 type Product struct {
-	ID              int             `gorm:"column:id;primary_key"` //
+	Id              int             `gorm:"column:id;primary_key"` //
 	Name            string          `gorm:"column:name"`           //产品名称
 	Category        int             `gorm:"column:category"`       //分类id
 	CreateTime      int64           `gorm:"column:create_time"`    //创建时间
@@ -19,19 +20,19 @@ type Product struct {
 	Tag             int             `gorm:"column:tag"`            //1=热
 	TimeLimit       int             `gorm:"column:time_limit"`     //投资期限 （天）
 	IsRecommend     int             `gorm:"column:is_recommend"`   //是否推荐到首页 1是 2否
-	Dayincome       int             `gorm:"column:day_income"`     //每日收益  千分比
-	Price           int64           `gorm:"column:price"`          //价格  (最低买多少)
-	TotalPrice      int64           `gorm:"column:total_price"`    //项目规模
-	OtherPrice      int64           `gorm:"column:other_price"`    //可投余额
-	MoreBuy         int             `gorm:"column:more_buy"`       //最多可以买多少份
+	DayIncome       decimal.Decimal `gorm:"column:day_income"`     //每日收益  千分比
+	Price           decimal.Decimal `gorm:"column:price"`          //价格  (最低买多少)
+	TotalPrice      decimal.Decimal `gorm:"column:total_price"`    //项目规模
+	OtherPrice      decimal.Decimal `gorm:"column:other_price"`    //可投余额
+	MoreBuy         decimal.Decimal `gorm:"column:more_buy"`       //最多可以买多少份
 	Desc            string          `gorm:"column:desc"`           //描述
 	IsFinish        int             `gorm:"column:is_finish"`      //1=进行中  2=已投满
 	IsManjian       int             `gorm:"column:is_manjian"`     //1=有满减  2=无满减
 	BuyTimeLimit    int             `gorm:"column:buy_time_limit"` //产品限时多少天
-	Progress        int             `gorm:"column:progress"`       //项目进度
+	Progress        decimal.Decimal `gorm:"column:progress"`       //项目进度
 	Type            int             `gorm:"column:type"`           //1=到期返本金 2=延迟反本金
 	DelayTime       int             `gorm:"column:delay_time"`     //延迟多少天
-	GiftId          int             `gorm:"column:gift_id"`        //赠送产品ID, 当值为0时,则没有赠送
+	GiftId          int             `gorm:"column:gift_id"`        //赠送产品Id, 当值为0时,则没有赠送
 	ProductCategory ProductCategory `gorm:"foreignKey:Category"`
 }
 
@@ -81,7 +82,7 @@ func (this *Product) Remove() error {
 		return res.Error
 	}
 	//同步redis
-	global.REDIS.HDel(HashKeyProduct, strconv.Itoa(this.ID))
+	global.REDIS.HDel(HashKeyProduct, strconv.Itoa(this.Id))
 	return nil
 }
 func (this *Product) Insert() error {
@@ -95,7 +96,7 @@ func (this *Product) Insert() error {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyProduct, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyProduct, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *Product) PageList(where string, args []interface{}, page, pageSize int) ([]Product, common.Page) {

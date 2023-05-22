@@ -7,7 +7,7 @@ import (
 	"encoding/base32"
 	"encoding/base64"
 	"encoding/binary"
-	"finance/common"
+	"china-russia/common"
 	"fmt"
 	"net/url"
 	"strings"

@@ -1,9 +1,9 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/model"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -55,7 +55,7 @@ func (this *OrderCommissionRepair) Repair() error {
 func (this *OrderCommissionRepair) ProxyRebate(c *model.SetBase, level int64, productOrder model.OrderProduct) {
 	//1级代理佣金计算  18=一级返佣 19=二级返佣 20=三级返佣
 	agent := model.MemberRelation{
-		UID:   productOrder.UID,
+		UId:   productOrder.UId,
 		Level: level,
 	}
 	//当代理不存在时
@@ -66,36 +66,36 @@ func (this *OrderCommissionRepair) ProxyRebate(c *model.SetBase, level int64, pr
 	var income int64
 	var t int
 	if level == 1 {
-		income = int64(c.OneSend) * productOrder.PayMoney / int64(model.UNITY)
+		//income = int64(c.OneSend) * productOrder.PayMoney / int64(model.UNITY)
 		//检测会员的订单
 		ordersModel := model.OrderProduct{
-			UID:         productOrder.UID,
+			UId:         productOrder.UId,
 			IsReturnTop: 2,
 		}
 		//会员第一次下单, 直接上级发放红包
 		if !ordersModel.Get() {
-			income += c.OneSendMoeny
+			//income += c.OneSendMoeny
 		}
 		t = 18
 	} else if level == 2 {
-		income = int64(c.TwoSend) * productOrder.PayMoney / int64(model.UNITY)
+		//income = int64(c.TwoSend) * productOrder.PayMoney / int64(model.UNITY)
 		t = 19
 	} else if level == 3 {
-		income = int64(c.ThreeSend) * productOrder.PayMoney / int64(model.UNITY)
+		//income = int64(c.ThreeSend) * productOrder.PayMoney / int64(model.UNITY)
 		t = 20
 	}
 
-	memberModel := model.Member{ID: agent.Puid}
+	memberModel := model.Member{Id: agent.Puid}
 	//获取代理当前余额
 	memberModel.Get()
 
 	trade := model.Trade{
-		UID:        agent.Puid,
-		TradeType:  t,
-		ItemID:     productOrder.UID,
-		Amount:     income,
-		Before:     memberModel.UseBalance,
-		After:      memberModel.UseBalance + income,
+		UId:       agent.Puid,
+		TradeType: t,
+		ItemId:    productOrder.UId,
+		//Amount:     income,
+		Before: memberModel.WithdrawBalance,
+		//After:      memberModel.WithdrawBalance + income,
 		Desc:       fmt.Sprintf("%v级返佣", level),
 		CreateTime: time.Now().Unix(),
 		UpdateTime: time.Now().Unix(),
@@ -103,21 +103,21 @@ func (this *OrderCommissionRepair) ProxyRebate(c *model.SetBase, level int64, pr
 	}
 	err := trade.Insert()
 	if err != nil {
-		logrus.Errorf("%v级返佣收益存入账单失败  用户ID %v err= &v", level, productOrder.UID, err)
+		logrus.Errorf("%v级返佣收益存入账单失败  用户Id %v err= &v", level, productOrder.UId, err)
 	}
 
-	memberModel.TotalBalance += income
-	memberModel.UseBalance += income
-	memberModel.Income += income
-	err = memberModel.Update("total_balance", "use_balance", "income")
+	//memberModel.TotalBalance += income
+	//memberModel.WithdrawBalance += income
+	//memberModel.Income += income
+	err = memberModel.Update("withdraw_balance", "total_income")
 	if err != nil {
-		logrus.Errorf("%v级返佣收益修改余额失败 用户ID %v 收益 %v  err= &v", level, productOrder.UID, income, err)
+		logrus.Errorf("%v级返佣收益修改余额失败 用户Id %v 收益 %v  err= &v", level, productOrder.UId, income, err)
 	}
 
 	//修改产品状态
 	productOrder.IsReturnTop = 2
 	err = productOrder.Update("is_return_top")
 	if err != nil {
-		logrus.Errorf("修改产品状态失败   订单ID %v err= &v", productOrder.ID, err)
+		logrus.Errorf("修改产品状态失败   订单Id %v err= &v", productOrder.Id, err)
 	}
 }

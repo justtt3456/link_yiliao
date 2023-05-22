@@ -6,7 +6,7 @@ type RiskResponse struct {
 	Data RiskInfo `json:"data"`
 }
 type RiskInfo struct {
-	ID        int    `json:"id"`         //
+	Id        int    `json:"id"`         //
 	WinList   string `json:"win_list"`   //包赢名单，以/分割
 	LoseList  string `json:"lose_list"`  //包输名单，以/分割
 	WcLine    int    `json:"wc_line"`    //风控启动最小值。下单金额达到次标准则执行风控规则

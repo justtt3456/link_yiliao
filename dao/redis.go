@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
 )

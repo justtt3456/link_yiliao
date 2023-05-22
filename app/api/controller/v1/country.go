@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"finance/app/api/controller"
-	"finance/app/api/swag/response"
-	"finance/global"
-	"finance/model"
+	"china-russia/app/api/controller"
+	"china-russia/app/api/swag/response"
+	"china-russia/global"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
 )
 

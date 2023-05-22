@@ -1,28 +1,29 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
+	"github.com/shopspring/decimal"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
 
 type OrderProduct struct {
-	ID              int     `gorm:"column:id;primary_key"`             //
-	UID             int     `gorm:"column:uid"`                        //关联用户id
-	Pid             int     `gorm:"column:pid"`                        //关联商品种类id
-	PayMoney        int64   `gorm:"column:pay_money"`                  //购买付款金额(不含手续费)
-	AfterBalance    int64   `gorm:"column:after_balance"`              //购买后余额
-	CreateTime      int64   `gorm:"column:create_time;autoCreateTime"` //创建时间
-	UpdateTime      int64   `gorm:"column:update_time;autoUpdateTime"` //系统开奖时间
-	IsReturnTop     int64   `gorm:"column:is_return_top"`              //1=未返还上级 2=已反还上级
-	IsReturnCapital int     `gorm:"column:is_return_capital"`          //是否返还本身 0:否 1:是
-	IsReturnTeam    int     `gorm:"column:is_return_team"`             //是否已结算团队收益 0:否 1:是
-	IncomeRate      int     `gorm:"column:income_rate"`                //收益率
-	EndTime         int64   `gorm:"column:end_time"`                   //结束时间
-	Member          Member  `gorm:"foreignKey:UID;"`                   //BeLongsTo 关联用户 自身外键UID
-	Product         Product `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
+	Id              int             `gorm:"column:id;primary_key"`             //
+	UId             int             `gorm:"column:uid"`                        //关联用户id
+	Pid             int             `gorm:"column:pid"`                        //关联商品种类id
+	PayMoney        decimal.Decimal `gorm:"column:pay_money"`                  //购买付款金额(不含手续费)
+	AfterBalance    decimal.Decimal `gorm:"column:after_balance"`              //购买后余额
+	CreateTime      int64           `gorm:"column:create_time;autoCreateTime"` //创建时间
+	UpdateTime      int64           `gorm:"column:update_time;autoUpdateTime"` //系统开奖时间
+	IsReturnTop     int64           `gorm:"column:is_return_top"`              //1=未返还上级 2=已反还上级
+	IsReturnCapital int             `gorm:"column:is_return_capital"`          //是否返还本身 0:否 1:是
+	IsReturnTeam    int             `gorm:"column:is_return_team"`             //是否已结算团队收益 0:否 1:是
+	IncomeRate      decimal.Decimal `gorm:"column:income_rate"`                //收益率
+	EndTime         int64           `gorm:"column:end_time"`                   //结束时间
+	Member          Member          `gorm:"foreignKey:UId;"`                   //BeLongsTo 关联用户 自身外键UId
+	Product         Product         `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
 }
 
 // TableName sets the insert table name for this struct type
@@ -105,12 +106,12 @@ func (this *OrderProduct) Count(where string, args []interface{}) int64 {
 	}
 	return int64(total)
 }
-func (this *OrderProduct) Sum(where string, args []interface{}, field string) int64 {
-	var total int64
+func (this *OrderProduct) Sum(where string, args []interface{}, field string) decimal.Decimal {
+	var total decimal.Decimal
 	tx := global.DB.Model(this).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)
-		return 0
+		return decimal.Zero
 	}
 	return total
 }
@@ -136,7 +137,7 @@ func (this *OrderProduct) GetValidOrderList(today int64) []*OrderProduct {
 	return res
 }
 
-// 获取团队订单用户ID列表(唯一)
+// 获取团队订单用户Id列表(唯一)
 func (this *OrderProduct) GetOrderUserIds(startTime, endTime int64) []int {
 	res := make([]*OrderProduct, 0)
 	var uids []int
@@ -150,7 +151,7 @@ func (this *OrderProduct) GetOrderUserIds(startTime, endTime int64) []int {
 	//遍例订单列表
 	if len(res) > 0 {
 		for _, line := range res {
-			uids = append(uids, line.UID)
+			uids = append(uids, line.UId)
 		}
 	}
 

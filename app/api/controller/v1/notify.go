@@ -1,11 +1,12 @@
 package v1
 
 import (
-	"finance/app/api/controller"
-	"finance/extends"
-	"finance/model"
+	"china-russia/app/api/controller"
+	"china-russia/extends"
+	"china-russia/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -15,15 +16,15 @@ type NotifyController struct {
 }
 
 type XinMenReq struct {
-	OrderNo   string  `json:"orderNo" form:"orderNo"`     //订单编号
-	TradeNo   string  `json:"tradeNo" form:"tradeNo"`     //平台流水号
-	Amount    float64 `json:"amount" form:"amount"`       //金额（单位分）
-	PayTime   string  `json:"payTime" form:"payTime"`     //支付时间 2018-01-01 10:10:10
-	ActType   int     `json:"actType" form:"actType"`     //回调类型（1、支付；2、代付）
-	Rate      int     `json:"rate" form:"rate"`           //手续费（单位分）
-	Status    string  `json:"status" form:"status"`       //支付结果
-	Timestamp int64   `json:"timestamp" form:"timestamp"` //时间戳
-	Sign      string  `json:"sign" form:"sign"`           //签名
+	OrderNo   string          `json:"orderNo" form:"orderNo"`     //订单编号
+	TradeNo   string          `json:"tradeNo" form:"tradeNo"`     //平台流水号
+	Amount    decimal.Decimal `json:"amount" form:"amount"`       //金额（单位分）
+	PayTime   string          `json:"payTime" form:"payTime"`     //支付时间 2018-01-01 10:10:10
+	ActType   int             `json:"actType" form:"actType"`     //回调类型（1、支付；2、代付）
+	Rate      int             `json:"rate" form:"rate"`           //手续费（单位分）
+	Status    string          `json:"status" form:"status"`       //支付结果
+	Timestamp int64           `json:"timestamp" form:"timestamp"` //时间戳
+	Sign      string          `json:"sign" form:"sign"`           //签名
 }
 
 func (this NotifyController) NotifyXinMeng(c *gin.Context) {
@@ -44,16 +45,16 @@ func (this NotifyController) NotifyXinMeng(c *gin.Context) {
 		return
 	}
 	//查询用户是否存在
-	m := model.Member{ID: o.UID}
+	m := model.Member{Id: o.UId}
 	if !m.Get() {
-		logrus.Errorf("用户不存在%v", o.UID)
+		logrus.Errorf("用户不存在%v", o.UId)
 		return
 	}
 
 	//获取私钥
-	p := model.Payment{ID: o.PaymentID}
+	p := model.Payment{Id: o.PaymentId}
 	if !p.Get() {
-		logrus.Errorf("支付通道不存在%v", o.PaymentID)
+		logrus.Errorf("支付通道不存在%v", o.PaymentId)
 		return
 	}
 	//验证签名
@@ -86,8 +87,8 @@ func (this NotifyController) NotifyXinMeng(c *gin.Context) {
 		return
 	}
 
-	m.Balance += int64(s.Amount * 100)
-	m.TotalBalance += int64(s.Amount * 100)
+	//m.Balance += int64(s.Amount * 100)
+	//m.TotalBalance += int64(s.Amount * 100)
 
 	err = m.Update("balance", "total_balance")
 	if err != nil {

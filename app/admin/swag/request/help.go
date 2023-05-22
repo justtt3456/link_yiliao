@@ -17,7 +17,7 @@ type HelpCreate struct {
 	Category int    `json:"category"`
 }
 type HelpUpdate struct {
-	ID       int    `json:"id"`
+	Id       int    `json:"id"`
 	Title    string `json:"title"`   //
 	Content  string `json:"content"` //
 	Lang     string `json:"lang"`    //
@@ -26,9 +26,9 @@ type HelpUpdate struct {
 	Category int    `json:"category"`
 }
 type HelpUpdateStatus struct {
-	ID     int `json:"id"`
+	Id     int `json:"id"`
 	Status int `json:"status"` //状态
 }
 type HelpRemove struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }

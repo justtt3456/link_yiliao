@@ -1,9 +1,9 @@
 package model
 
 import (
+	"china-russia/common"
+	"china-russia/global"
 	"encoding/json"
-	"finance/common"
-	"finance/global"
 	"fmt"
 	"log"
 	"time"
@@ -12,11 +12,11 @@ import (
 )
 
 type Agent struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Name       string `gorm:"column:name"`                       //
 	Password   string `gorm:"column:password"`                   //
 	Salt       string `gorm:"column:salt"`                       //
-	ParentID   int    `gorm:"column:parent_id"`                  //父级id 为0时则为组长
+	ParentId   int    `gorm:"column:parent_id"`                  //父级id 为0时则为组长
 	GroupName  string `gorm:"column:group_name"`                 //小组名称
 	Token      string `gorm:"column:token"`                      //token盐
 	Status     int    `gorm:"column:status"`                     //帐号启用状态，1启用2禁用
@@ -44,7 +44,7 @@ func (a *Agent) Insert() error {
 
 func (a *Agent) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyAgent, a.ID)
+	key := fmt.Sprintf(LockKeyAgent, a.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -55,11 +55,11 @@ func (a *Agent) Update(col string, cols ...interface{}) error {
 		return res.Error
 	}
 	//同步redis
-	// if a.ID == nil {
+	// if a.Id == nil {
 	// 	global.REDIS.Del(fmt.Sprintf(StringKeyAgent, a.Name))
 	// } else {
 	bytes, _ := json.Marshal(a)
-	global.REDIS.Set(fmt.Sprintf(StringKeyAgent, a.ID), string(bytes), a.ExpireTime())
+	global.REDIS.Set(fmt.Sprintf(StringKeyAgent, a.Id), string(bytes), a.ExpireTime())
 	// }
 	return nil
 }
@@ -70,13 +70,13 @@ func (a *Agent) Remove() error {
 		logrus.Error(res.Error)
 		return res.Error
 	}
-	global.REDIS.Del(fmt.Sprintf(StringKeyAgent, a.ID))
+	global.REDIS.Del(fmt.Sprintf(StringKeyAgent, a.Id))
 	return nil
 }
 
 func (a *Agent) Get() bool {
-	if a.ID != 0 {
-		key := fmt.Sprintf(StringKeyAgent, a.ID)
+	if a.Id != 0 {
+		key := fmt.Sprintf(StringKeyAgent, a.Id)
 		//取redis
 		s := global.REDIS.Get(key).Val()
 		if s != "" {
@@ -98,15 +98,15 @@ func (a *Agent) Get() bool {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.Set(fmt.Sprintf(StringKeyAgent, a.ID), string(bytes), a.ExpireTime())
+	global.REDIS.Set(fmt.Sprintf(StringKeyAgent, a.Id), string(bytes), a.ExpireTime())
 	return true
 }
 
 func (a Agent) Info() *Agent {
 	return &Agent{
-		ID:         a.ID,
+		Id:         a.Id,
 		Name:       a.Name,
-		ParentID:   a.ParentID,
+		ParentId:   a.ParentId,
 		GroupName:  a.GroupName,
 		CreateTime: a.CreateTime,
 		UpdateTime: a.UpdateTime,

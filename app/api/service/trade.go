@@ -1,15 +1,13 @@
 package service
 
 import (
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/common"
+	"china-russia/lang"
+	"china-russia/model"
 	"errors"
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/common"
-	"finance/lang"
-	"finance/model"
-	"fmt"
 	"github.com/sirupsen/logrus"
-	"strconv"
 	"time"
 )
 
@@ -25,7 +23,7 @@ func (this TradeService) PageList(member model.Member) response.TradeList {
 		this.PageSize = response.DefaultPageSize
 	}
 	m := model.Trade{}
-	where, args, _ := this.getWhere(member.ID)
+	where, args, _ := this.getWhere(member.Id)
 
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	return response.TradeList{List: this.formatList(list), Page: FormatPage(page)}
@@ -33,17 +31,12 @@ func (this TradeService) PageList(member model.Member) response.TradeList {
 func (this TradeService) formatList(list []model.Trade) []response.Trade {
 	res := make([]response.Trade, 0)
 	for _, v := range list {
-		//金额数字分析
-		amount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Amount)/model.UNITY), 64)
-		beforAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Before)/model.UNITY), 64)
-		afterAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.After)/model.UNITY), 64)
-
 		item := response.Trade{
-			ID:         v.ID,
+			Id:         v.Id,
 			TradeType:  v.TradeType,
-			Amount:     amount,
-			Before:     beforAmount,
-			After:      afterAmount,
+			Amount:     v.Amount,
+			Before:     v.Before,
+			After:      v.After,
 			CreateTime: v.CreateTime,
 			Desc:       v.Desc,
 		}
@@ -96,23 +89,18 @@ func (this Tradev2Service) PageList(member model.Member) response.TradeList {
 	}
 	m := model.Trade{}
 
-	list, page := m.PageList("uid = ? and trade_type in (?)", []interface{}{member.ID, []int{7, 8, 13, 16, 17, 18, 19, 20, 21}}, this.Page, this.PageSize)
+	list, page := m.PageList("uid = ? and trade_type in (?)", []interface{}{member.Id, []int{7, 8, 13, 16, 17, 18, 19, 20, 21}}, this.Page, this.PageSize)
 	return response.TradeList{List: this.formatList(list), Page: FormatPage(page)}
 }
 func (this Tradev2Service) formatList(list []model.Trade) []response.Trade {
 	res := make([]response.Trade, 0)
 	for _, v := range list {
-		//金额数字分析
-		amount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Amount)/model.UNITY), 64)
-		beforeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.Before)/model.UNITY), 64)
-		afterAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(v.After)/model.UNITY), 64)
-
 		item := response.Trade{
-			ID:         v.ID,
+			Id:         v.Id,
 			TradeType:  v.TradeType,
-			Amount:     amount,
-			Before:     beforeAmount,
-			After:      afterAmount,
+			Amount:     v.Amount,
+			Before:     v.Before,
+			After:      v.After,
 			CreateTime: v.CreateTime,
 			Desc:       v.Desc,
 		}

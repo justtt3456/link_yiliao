@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,15 +21,15 @@ func (this AgentList) List() response.AgentData {
 	res := make([]response.AgentInfo, 0)
 	for _, v := range list {
 		parent := model.Agent{
-			ID: v.ParentID,
+			Id: v.ParentId,
 		}
-		if v.ParentID != 0 {
+		if v.ParentId != 0 {
 			parent.Get()
 		}
 		i := response.AgentInfo{
-			ID:         v.ID,
+			Id:         v.Id,
 			Name:       v.Name,
-			ParentID:   v.ParentID,
+			ParentId:   v.ParentId,
 			ParentName: parent.Name,
 			GroupName:  v.GroupName,
 			Status:     v.Status,
@@ -53,15 +53,15 @@ func (this AgentList) PageList() response.AgentData {
 	res := make([]response.AgentInfo, 0)
 	for _, v := range list {
 		parent := model.Agent{
-			ID: v.ParentID,
+			Id: v.ParentId,
 		}
-		if v.ParentID != 0 {
+		if v.ParentId != 0 {
 			parent.Get()
 		}
 		i := response.AgentInfo{
-			ID:         v.ID,
+			Id:         v.Id,
 			Name:       v.Name,
-			ParentID:   v.ParentID,
+			ParentId:   v.ParentId,
 			ParentName: parent.Name,
 			GroupName:  v.GroupName,
 			Status:     v.Status,
@@ -74,7 +74,7 @@ func (this AgentList) PageList() response.AgentData {
 }
 func (this AgentList) getWhere() (string, []interface{}) {
 	where := map[string]interface{}{
-		"parent_id": this.ParentID,
+		"parent_id": this.ParentId,
 	}
 	if this.Name != "" {
 		where["name"] = this.Name
@@ -101,8 +101,8 @@ func (this AgentCreate) Create() error {
 		return errors.New("代理密码不能为空")
 	}
 	groupName := this.GroupName
-	if this.ParentID > 0 {
-		parent := model.Agent{ID: this.ParentID}
+	if this.ParentId > 0 {
+		parent := model.Agent{Id: this.ParentId}
 		if !parent.Get() {
 			return errors.New("上级代理不存在")
 		}
@@ -113,7 +113,7 @@ func (this AgentCreate) Create() error {
 		Name:      this.Name,
 		Password:  common.Md5String(this.Password + salt),
 		Salt:      salt,
-		ParentID:  this.ParentID,
+		ParentId:  this.ParentId,
 		GroupName: groupName,
 		Status:    this.Status,
 	}
@@ -125,24 +125,24 @@ type AgentUpdate struct {
 }
 
 func (this AgentUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Agent{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("代理不存在")
 	}
 	groupName := this.GroupName
-	if this.ParentID > 0 {
-		parent := model.Agent{ID: this.ParentID}
+	if this.ParentId > 0 {
+		parent := model.Agent{Id: this.ParentId}
 		if !parent.Get() {
 			return errors.New("上级代理不存在")
 		}
 		groupName = parent.GroupName
 	}
-	m.ParentID = this.ParentID
+	m.ParentId = this.ParentId
 	m.GroupName = groupName
 	m.Status = this.Status
 	if this.Password != "" {
@@ -160,11 +160,11 @@ type AgentUpdateStatus struct {
 }
 
 func (this AgentUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Agent{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("代理不存在")
@@ -178,11 +178,11 @@ type AgentRemove struct {
 }
 
 func (this AgentRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Agent{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

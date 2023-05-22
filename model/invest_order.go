@@ -1,24 +1,25 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
 type InvestOrder struct {
-	ID             int    `gorm:"column:id;primary_key"`             //
-	UID            int    `gorm:"column:uid"`                        //关联用户id
-	Type           int    `gorm:"column:type"`                       //转入转出类型 1转入 2转出
-	Amount         int64  `gorm:"column:amount"`                     //转入转出金额
-	Rate           int    `gorm:"column:rate"`                       //收益比例
-	CreateTime     int64  `gorm:"column:create_time;autoCreateTime"` //投入时间
-	UnfreezeTime   int64  `gorm:"column:unfreeze_time"`              //冻结结束时间
-	IncomeTime     int64  `gorm:"column:income_time"`                //可以发放奖励的首次时间
-	Balance        int64  `gorm:"column:balance"`                    //余额宝余额
-	UnfreezeStatus int    `gorm:"column:unfreeze_status"`            //解冻状态 1已解冻 2冻结中
-	Member         Member `gorm:"foreignKey:UID"`
+	Id             int             `gorm:"column:id;primary_key"`             //
+	UId            int             `gorm:"column:uid"`                        //关联用户id
+	Type           int             `gorm:"column:type"`                       //转入转出类型 1转入 2转出
+	Amount         decimal.Decimal `gorm:"column:amount"`                     //转入转出金额
+	Rate           int             `gorm:"column:rate"`                       //收益比例
+	CreateTime     int64           `gorm:"column:create_time;autoCreateTime"` //投入时间
+	UnfreezeTime   int64           `gorm:"column:unfreeze_time"`              //冻结结束时间
+	IncomeTime     int64           `gorm:"column:income_time"`                //可以发放奖励的首次时间
+	Balance        decimal.Decimal `gorm:"column:balance"`                    //余额宝余额
+	UnfreezeStatus int             `gorm:"column:unfreeze_status"`            //解冻状态 1已解冻 2冻结中
+	Member         Member          `gorm:"foreignKey:UId"`
 }
 
 // TableName sets the insert table name for this struct type
@@ -44,7 +45,7 @@ func (this *InvestOrder) Get() bool {
 }
 func (this *InvestOrder) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyMessage, this.ID)
+	key := fmt.Sprintf(LockKeyMessage, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

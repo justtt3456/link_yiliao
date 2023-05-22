@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 )
 
 type GuquanList struct {
@@ -20,20 +20,20 @@ func (this *GuquanList) List() *response.GuquanResp {
 	}
 
 	return &response.GuquanResp{
-		ID:              m.ID,
-		TotalGuquan:     m.TotalGuquan,
-		OtherGuquan:     m.OtherGuquan,
-		ReleaseRate:     float64(m.ReleaseRate) / model.UNITY,
-		Price:           float64(m.Price) / model.UNITY,
-		LimitBuy:        m.LimitBuy,
-		LuckyRate:       float64(m.LuckyRate) / model.UNITY,
-		ReturnRate:      float64(m.ReturnRate) / model.UNITY,
-		ReturnLuckyRate: float64(m.ReturnLuckyRate) / model.UNITY,
-		PreStartTime:    m.PreStartTime,
-		PreEndTime:      m.PreEndTime,
-		OpenTime:        m.OpenTime,
-		ReturnTime:      m.ReturnTime,
-		Status:          m.Status,
+		Id: m.Id,
+		//TotalGuquan:     m.TotalGuquan,
+		//OtherGuquan:     m.OtherGuquan,
+		//ReleaseRate:     float64(m.ReleaseRate) ,
+		//Price:           float64(m.Price) ,
+		//LimitBuy:        m.LimitBuy,
+		//LuckyRate:       float64(m.LuckyRate) ,
+		//ReturnRate:      float64(m.ReturnRate) ,
+		//ReturnLuckyRate: float64(m.ReturnLuckyRate) ,
+		PreStartTime: m.PreStartTime,
+		PreEndTime:   m.PreEndTime,
+		OpenTime:     m.OpenTime,
+		ReturnTime:   m.ReturnTime,
+		Status:       m.Status,
 	}
 
 }
@@ -44,20 +44,20 @@ type GuquanUpdate struct {
 
 func (this *GuquanUpdate) Update() error {
 
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("Id不能为空")
 	}
 
-	m := model.Guquan{ID: this.ID}
+	m := model.Guquan{Id: this.Id}
 
 	if !m.Get(false) {
-		m.TotalGuquan = this.TotalGuquan
-		m.OtherGuquan = this.OtherGuquan
-		m.ReleaseRate = int(this.ReleaseRate * model.UNITY)
-		m.LimitBuy = this.LimitBuy
-		m.LuckyRate = int(this.LuckyRate * model.UNITY)
-		m.ReturnRate = int(this.ReturnRate * model.UNITY)
-		m.ReturnLuckyRate = int(this.ReturnLuckyRate * model.UNITY)
+		//m.TotalGuquan = this.TotalGuquan
+		//m.OtherGuquan = this.OtherGuquan
+		//m.ReleaseRate = int(this.ReleaseRate)
+		//m.LimitBuy = this.LimitBuy
+		//m.LuckyRate = int(this.LuckyRate)
+		//m.ReturnRate = int(this.ReturnRate)
+		//m.ReturnLuckyRate = int(this.ReturnLuckyRate)
 		m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 		m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 		m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)
@@ -65,13 +65,13 @@ func (this *GuquanUpdate) Update() error {
 		m.Status = this.Status
 		return m.Insert()
 	}
-	m.TotalGuquan = this.TotalGuquan
-	m.OtherGuquan = this.OtherGuquan
-	m.ReleaseRate = int(this.ReleaseRate * model.UNITY)
-	m.LimitBuy = this.LimitBuy
-	m.LuckyRate = int(this.LuckyRate * model.UNITY)
-	m.ReturnRate = int(this.ReturnRate * model.UNITY)
-	m.ReturnLuckyRate = int(this.ReturnLuckyRate * model.UNITY)
+	//m.TotalGuquan = this.TotalGuquan
+	//m.OtherGuquan = this.OtherGuquan
+	//m.ReleaseRate = int(this.ReleaseRate)
+	//m.LimitBuy = this.LimitBuy
+	//m.LuckyRate = int(this.LuckyRate)
+	//m.ReturnRate = int(this.ReturnRate)
+	//m.ReturnLuckyRate = int(this.ReturnLuckyRate)
 	m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 	m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 	m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)

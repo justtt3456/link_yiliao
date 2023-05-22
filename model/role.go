@@ -1,14 +1,14 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type Role struct {
-	RoleID     int    `gorm:"column:role_id;primary_key"`        //
+	RoleId     int    `gorm:"column:role_id;primary_key"`        //
 	RoleName   string `gorm:"column:role_name"`                  //
 	Status     int    `gorm:"column:status"`                     //
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
@@ -38,7 +38,7 @@ func (this *Role) Get() bool {
 }
 func (this *Role) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyRole, this.RoleID)
+	key := fmt.Sprintf(LockKeyRole, this.RoleId)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -50,10 +50,10 @@ func (this *Role) Update(col string, cols ...interface{}) error {
 	}
 	//同步redis
 	//if this.AuthToken == "" {
-	//	global.REDIS.Del(fmt.Sprintf(StringKeyMember, this.RoleID))
+	//	global.REDIS.Del(fmt.Sprintf(StringKeyMember, this.RoleId))
 	//} else {
 	//	bytes, _ := json.Marshal(this)
-	//	global.REDIS.Set(fmt.Sprintf(StringKeyMember, this.RoleID), string(bytes), time.Hour*24*30)
+	//	global.REDIS.Set(fmt.Sprintf(StringKeyMember, this.RoleId), string(bytes), time.Hour*24*30)
 	//}
 	return nil
 }

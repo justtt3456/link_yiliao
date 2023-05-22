@@ -1,15 +1,18 @@
 package service
 
 import (
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/common"
+	"china-russia/extends"
+	"china-russia/global"
+	"china-russia/lang"
+	"china-russia/model"
 	"errors"
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/common"
-	"finance/extends"
-	"finance/global"
-	"finance/lang"
-	"finance/model"
 	"fmt"
+	"github.com/shopspring/decimal"
+
+	//"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"strings"
 	"time"
@@ -20,9 +23,9 @@ type RechargeCreate struct {
 }
 
 func (this RechargeCreate) checkError() error {
-	if this.Amount == 0 {
-		return errors.New(lang.Lang("Wrong deposit amount"))
-	}
+	//if this.Amount == 0 {
+	//	return errors.New(lang.Lang("Wrong deposit amount"))
+	//}
 	if this.Method == 0 {
 		return errors.New(lang.Lang("Wrong deposit type"))
 	}
@@ -31,13 +34,13 @@ func (this RechargeCreate) checkError() error {
 		return errors.New(lang.Lang("System configuration error, please contact the administrator"))
 	}
 	//充值金额和时间
-	amount := int64(this.Amount) * int64(model.UNITY)
-	if amount < funds.RechargeMinAmount {
-		return errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.3f"), float64(funds.RechargeMinAmount)/model.UNITY))
-	}
-	if amount > funds.RechargeMaxAmount {
-		return errors.New(fmt.Sprintf(lang.Lang("Maximum deposit %.3f"), float64(funds.RechargeMaxAmount)/model.UNITY))
-	}
+	//amount := int64(this.Amount) * int64(model.UNITY)
+	//if amount < funds.RechargeMinAmount {
+	//	return errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.3f"), float64(funds.RechargeMinAmount)/model.UNITY))
+	//}
+	//if amount > funds.RechargeMaxAmount {
+	//	return errors.New(fmt.Sprintf(lang.Lang("Maximum deposit %.3f"), float64(funds.RechargeMaxAmount)/model.UNITY))
+	//}
 	now := time.Now().Unix()
 	startTime := common.TimeToUnix(funds.RechargeStartTime)
 	endTime := common.TimeToUnix(funds.RechargeEndTime)
@@ -48,7 +51,7 @@ func (this RechargeCreate) checkError() error {
 		return errors.New(fmt.Sprintf(lang.Lang("Please deposit before %s"), funds.RechargeEndTime))
 	}
 	//获取支付方式
-	method := model.RechargeMethod{ID: this.Method}
+	method := model.RechargeMethod{Id: this.Method}
 	if !method.Get() {
 		return errors.New(lang.Lang("Wrong deposit type"))
 	}
@@ -66,7 +69,7 @@ func (this RechargeCreate) checkError() error {
 		//}
 		//获取收款银行卡
 		//bank := model.SetBank{
-		//	ID: this.To,
+		//	Id: this.To,
 		//}
 		//if !bank.Get() {
 		//	return errors.New(lang.Lang("Receiving account does not exist"))
@@ -75,11 +78,11 @@ func (this RechargeCreate) checkError() error {
 			return errors.New(lang.Lang("credential image must be required!"))
 		}
 	case "paymentAlipay":
-		if this.ChannelID == 0 {
+		if this.ChannelId == 0 {
 			return errors.New(lang.Lang("Payment channel cannot be empty"))
 		}
 	case "paymentWx":
-		if this.ChannelID == 0 {
+		if this.ChannelId == 0 {
 			return errors.New(lang.Lang("Payment channel cannot be empty"))
 		}
 	}
@@ -94,15 +97,15 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 	funds := model.SetFunds{}
 	funds.Get()
 	//获取支付方式
-	method := model.RechargeMethod{ID: this.Method}
+	method := model.RechargeMethod{Id: this.Method}
 	method.Get()
 	switch method.Code {
 	case "bank": //银行卡
 		bank := model.SetBank{
-			ID: this.To,
+			Id: this.To,
 		}
 		bank.Get()
-		_, err := this.create(member, bank.CardNumber, 0, 0)
+		_, err := this.create(member, bank.CardNumber, decimal.Zero, 0)
 		if err != nil {
 			return nil, err
 		} else {
@@ -112,29 +115,29 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 	case "paymentAlipay", "paymentWx":
 		//三方支付
 		if method.Code == "paymentAlipay" {
-			this.ChannelID = 2
+			this.ChannelId = 2
 		} else {
-			this.ChannelID = 1
+			this.ChannelId = 1
 		}
-		channel := model.PayChannel{ID: this.ChannelID}
+		channel := model.PayChannel{Id: this.ChannelId}
 		if !channel.Get() {
 			return nil, errors.New(lang.Lang("The payment channel does not exist"))
 		}
 		//充值金额
-		amount := int64(this.Amount * model.UNITY)
-		if amount < channel.Min {
-			return nil, errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.2f"), float64(channel.Min)/model.UNITY))
-		}
-		if amount > channel.Max {
-			return nil, errors.New(fmt.Sprintf(lang.Lang("Maximum recharge %.2f"), float64(channel.Max)/model.UNITY))
-		}
+
+		//if amount < channel.Min {
+		//	return nil, errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.2f"), float64(channel.Min)/model.UNITY))
+		//}
+		//if amount > channel.Max {
+		//	return nil, errors.New(fmt.Sprintf(lang.Lang("Maximum recharge %.2f"), float64(channel.Max)/model.UNITY))
+		//}
 		p := model.Payment{
-			ID: channel.PaymentID,
+			Id: channel.PaymentId,
 		}
 		if !p.Get() {
 			return nil, errors.New(lang.Lang("The payment does not exist"))
 		}
-		order, err := this.create(member, "", 0, p.ID)
+		order, err := this.create(member, "", decimal.Zero, p.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -146,8 +149,8 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 				AgentNo:   p.MerchantNo,
 				Timestamp: time.Now().Unix() * 1000,
 			},
-			OrderNo:     order.OrderSn,
-			Amount:      float64(order.Amount / 100), //分
+			OrderNo: order.OrderSn,
+			//Amount:      float64(order.Amount / 100), //分
 			Title:       "充值",
 			PaymentType: channel.Code,
 			NotifyUrl:   p.NotifyURL,
@@ -171,17 +174,17 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 	}
 
 }
-func (this RechargeCreate) create(member model.Member, to string, usdtAmount int64, payment int) (model.Recharge, error) {
+func (this RechargeCreate) create(member model.Member, to string, usdtAmount decimal.Decimal, payment int) (model.Recharge, error) {
 	recharge := model.Recharge{
-		OrderSn:    common.OrderSn(),
-		UID:        member.ID,
-		Type:       this.Method,
-		Amount:     int64(this.Amount * model.UNITY),
+		OrderSn: common.OrderSn(),
+		UId:     member.Id,
+		Type:    this.Method,
+		//Amount:  int64(this.Amount),
 		From:       this.From,
 		To:         to,
 		Voucher:    this.Voucher,
 		UsdtAmount: usdtAmount,
-		PaymentID:  payment,
+		PaymentId:  payment,
 		Status:     model.StatusReview,
 		ImageUrl:   this.ImageUrl,
 	}
@@ -201,7 +204,7 @@ func (this RechargeList) PageList(member model.Member) response.RechargeList {
 		this.PageSize = response.DefaultPageSize
 	}
 	m := model.Recharge{}
-	where, args, _ := this.getWhere(member.ID)
+	where, args, _ := this.getWhere(member.Id)
 	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
 	return response.RechargeList{List: this.formatList(list), Page: FormatPage(page)}
 }
@@ -209,12 +212,12 @@ func (this RechargeList) formatList(lists []model.Recharge) []response.Recharge 
 	res := make([]response.Recharge, 0)
 	for _, v := range lists {
 		i := response.Recharge{
-			ID:          v.ID,
-			OrderSn:     v.OrderSn,
-			Type:        v.Type,
-			TypeName:    v.RechargeMethod.Name,
-			Amount:      float64(v.Amount) / model.UNITY,
-			RealAmount:  float64(v.RealAmount) / model.UNITY,
+			Id:       v.Id,
+			OrderSn:  v.OrderSn,
+			Type:     v.Type,
+			TypeName: v.RechargeMethod.Name,
+			//Amount:      float64(v.Amount) ,
+			//RealAmount:  float64(v.RealAmount) ,
 			From:        v.From,
 			To:          v.To,
 			Voucher:     v.Voucher,
@@ -270,7 +273,7 @@ func (this RechargeMethod) formatList(lists []model.RechargeMethod) []response.R
 			list := m.List(true)
 			for _, v := range list {
 				item := map[string]interface{}{
-					"id":          v.ID,
+					"id":          v.Id,
 					"bank_name":   v.BankName,
 					"card_number": v.CardNumber,
 					"real_name":   v.RealName,
@@ -280,7 +283,7 @@ func (this RechargeMethod) formatList(lists []model.RechargeMethod) []response.R
 			}
 		}
 		i := response.RechargeMethod{
-			ID:   v.ID,
+			Id:   v.Id,
 			Name: v.Name,
 			Code: v.Code,
 			Icon: v.Icon,
@@ -305,7 +308,7 @@ func (this RechargeMethodInfo) Info() []map[string]interface{} {
 		list := m.List(true)
 		for _, v := range list {
 			item := map[string]interface{}{
-				"id":         v.ID,
+				"id":         v.Id,
 				"name":       v.Name,
 				"start_time": v.StartTime,
 				"end_time":   v.EndTime,
@@ -321,7 +324,7 @@ func (this RechargeMethodInfo) Info() []map[string]interface{} {
 		list := m.List(true)
 		for _, v := range list {
 			item := map[string]interface{}{
-				"id":          v.ID,
+				"id":          v.Id,
 				"bank_name":   v.BankName,
 				"card_number": v.CardNumber,
 				"real_name":   v.RealName,
@@ -337,7 +340,7 @@ func (this RechargeMethodInfo) Info() []map[string]interface{} {
 		list := m.List(true)
 		for _, v := range list {
 			item := map[string]interface{}{
-				"id":        v.ID,
+				"id":        v.Id,
 				"account":   v.Account,
 				"real_name": v.RealName,
 			}
@@ -351,7 +354,7 @@ func (this RechargeMethodInfo) Info() []map[string]interface{} {
 		list := m.List(true)
 		for _, v := range list {
 			item := map[string]interface{}{
-				"id":      v.ID,
+				"id":      v.Id,
 				"address": v.Address,
 				"proto":   v.Proto,
 			}
@@ -367,7 +370,7 @@ func (this RechargeMethodInfo) Info() []map[string]interface{} {
 		list := m.List()
 		for _, v := range list {
 			item := map[string]interface{}{
-				"id":   v.ID,
+				"id":   v.Id,
 				"name": v.Name,
 				"min":  v.Min,
 				"max":  v.Max,
@@ -385,7 +388,7 @@ func (this RechargeMethodInfo) Info() []map[string]interface{} {
 		list := m.List()
 		for _, v := range list {
 			item := map[string]interface{}{
-				"id":   v.ID,
+				"id":   v.Id,
 				"name": v.Name,
 				"min":  v.Min,
 				"max":  v.Max,

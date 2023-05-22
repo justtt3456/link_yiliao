@@ -1,14 +1,14 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type AgentReport struct {
-	ID             int    `gorm:"column:id;primary_key"`             //
+	Id             int    `gorm:"column:id;primary_key"`             //
 	Aid            int    `gorm:"column:aid"`                        //代理id
 	Username       string `json:"username"`                          //代理名称
 	RechargeCount  int    `gorm:"column:recharge_count"`             //充值次数
@@ -74,7 +74,7 @@ func (this *AgentReport) Get() bool {
 
 func (this *AgentReport) Update() error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyAgentReport, this.ID)
+	key := fmt.Sprintf(LockKeyAgentReport, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

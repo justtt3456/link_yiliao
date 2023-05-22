@@ -15,7 +15,7 @@ type UpgradeCreate struct {
 	Status      int    `json:"status"`       //状态 1启用
 }
 type UpgradeUpdate struct {
-	ID          int    `json:"id"`
+	Id          int    `json:"id"`
 	Platform    string `json:"platform"`     //平台
 	Version     string `json:"version"`      //版本
 	DownloadURL string `json:"download_url"` //下载地址
@@ -24,9 +24,9 @@ type UpgradeUpdate struct {
 	Status      int    `json:"status"`       //状态 1启用
 }
 type UpgradeUpdateStatus struct {
-	ID     int `json:"id"`
+	Id     int `json:"id"`
 	Status int `json:"status"` //状态
 }
 type UpgradeRemove struct {
-	ID int `json:"id"`
+	Id int `json:"id"`
 }

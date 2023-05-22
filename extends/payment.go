@@ -1,11 +1,11 @@
 package extends
 
 import (
+	"china-russia/common"
 	"encoding/json"
-	"finance/common"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"sort"
-	"strconv"
 )
 
 type BaseParam struct {
@@ -18,11 +18,11 @@ type BaseParam struct {
 
 type OrderParam struct {
 	BaseParam   BaseParam
-	OrderNo     string  `json:"orderNo"`     // 订单编号（唯一）
-	Amount      float64 `json:"amount"`      //订单金额（单位为分）
-	Title       string  `json:"title"`       //测试	订单标题
-	PaymentType string  `json:"paymentType"` //支付类型。BANK：网银支付；WECHAT：微信支付；ALIPAY：支付宝
-	NotifyUrl   string  `json:"notifyUrl"`   //http://www.baidu.com	订单异步通知地址
+	OrderNo     string          `json:"orderNo"`     // 订单编号（唯一）
+	Amount      decimal.Decimal `json:"amount"`      //订单金额（单位为分）
+	Title       string          `json:"title"`       //测试	订单标题
+	PaymentType string          `json:"paymentType"` //支付类型。BANK：网银支付；WECHAT：微信支付；ALIPAY：支付宝
+	NotifyUrl   string          `json:"notifyUrl"`   //http://www.baidu.com	订单异步通知地址
 }
 
 type OrderReturn struct {
@@ -40,7 +40,7 @@ func OrderXinMeng(order OrderParam) (*OrderReturn, error) {
 		"notifyUrl":   order.NotifyUrl,
 		"agentNo":     order.BaseParam.AgentNo,
 		"timestamp":   fmt.Sprint(order.BaseParam.Timestamp),
-		"amount":      strconv.FormatFloat(order.Amount, 'f', -1, 64),
+		"amount":      order.Amount.String(),
 	}
 	//签名
 	param["sign"] = Sign(param, order.BaseParam.Key)

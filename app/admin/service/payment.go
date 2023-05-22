@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,7 +35,7 @@ func (this PaymentListService) PageList() *response.PaymentData {
 	res := make([]response.Payment, 0)
 	for _, v := range list {
 		i := response.Payment{
-			ID:             v.ID,
+			Id:             v.Id,
 			PayName:        v.PayName,
 			RechargeURL:    v.RechargeURL,
 			WithdrawURL:    v.WithdrawURL,
@@ -95,7 +95,7 @@ func (this PaymentAddService) Add() error {
 	return m.Insert()
 }
 func (this PaymentUpdateService) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.PayName == "" {
@@ -117,7 +117,7 @@ func (this PaymentUpdateService) Update() error {
 		return errors.New("类名不能为空")
 	}
 	m := model.Payment{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("支付不存在")
@@ -135,11 +135,11 @@ func (this PaymentUpdateService) Update() error {
 	return m.Update("pay_name", "type", "recharge_url", "withdraw_url", "notify_url", "merchant_no", "secret", "pri_key", "pub_key", "class_name", "withdraw_status")
 }
 func (this PaymentRemoveService) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Payment{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

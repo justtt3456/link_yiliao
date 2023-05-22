@@ -1,8 +1,8 @@
 package service
 
 import (
-	"finance/app/api/swag/response"
-	"finance/model"
+	"china-russia/app/api/swag/response"
+	"china-russia/model"
 )
 
 type Config struct {
@@ -15,11 +15,11 @@ func (this Config) Get() response.Config {
 		res.Base = response.Base{
 			AppName:      base.AppName,
 			AppLogo:      base.AppLogo,
-			VerifiedSend: float64(base.VerifiedSend) / model.UNITY,
-			RegisterSend: float64(base.RegisterSend) / model.UNITY,
-			OneSend:      float64(base.OneSend) / model.UNITY,
-			TwoSend:      float64(base.TwoSend) / model.UNITY,
-			ThreeSend:    float64(base.ThreeSend) / model.UNITY,
+			VerifiedSend: base.VerifiedSend,
+			RegisterSend: base.RegisterSend,
+			OneSend:      base.OneSend,
+			TwoSend:      base.TwoSend,
+			ThreeSend:    base.ThreeSend,
 			SendDesc:     base.SendDesc,
 			RegisterDesc: base.RegisterDesc,
 			TeamDesc:     base.TeamDesc,
@@ -30,15 +30,15 @@ func (this Config) Get() response.Config {
 		res.Funds = response.Funds{
 			RechargeStartTime:   funds.RechargeStartTime,
 			RechargeEndTime:     funds.RechargeEndTime,
-			RechargeMinAmount:   float64(funds.RechargeMinAmount) / 100,
-			RechargeMaxAmount:   float64(funds.RechargeMaxAmount) / 100,
+			RechargeMinAmount:   funds.RechargeMinAmount,
+			RechargeMaxAmount:   funds.RechargeMaxAmount,
 			RechargeQuickAmount: funds.RechargeQuickAmount,
 			WithdrawStartTime:   funds.WithdrawStartTime,
 			WithdrawEndTime:     funds.WithdrawEndTime,
 			MustPassword:        funds.MustPassword,
 			PasswordFreeze:      funds.PasswordFreeze,
-			WithdrawMinAmount:   float64(funds.WithdrawMinAmount) / 100,
-			WithdrawMaxAmount:   float64(funds.WithdrawMaxAmount) / 100,
+			WithdrawMinAmount:   funds.WithdrawMinAmount,
+			WithdrawMaxAmount:   funds.WithdrawMaxAmount,
 			WithdrawFee:         funds.WithdrawFee,
 			ProductFee:          funds.ProductFee,
 			ProductQuickAmount:  funds.ProductQuickAmount,
@@ -52,9 +52,9 @@ func (this Config) Get() response.Config {
 		kfSlice := make([]response.Kf, 0)
 		for _, v := range kfs {
 
-			if v.ID == 2 {
+			if v.Id == 2 {
 				i := response.Kf{
-					ID:        v.ID,
+					Id:        v.Id,
 					Name:      v.Name,
 					StartTime: v.StartTime,
 					EndTime:   v.EndTime,
@@ -74,7 +74,7 @@ func (this Config) Get() response.Config {
 		langSlice := make([]response.Lang, 0)
 		for _, v := range langs {
 			i := response.Lang{
-				ID:        v.ID,
+				Id:        v.Id,
 				Name:      v.Name,
 				Code:      v.Code,
 				Icon:      v.Icon,

@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,10 +26,10 @@ func (this InviteCodeList) PageList() response.InviteCodeData {
 	res := make([]response.InviteCodeInfo, 0)
 	for _, v := range list {
 		i := response.InviteCodeInfo{
-			ID:         v.ID,
-			UID:        v.UID,
+			Id:         v.Id,
+			UId:        v.UId,
 			Username:   v.Username,
-			AgentID:    v.AgentID,
+			AgentId:    v.AgentId,
 			AgentName:  v.AgentName,
 			Code:       v.Code,
 			RegCount:   v.RegCount,
@@ -57,18 +57,18 @@ type InviteCodeCreate struct {
 }
 
 func (this InviteCodeCreate) Create() error {
-	if this.AgentID == 0 {
+	if this.AgentId == 0 {
 		return errors.New("代理不能为空")
 	}
 	if this.Code == "" {
 		return errors.New("邀请码不能为空")
 	}
-	agent := model.Agent{ID: this.AgentID}
+	agent := model.Agent{Id: this.AgentId}
 	if !agent.Get() {
 		return errors.New("代理不存在")
 	}
 	m := model.InviteCode{
-		AgentID:   this.AgentID,
+		AgentId:   this.AgentId,
 		AgentName: agent.Name,
 		Code:      this.Code,
 	}
@@ -80,13 +80,13 @@ type InviteCodeUpdate struct {
 }
 
 func (this InviteCodeUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Code == "" {
 		return errors.New("邀请码不能为空")
 	}
-	m := model.InviteCode{ID: this.ID}
+	m := model.InviteCode{Id: this.Id}
 	if !m.Get() {
 		return errors.New("记录不存在")
 	}
@@ -100,11 +100,11 @@ type InviteCodeRemove struct {
 }
 
 func (this InviteCodeRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.InviteCode{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

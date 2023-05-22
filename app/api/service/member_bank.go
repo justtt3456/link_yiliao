@@ -1,12 +1,12 @@
 package service
 
 import (
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/lang"
+	"china-russia/model"
 	"errors"
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/lang"
-	"finance/model"
-	//"finance/model"
+	//"china-russia/model"
 )
 
 type MemberBankList struct {
@@ -14,20 +14,20 @@ type MemberBankList struct {
 
 func (MemberBankList) List(member model.Member) response.MemberBankList {
 	memberBank := model.MemberBank{
-		UID: member.ID,
+		UId: member.Id,
 	}
 	list := memberBank.List()
 	res := make([]response.MemberBank, 0)
 	for _, v := range list {
 		i := response.MemberBank{
-			ID:         v.ID,
+			Id:         v.Id,
 			BankName:   v.BankName,
 			CardNumber: v.CardNumber,
 			Province:   v.Province,
 			City:       v.City,
 			BranchBank: v.BranchBank,
 			RealName:   v.RealName,
-			IDNumber:   v.IDNumber,
+			IdNumber:   v.IdNumber,
 			BankPhone:  v.BankPhone,
 			IsDefault:  v.IsDefault,
 		}
@@ -55,7 +55,7 @@ func (this MemberBankCreate) Create(member model.Member) error {
 
 	//允许N张银行卡
 	memberBank := model.MemberBank{
-		UID:        member.ID,
+		UId:        member.Id,
 		BankName:   this.BankName,
 		CardNumber: this.CardNumber,
 		BranchBank: this.BranchBank,
@@ -69,12 +69,12 @@ type MemberBankUpdate struct {
 }
 
 func (this MemberBankUpdate) Update(member model.Member) error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New(lang.Lang("Parameter error"))
 	}
 	memberBank := model.MemberBank{
-		ID:  this.ID,
-		UID: member.ID,
+		Id:  this.Id,
+		UId: member.Id,
 	}
 	if !memberBank.Get() {
 		return errors.New(lang.Lang("Bank card does not exist"))
@@ -102,8 +102,8 @@ type MemberBankRemove struct {
 
 func (this MemberBankRemove) Remove(member model.Member) error {
 	memberBank := model.MemberBank{
-		ID:  this.ID,
-		UID: member.ID,
+		Id:  this.Id,
+		UId: member.Id,
 	}
 	if !memberBank.Get() {
 		return errors.New(lang.Lang("Bank card does not exist"))
@@ -124,7 +124,7 @@ func (this MemberUsdtCreate) Create(member model.Member) error {
 	}
 
 	memberBank := model.MemberUsdt{
-		UID:      member.ID,
+		UId:      member.Id,
 		Protocol: this.Protocol,
 		Address:  this.Address,
 	}
@@ -136,13 +136,13 @@ type MemberUsdtList struct {
 
 func (MemberUsdtList) List(member model.Member) response.MemberUsdtList {
 	memberUsdt := model.MemberUsdt{
-		UID: member.ID,
+		UId: member.Id,
 	}
 	list := memberUsdt.List()
 	res := make([]response.MemberUsdt, 0)
 	for _, v := range list {
 		i := response.MemberUsdt{
-			ID:       v.ID,
+			Id:       v.Id,
 			Protocol: v.Protocol,
 			Address:  v.Address,
 		}

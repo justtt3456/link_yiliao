@@ -1,18 +1,18 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberOptional struct {
-	ID         int     `gorm:"column:id;primary_key"` //
-	UID        int     `gorm:"column:uid"`            //
-	PID        int     `gorm:"column:pid"`
+	Id         int     `gorm:"column:id;primary_key"` //
+	UId        int     `gorm:"column:uid"`            //
+	PId        int     `gorm:"column:pid"`
 	CreateTime int64   `gorm:"column:create_time;autoCreateTime"` //
-	Product    Product `gorm:"foreignKey:PID"`
+	Product    Product `gorm:"foreignKey:PId"`
 }
 
 func (h *MemberOptional) TableName() string {
@@ -39,7 +39,7 @@ func (this *MemberOptional) Get() bool {
 
 func (this *MemberOptional) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyMemberOptional, this.ID)
+	key := fmt.Sprintf(LockKeyMemberOptional, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

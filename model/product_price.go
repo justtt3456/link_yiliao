@@ -1,26 +1,27 @@
 package model
 
 import (
+	"china-russia/global"
 	"encoding/json"
-	"finance/global"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"log"
 	"time"
 )
 
 type ProductPrice struct {
-	ID         int     `gorm:"column:id"`                         //
-	Code       string  `gorm:"column:code"`                       //code
-	Open       float64 `gorm:"column:open"`                       //开盘价
-	Close      float64 `gorm:"column:close"`                      //收盘价
-	Price      float64 `gorm:"column:price"`                      //当前价
-	High       float64 `gorm:"column:high"`                       //最高价
-	Low        float64 `gorm:"column:low"`                        //最低价
-	Vol        float64 `gorm:"column:vol"`                        //交易量
-	Change     float64 `gorm:"column:change"`                     //涨幅百分比
-	CreateTime int64   `gorm:"column:create_time;autoCreateTime"` //创建时间
-	UpdateTime int64   `gorm:"column:update_time;autoUpdateTime"` //
+	Id         int             `gorm:"column:id"`                         //
+	Code       string          `gorm:"column:code"`                       //code
+	Open       decimal.Decimal `gorm:"column:open"`                       //开盘价
+	Close      decimal.Decimal `gorm:"column:close"`                      //收盘价
+	Price      decimal.Decimal `gorm:"column:price"`                      //当前价
+	High       decimal.Decimal `gorm:"column:high"`                       //最高价
+	Low        decimal.Decimal `gorm:"column:low"`                        //最低价
+	Vol        decimal.Decimal `gorm:"column:vol"`                        //交易量
+	Change     decimal.Decimal `gorm:"column:change"`                     //涨幅百分比
+	CreateTime int64           `gorm:"column:create_time;autoCreateTime"` //创建时间
+	UpdateTime int64           `gorm:"column:update_time;autoUpdateTime"` //
 }
 
 // TableName sets the insert table name for this struct type

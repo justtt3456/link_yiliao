@@ -10,8 +10,8 @@ type PermissionTree struct {
 	Children []PermissionTree `json:"children"`
 }
 type PermissionInfo struct {
-	ID       int    `json:"id"`
-	PID      int    `json:"pid"`
+	Id       int    `json:"id"`
+	PId      int    `json:"pid"`
 	Label    string `json:"label"`
 	Frontend string `json:"frontend"`
 	Backend  string `json:"backend"`

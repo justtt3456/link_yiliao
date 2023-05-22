@@ -1,13 +1,13 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberLevel struct {
-	ID   int    `gorm:"column:id;primary_key" json:"id"` //
+	Id   int    `gorm:"column:id;primary_key" json:"id"` //
 	Name string `gorm:"column:name" json:"name"`         //等级名称
 	Img  string `gorm:"column:img" json:"img"`           //图标
 }
@@ -28,7 +28,7 @@ func (this *MemberLevel) Get() bool {
 
 func (this *MemberLevel) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyLevel, this.ID)
+	key := fmt.Sprintf(LockKeyLevel, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

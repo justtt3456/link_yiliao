@@ -1,8 +1,8 @@
 package model
 
 import (
+	"china-russia/global"
 	"encoding/json"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -10,7 +10,7 @@ import (
 )
 
 type SetBank struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	BankName   string `gorm:"column:bank_name"`                  //银行名称
 	CardNumber string `gorm:"column:card_number"`                //卡号
 	BranchBank string `gorm:"column:branch_bank"`                //开户行（开户所在地）
@@ -36,12 +36,12 @@ func (this *SetBank) Insert() error {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyBankConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyBankConfig, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *SetBank) Get() bool {
 	//取redis
-	s := global.REDIS.HGet(HashKeyBankConfig, strconv.Itoa(this.ID)).Val()
+	s := global.REDIS.HGet(HashKeyBankConfig, strconv.Itoa(this.Id)).Val()
 	if s != "" {
 		err := json.Unmarshal([]byte(s), this)
 		if err == nil {
@@ -59,7 +59,7 @@ func (this *SetBank) Get() bool {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyBankConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyBankConfig, strconv.Itoa(this.Id), string(bytes))
 	return true
 }
 
@@ -97,14 +97,14 @@ func (this *SetBank) List(isFront bool) []SetBank {
 	redisMap := map[string]interface{}{}
 	for _, v := range list {
 		marshal, _ := json.Marshal(v)
-		redisMap[strconv.Itoa(v.ID)] = string(marshal)
+		redisMap[strconv.Itoa(v.Id)] = string(marshal)
 	}
 	global.REDIS.HMSet(HashKeyBankConfig, redisMap)
 	return list
 }
 func (this *SetBank) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyBankConfig, this.ID)
+	key := fmt.Sprintf(LockKeyBankConfig, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (this *SetBank) Update(col string, cols ...interface{}) error {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyBankConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyBankConfig, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *SetBank) Remove() error {
@@ -128,6 +128,6 @@ func (this *SetBank) Remove() error {
 		return res.Error
 	}
 	//同步redis
-	global.REDIS.HDel(HashKeyBankConfig, strconv.Itoa(this.ID))
+	global.REDIS.HDel(HashKeyBankConfig, strconv.Itoa(this.Id))
 	return nil
 }

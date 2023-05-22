@@ -1,9 +1,9 @@
 package route
 
 import (
-	//_ "finance/app/api/docs"
-	"finance/app/api/middleware"
-	"finance/global"
+	//_ "china-russia/app/api/docs"
+	"china-russia/app/api/middleware"
+	"china-russia/global"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger"

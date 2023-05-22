@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"finance/app/api/controller"
-	"finance/app/api/swag/response"
-	"finance/model"
+	"china-russia/app/api/controller"
+	"china-russia/app/api/swag/response"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +22,7 @@ func (this MemberLevelController) List(c *gin.Context) {
 	res := make([]response.MemberLevel, 0)
 	for _, v := range memberLevel {
 		i := response.MemberLevel{
-			ID:   v.ID,
+			Id:   v.Id,
 			Name: v.Name,
 			Img:  v.Img,
 		}

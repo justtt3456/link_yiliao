@@ -1,9 +1,9 @@
 package model
 
 type OrderLog struct {
-	ID         int   `gorm:"column:id;primary_key"`             //关联用户id
-	UID        int   `gorm:"column:uid"`                        //关联用户id
-	OrderID    int   `gorm:"column:order_id"`                   //关联订单id
+	Id         int   `gorm:"column:id;primary_key"`             //关联用户id
+	UId        int   `gorm:"column:uid"`                        //关联用户id
+	OrderId    int   `gorm:"column:order_id"`                   //关联订单id
 	Type       int   `gorm:"column:type"`                       //类型，1下单2结单
 	Before     int64 `gorm:"column:before"`                     //变动前金额
 	Amount     int64 `gorm:"column:amount"`                     //消费金额

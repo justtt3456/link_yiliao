@@ -2,10 +2,11 @@ package controller
 
 import (
 	"bytes"
+	"china-russia/model"
+	"china-russia/pay"
 	"encoding/json"
-	"finance/model"
-	"finance/pay"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"log"
@@ -77,12 +78,12 @@ func (this NotifyController) Notify(c *gin.Context) {
 		c.String(http.StatusOK, "订单状态错误")
 		return
 	}
-	if item.Amount != p.RealMoney(data) {
+	if item.Amount.Equal(decimal.NewFromInt(p.RealMoney(data))) {
 		log.Println("金额错误")
 		c.String(http.StatusOK, "金额错误")
 		return
 	}
-	member := model.Member{ID: item.UID}
+	member := model.Member{Id: item.UId}
 	if !member.Get() {
 		log.Println("用户不存在")
 		return
@@ -106,12 +107,12 @@ func (this NotifyController) recharge(member model.Member, order model.Recharge)
 	}
 	//账单
 	trade := model.Trade{
-		UID:       member.ID,
+		UId:       member.Id,
 		TradeType: model.TradeTypeRecharge,
-		ItemID:    order.ID,
+		ItemId:    order.Id,
 		Amount:    order.Amount,
 		Before:    member.Balance,
-		After:     member.Balance + order.Amount,
+		After:     member.Balance.Add(order.Amount),
 		Desc:      "支付回调",
 	}
 	err := trade.Insert()
@@ -119,7 +120,7 @@ func (this NotifyController) recharge(member model.Member, order model.Recharge)
 		return err
 	}
 	//上分
-	member.Balance += order.Amount
+	member.Balance = member.Balance.Add(order.Amount)
 	return member.Update("balance")
 	//config := model.SetBase{}
 	//if !config.Get() {
@@ -131,7 +132,7 @@ func (this NotifyController) recharge(member model.Member, order model.Recharge)
 	//等级检查
 	//ul := model.UserLevel{}
 	//if ul.GetLevelByAmount(user.RechargeAmount) {
-	//	user.LevelID = ul.LevelID
+	//	user.LevelId = ul.LevelId
 	//	user.Update("balance", "level_id", "recharge_amount")
 	//} else {
 	//	user.Update("balance", "recharge_amount")

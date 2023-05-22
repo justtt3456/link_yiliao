@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"finance/app/admin/service"
+	"china-russia/app/admin/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -208,12 +208,12 @@ func (this ConfigController) BankRemove(c *gin.Context) {
 	return
 }
 
-//   Summary 收款支付宝列表
-//   Tags 配置
-//   Param token header string false "用户令牌"
-//   Param object query request.Request false "查询参数"
-//   Success 200 {object} response.ConfigAlipayResponse
-//   Router /config/alipay/list [get]
+// Summary 收款支付宝列表
+// Tags 配置
+// Param token header string false "用户令牌"
+// Param object query request.Request false "查询参数"
+// Success 200 {object} response.ConfigAlipayResponse
+// Router /config/alipay/list [get]
 func (this ConfigController) AlipayList(c *gin.Context) {
 	s := service.ConfigAlipayList{}
 	err := c.ShouldBindQuery(&s)
@@ -225,14 +225,14 @@ func (this ConfigController) AlipayList(c *gin.Context) {
 	return
 }
 
-//   Summary 收款支付宝添加
-//   Tags 配置
-//   Accept application/json
-//   Produce application/json
-//   Param token header string false "用户令牌"
-//   Param object body request.ConfigAlipayCreate false "查询参数"
-//   Success 200 {object} response.Response
-//   Router /config/alipay/create [post]
+// Summary 收款支付宝添加
+// Tags 配置
+// Accept application/json
+// Produce application/json
+// Param token header string false "用户令牌"
+// Param object body request.ConfigAlipayCreate false "查询参数"
+// Success 200 {object} response.Response
+// Router /config/alipay/create [post]
 func (this ConfigController) AlipayCreate(c *gin.Context) {
 	s := service.ConfigAlipayCreate{}
 	err := c.ShouldBindJSON(&s)
@@ -248,14 +248,14 @@ func (this ConfigController) AlipayCreate(c *gin.Context) {
 	return
 }
 
-//   Summary 收款支付宝修改
-//   Tags 配置
-//   Accept application/json
-//   Produce application/json
-//   Param token header string false "用户令牌"
-//   Param object body request.ConfigAlipayUpdate false "查询参数"
-//   Success 200 {object} response.Response
-//   Router /config/alipay/update [post]
+// Summary 收款支付宝修改
+// Tags 配置
+// Accept application/json
+// Produce application/json
+// Param token header string false "用户令牌"
+// Param object body request.ConfigAlipayUpdate false "查询参数"
+// Success 200 {object} response.Response
+// Router /config/alipay/update [post]
 func (this ConfigController) AlipayUpdate(c *gin.Context) {
 	s := service.ConfigAlipayUpdate{}
 	err := c.ShouldBindJSON(&s)
@@ -271,14 +271,14 @@ func (this ConfigController) AlipayUpdate(c *gin.Context) {
 	return
 }
 
-//   Summary 收款支付宝状态
-//   Tags 配置
-//   Accept application/json
-//   Produce application/json
-//   Param token header string false "用户令牌"
-//   Param object body request.ConfigAlipayUpdateStatus false "查询参数"
-//   Success 200 {object} response.Response
-//   Router /config/alipay/update_status [post]
+// Summary 收款支付宝状态
+// Tags 配置
+// Accept application/json
+// Produce application/json
+// Param token header string false "用户令牌"
+// Param object body request.ConfigAlipayUpdateStatus false "查询参数"
+// Success 200 {object} response.Response
+// Router /config/alipay/update_status [post]
 func (this ConfigController) AlipayUpdateStatus(c *gin.Context) {
 	s := service.ConfigAlipayUpdateStatus{}
 	err := c.ShouldBindJSON(&s)
@@ -294,14 +294,14 @@ func (this ConfigController) AlipayUpdateStatus(c *gin.Context) {
 	return
 }
 
-//   Summary 收款支付宝删除
-//   Tags 配置
-//   Accept application/json
-//   Produce application/json
-//   Param token header string false "用户令牌"
-//   Param object body request.ConfigAlipayRemove false "查询参数"
-//   Success 200 {object} response.Response
-//   Router /config/alipay/remove [post]
+// Summary 收款支付宝删除
+// Tags 配置
+// Accept application/json
+// Produce application/json
+// Param token header string false "用户令牌"
+// Param object body request.ConfigAlipayRemove false "查询参数"
+// Success 200 {object} response.Response
+// Router /config/alipay/remove [post]
 func (this ConfigController) AlipayRemove(c *gin.Context) {
 	s := service.ConfigAlipayRemove{}
 	err := c.ShouldBindJSON(&s)
@@ -404,13 +404,14 @@ func (this ConfigController) UsdtUpdateStatus(c *gin.Context) {
 }
 
 // Summary 收款usdt删除
-//  Tags 配置
-//  Accept application/json
-//  Produce application/json
-//  Param token header string false "用户令牌"
-//  Param object body request.ConfigUsdtRemove false "查询参数"
-//  Success 200 {object} response.Response
-//  Router /config/usdt/remove [post]
+//
+//	Tags 配置
+//	Accept application/json
+//	Produce application/json
+//	Param token header string false "用户令牌"
+//	Param object body request.ConfigUsdtRemove false "查询参数"
+//	Success 200 {object} response.Response
+//	Router /config/usdt/remove [post]
 func (this ConfigController) UsdtRemove(c *gin.Context) {
 	s := service.ConfigUsdtRemove{}
 	err := c.ShouldBindJSON(&s)
@@ -489,12 +490,12 @@ func (this ConfigController) KfUpdateStatus(c *gin.Context) {
 	return
 }
 
-//@Summary 语言列表
-//@Tags 配置
-//@Param token header string false "用户令牌"
-//@Param object query request.Request false "查询参数"
-//@Success 200 {object} response.ConfigLangResponse
-//@Router /config/lang/list [get]
+// @Summary 语言列表
+// @Tags 配置
+// @Param token header string false "用户令牌"
+// @Param object query request.Request false "查询参数"
+// @Success 200 {object} response.ConfigLangResponse
+// @Router /config/lang/list [get]
 func (this ConfigController) LangList(c *gin.Context) {
 	s := service.ConfigLangList{}
 	err := c.ShouldBindQuery(&s)
@@ -506,12 +507,12 @@ func (this ConfigController) LangList(c *gin.Context) {
 	return
 }
 
-//Summary 语言状态
-//Tags 配置
-//Accept application/json
+// Summary 语言状态
+// Tags 配置
+// Accept application/json
 // Produce application/json
-//Param token header string false "用户令牌"
-//Param object body request.ConfigLangUpdateStatus false "查询参数"
+// Param token header string false "用户令牌"
+// Param object body request.ConfigLangUpdateStatus false "查询参数"
 // Success 200 {object} response.Response
 // Router /config/lang/update_status [post]
 func (this ConfigController) LangUpdateStatus(c *gin.Context) {

@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +26,7 @@ func (this BannerList) PageList() response.BannerData {
 	res := make([]response.BannerInfo, 0)
 	for _, v := range list {
 		i := response.BannerInfo{
-			Id:         v.ID,
+			Id:         v.Id,
 			Lang:       v.Lang,
 			Image:      v.Image,
 			Link:       v.Link,
@@ -78,14 +78,14 @@ type BannerUpdate struct {
 }
 
 func (this BannerUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Image == "" {
 		return errors.New("banner图片不能为空")
 	}
 	m := model.Banner{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("banner不存在")
@@ -103,11 +103,11 @@ type BannerUpdateStatus struct {
 }
 
 func (this BannerUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Banner{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("banner不存在")
@@ -121,11 +121,11 @@ type BannerRemove struct {
 }
 
 func (this BannerRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Banner{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }

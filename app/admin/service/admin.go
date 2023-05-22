@@ -1,12 +1,12 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/extends"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/extends"
-	"finance/model"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -60,7 +60,7 @@ func (this AdminListService) PageList() (response.AdminListData, error) {
 		//p := AdminPermissionService{}
 		//tree, _ := p.Tree(v.Role)
 		item := response.AdminInfo{
-			AdminID:    v.ID,
+			AdminId:    v.Id,
 			Username:   v.Username,
 			Token:      v.Token,
 			Role:       v.Role,
@@ -121,7 +121,7 @@ func (this AdminInsertService) Insert(c *gin.Context, operator model.Admin) (*re
 		Role:       this.Role,
 		LoginIp:    c.ClientIP(),
 		RegisterIp: c.ClientIP(),
-		Operator:   operator.ID,
+		Operator:   operator.Id,
 		GoogleAuth: secret,
 	}
 	err := m.Insert()
@@ -135,13 +135,13 @@ func (this AdminInsertService) Insert(c *gin.Context, operator model.Admin) (*re
 }
 func (AdminService) Info(admin model.Admin) response.AdminInfo {
 	jwtService := extends.JwtUtils{}
-	token := jwtService.NewToken(admin.ID, admin.Token)
+	token := jwtService.NewToken(admin.Id, admin.Token)
 	//所有权限
 	permission := model.Permission{}
 	permissions := permission.List()
 	p := RolePermissionTree{}
 	return response.AdminInfo{
-		AdminID:    admin.ID,
+		AdminId:    admin.Id,
 		Username:   admin.Username,
 		Token:      token,
 		Role:       admin.Role,
@@ -155,10 +155,10 @@ func (AdminService) Info(admin model.Admin) response.AdminInfo {
 }
 
 func (this AdminUpdateService) Update() error {
-	if this.AdminID == 0 {
+	if this.AdminId == 0 {
 		return errors.New("参数错误")
 	}
-	admin := model.Admin{ID: this.AdminID}
+	admin := model.Admin{Id: this.AdminId}
 	if !admin.Get() {
 		return errors.New("管理员不存在")
 	}
@@ -172,10 +172,10 @@ func (this AdminUpdateService) Update() error {
 	return admin.Update("password", "role")
 }
 func (this AdminRemoveService) Remove() error {
-	if this.AdminID == 0 {
+	if this.AdminId == 0 {
 		return errors.New("参数错误")
 	}
-	admin := model.Admin{ID: this.AdminID}
+	admin := model.Admin{Id: this.AdminId}
 	if !admin.Get() {
 		return errors.New("管理员不存在")
 	}
@@ -187,10 +187,10 @@ type AdminGoogleService struct {
 }
 
 func (this AdminGoogleService) Google(admin model.Admin) (*response.AdminGoogle, error) {
-	if this.AdminID == 0 {
+	if this.AdminId == 0 {
 		return nil, errors.New("参数错误")
 	}
-	a := model.Admin{ID: this.AdminID}
+	a := model.Admin{Id: this.AdminId}
 	if !a.Get() {
 		return nil, errors.New("管理员不存在")
 	}

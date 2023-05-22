@@ -10,7 +10,7 @@ type UpgradeData struct {
 	Page Page          `json:"page"`
 }
 type UpgradeInfo struct {
-	ID          int    `json:"id"`           //
+	Id          int    `json:"id"`           //
 	Platform    string `json:"platform"`     //平台
 	Version     string `json:"version"`      //版本
 	DownloadURL string `json:"download_url"` //下载地址

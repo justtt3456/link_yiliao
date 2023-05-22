@@ -1,18 +1,18 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberRelation struct {
-	UID            int            `gorm:"column:uid"`   //查询祖先
+	UId            int            `gorm:"column:uid"`   //查询祖先
 	Puid           int            `gorm:"column:puid"`  //查询后代
 	Level          int64          `gorm:"column:level"` //代理层级
 	Member         Member         `gorm:"foreignKey:uid"`
 	Member2        Member         `gorm:"foreignKey:puid"`
-	MemberVerified MemberVerified `gorm:"foreignKey:UID;references:UID"`
+	MemberVerified MemberVerified `gorm:"foreignKey:UId;references:UId"`
 }
 
 func (m *MemberRelation) TableName() string {
@@ -69,7 +69,7 @@ func (this *MemberRelation) InsertAll(result []MemberRelation) error {
 // 查询祖先
 func (this *MemberRelation) GetByUid() ([]MemberRelation, error) {
 	var res []MemberRelation
-	err := global.DB.Model(this).Where("uid = ?", this.UID).Find(&res)
+	err := global.DB.Model(this).Where("uid = ?", this.UId).Find(&res)
 	if err.Error != nil {
 		logrus.Error(err.Error)
 		return nil, err.Error
@@ -122,7 +122,7 @@ func (this *MemberRelation) GetByPuidAll(where string, args []interface{}) ([]*M
 	return res, total
 }
 
-// 根据下线会员ID获取团队代理ID列表
+// 根据下线会员Id获取团队代理Id列表
 func (this *MemberRelation) GetTeamLeaderIds(userIds []int) []int {
 	res := make([]*MemberRelation, 0)
 	var proxyIds []int

@@ -8,6 +8,6 @@ type BankResponse struct {
 	}
 }
 type Bank struct {
-	ID       int    `json:"id"`        //
+	Id       int    `json:"id"`        //
 	BankName string `json:"bank_name"` //银行名称
 }

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"finance/app/admin/service"
+	"china-russia/app/admin/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +14,8 @@ type InviteCodeController struct {
 // Param token header string false "用户令牌"
 // Param object query request.InviteCodeList false "查询参数"
 // Success 200 {object} response.InviteCodeListResponse
-//  Router /invite_code/page_list [get]
+//
+//	Router /invite_code/page_list [get]
 func (this InviteCodeController) PageList(c *gin.Context) {
 	s := service.InviteCodeList{}
 	err := c.ShouldBindQuery(&s)
@@ -26,14 +27,14 @@ func (this InviteCodeController) PageList(c *gin.Context) {
 	return
 }
 
-//  Summary 添加邀请码
-//  Tags 代理
-//  Accept application/json
-//  Produce application/json
-//  Param token header string false "用户令牌"
-//  Param object body request.InviteCodeCreate false "查询参数"
-//  Success 200 {object} response.Response
-//  Router /invite_code/create [post]
+// Summary 添加邀请码
+// Tags 代理
+// Accept application/json
+// Produce application/json
+// Param token header string false "用户令牌"
+// Param object body request.InviteCodeCreate false "查询参数"
+// Success 200 {object} response.Response
+// Router /invite_code/create [post]
 func (this InviteCodeController) Create(c *gin.Context) {
 	s := service.InviteCodeCreate{}
 	err := c.ShouldBindJSON(&s)
@@ -49,14 +50,14 @@ func (this InviteCodeController) Create(c *gin.Context) {
 	return
 }
 
-//  Summary 修改邀请码信息
-//  Tags 代理
-//  Accept application/json
-//  Produce application/json
-//  Param token header string false "用户令牌"
-//  Param object body request.InviteCodeUpdate false "查询参数"
-//  Success 200 {object} response.Response
-//  Router /invite_code/update [post]
+// Summary 修改邀请码信息
+// Tags 代理
+// Accept application/json
+// Produce application/json
+// Param token header string false "用户令牌"
+// Param object body request.InviteCodeUpdate false "查询参数"
+// Success 200 {object} response.Response
+// Router /invite_code/update [post]
 func (this InviteCodeController) Update(c *gin.Context) {
 	s := service.InviteCodeUpdate{}
 	err := c.ShouldBindJSON(&s)
@@ -72,14 +73,14 @@ func (this InviteCodeController) Update(c *gin.Context) {
 	return
 }
 
-//  Summary 删除邀请码
-//  Tags 代理
-//  Accept application/json
-//  Produce application/json
-//  Param token header string false "用户令牌"
-//  Param object body request.InviteCodeRemove false "查询参数"
-//  Success 200 {object} response.Response
-//  Router /invite_code/remove [post]
+// Summary 删除邀请码
+// Tags 代理
+// Accept application/json
+// Produce application/json
+// Param token header string false "用户令牌"
+// Param object body request.InviteCodeRemove false "查询参数"
+// Success 200 {object} response.Response
+// Router /invite_code/remove [post]
 func (this InviteCodeController) Remove(c *gin.Context) {
 	s := service.InviteCodeRemove{}
 	err := c.ShouldBindJSON(&s)

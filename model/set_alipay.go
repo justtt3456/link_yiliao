@@ -1,8 +1,8 @@
 package model
 
 import (
+	"china-russia/global"
 	"encoding/json"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -10,7 +10,7 @@ import (
 )
 
 type SetAlipay struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Account    string `gorm:"column:account"`                    //支付宝账号
 	RealName   string `gorm:"column:real_name"`                  //真实姓名
 	Status     int    `gorm:"column:status"`                     //
@@ -34,12 +34,12 @@ func (this *SetAlipay) Insert() error {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyAlipayConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyAlipayConfig, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *SetAlipay) Get() bool {
 	//取redis
-	s := global.REDIS.HGet(HashKeyAlipayConfig, strconv.Itoa(this.ID)).Val()
+	s := global.REDIS.HGet(HashKeyAlipayConfig, strconv.Itoa(this.Id)).Val()
 	if s != "" {
 		err := json.Unmarshal([]byte(s), this)
 		if err == nil {
@@ -57,7 +57,7 @@ func (this *SetAlipay) Get() bool {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyAlipayConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyAlipayConfig, strconv.Itoa(this.Id), string(bytes))
 	return true
 }
 
@@ -95,14 +95,14 @@ func (this *SetAlipay) List(isFront bool) []SetAlipay {
 	redisMap := map[string]interface{}{}
 	for _, v := range list {
 		marshal, _ := json.Marshal(v)
-		redisMap[strconv.Itoa(v.ID)] = string(marshal)
+		redisMap[strconv.Itoa(v.Id)] = string(marshal)
 	}
 	global.REDIS.HMSet(HashKeyAlipayConfig, redisMap)
 	return list
 }
 func (this *SetAlipay) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyAlipayConfig, this.ID)
+	key := fmt.Sprintf(LockKeyAlipayConfig, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func (this *SetAlipay) Update(col string, cols ...interface{}) error {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyAlipayConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyAlipayConfig, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }
 func (this *SetAlipay) Remove() error {
@@ -126,6 +126,6 @@ func (this *SetAlipay) Remove() error {
 		return res.Error
 	}
 	//同步redis
-	global.REDIS.HDel(HashKeyAlipayConfig, strconv.Itoa(this.ID))
+	global.REDIS.HDel(HashKeyAlipayConfig, strconv.Itoa(this.Id))
 	return nil
 }

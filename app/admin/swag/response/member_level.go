@@ -9,7 +9,7 @@ type MemberLevelData struct {
 	List []MemberLevelInfo `json:"list"`
 }
 type MemberLevelInfo struct {
-	ID   int    `json:"id"`   //
+	Id   int    `json:"id"`   //
 	Name string `json:"name"` //等级名称
 	Img  string `json:"img"`  //图标
 }

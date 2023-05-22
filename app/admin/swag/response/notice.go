@@ -10,7 +10,7 @@ type NoticeData struct {
 	Page Page     `json:"page"`
 }
 type Notice struct {
-	ID         int    `json:"id"`          //
+	Id         int    `json:"id"`          //
 	Title      string `json:"title"`       //标题
 	Intro      string `json:"intro"`       //简介
 	Content    string `json:"content"`     //内容

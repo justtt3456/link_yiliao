@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"finance/app/admin/service"
-	"finance/model"
+	"china-russia/app/admin/service"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
 )
 

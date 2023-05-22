@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"finance/app/api/controller"
-	"finance/app/api/service"
+	"china-russia/app/api/controller"
+	"china-russia/app/api/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +26,7 @@ func (this NoticeController) PageList(c *gin.Context) {
 	return
 }
 
-//获取滚动新闻列表
+// 获取滚动新闻列表
 func (this NoticeController) NoticeList(c *gin.Context) {
 	s := service.NoticeList{}
 	if err := c.ShouldBindQuery(&s); err != nil {

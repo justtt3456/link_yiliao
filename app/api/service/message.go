@@ -1,10 +1,10 @@
 package service
 
 import (
+	"china-russia/app/api/swag/request"
+	"china-russia/app/api/swag/response"
+	"china-russia/model"
 	"errors"
-	"finance/app/api/swag/request"
-	"finance/app/api/swag/response"
-	"finance/model"
 )
 
 type Message struct {
@@ -20,12 +20,12 @@ func (this Message) PageList(member model.Member) response.MessageData {
 	}
 	m := model.Message{}
 	where := "uid = ? or uid = ? and status = ?"
-	args := []interface{}{member.ID, -1,model.StatusOk}
+	args := []interface{}{member.Id, -1, model.StatusOk}
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.Message, 0)
 	for _, v := range list {
 		item := response.Message{
-			ID:         v.ID,
+			Id:         v.Id,
 			Title:      v.Title,
 			Content:    v.Content,
 			CreateTime: v.CreateTime,
@@ -34,14 +34,16 @@ func (this Message) PageList(member model.Member) response.MessageData {
 	}
 	return response.MessageData{List: res, Page: FormatPage(page)}
 }
+
 type MessageRead struct {
 	request.Msg
 }
-func (this MessageRead)Read()(error)  {
+
+func (this MessageRead) Read() error {
 	if this.Id == 0 {
-		return errors.New("ID不能为空")
+		return errors.New("Id不能为空")
 	}
-	m := model.Message{ID:this.Id}
+	m := model.Message{Id: this.Id}
 	if !m.Get() {
 		return errors.New("信息不存在")
 	}

@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 )
 
 type RoleListService struct {
@@ -38,12 +38,12 @@ func (this RoleListService) PageList() (response.RoleData, error) {
 	for _, v := range list {
 		//用户权限
 		item := response.RoleInfo{
-			RoleID:      v.RoleID,
+			RoleId:      v.RoleId,
 			RoleName:    v.RoleName,
 			Status:      v.Status,
 			CreateTime:  v.CreateTime,
 			UpdateTime:  v.UpdateTime,
-			Permissions: s.Tree(permissions, v.RoleID),
+			Permissions: s.Tree(permissions, v.RoleId),
 		}
 		res = append(res, item)
 	}
@@ -73,18 +73,18 @@ func (this RoleCreateService) Create() error {
 	data := make([]model.PermissionMap, 0)
 	for _, v := range this.Ids {
 		i := model.PermissionMap{
-			RoleID:       m.RoleID,
-			PermissionID: v,
+			RoleId:       m.RoleId,
+			PermissionId: v,
 		}
 		data = append(data, i)
 	}
 	return pm.InsertAll(data)
 }
 func (this RoleUpdateService) Update() error {
-	if this.RoleID == 0 {
+	if this.RoleId == 0 {
 		return errors.New("参数错误")
 	}
-	if this.RoleID == 1 {
+	if this.RoleId == 1 {
 		return errors.New("超级管理员不能修改")
 	}
 	if this.RoleName == "" {
@@ -99,13 +99,13 @@ func (this RoleUpdateService) Update() error {
 	if !m.Get() {
 		return errors.New("角色名不存在")
 	}
-	m.RoleID = this.RoleID
+	m.RoleId = this.RoleId
 	if err := m.Update("role_name"); err != nil {
 		return err
 	}
 	//更新角色权限
 	pm := model.PermissionMap{
-		RoleID: this.RoleID,
+		RoleId: this.RoleId,
 	}
 	if err := pm.Remove(); err != nil {
 		return err
@@ -113,8 +113,8 @@ func (this RoleUpdateService) Update() error {
 	data := make([]model.PermissionMap, 0)
 	for _, v := range this.Ids {
 		i := model.PermissionMap{
-			RoleID:       this.RoleID,
-			PermissionID: v,
+			RoleId:       this.RoleId,
+			PermissionId: v,
 		}
 		data = append(data, i)
 	}
@@ -122,20 +122,20 @@ func (this RoleUpdateService) Update() error {
 
 }
 func (this RoleRemoveService) Remove() error {
-	if this.RoleID == 0 {
+	if this.RoleId == 0 {
 		return errors.New("参数错误")
 	}
-	if this.RoleID == 1 {
+	if this.RoleId == 1 {
 		return errors.New("超级管理员不能删除")
 	}
 	m := model.Role{
-		RoleID: this.RoleID,
+		RoleId: this.RoleId,
 	}
 	if err := m.Remove(); err != nil {
 		return err
 	}
 	pm := model.PermissionMap{
-		RoleID: this.RoleID,
+		RoleId: this.RoleId,
 	}
 	return pm.Remove()
 }
@@ -143,24 +143,24 @@ func (this RoleRemoveService) Remove() error {
 type RolePermissionTree struct {
 }
 
-func (this RolePermissionTree) Tree(permissions []model.Permission, roleID int) []response.PermissionTree {
+func (this RolePermissionTree) Tree(permissions []model.Permission, roleId int) []response.PermissionTree {
 	m := model.PermissionMap{
-		RoleID: roleID,
+		RoleId: roleId,
 	}
 	rolePermissions, _ := m.AdminPermission()
-	return this.rolePermissionTree(permissions, rolePermissions, roleID, 0)
+	return this.rolePermissionTree(permissions, rolePermissions, roleId, 0)
 }
 
-//所有权限树
-func (this RolePermissionTree) rolePermissionTree(res []model.Permission, rolePermission []model.PermissionMap, roleID, pid int) []response.PermissionTree {
+// 所有权限树
+func (this RolePermissionTree) rolePermissionTree(res []model.Permission, rolePermission []model.PermissionMap, roleId, pid int) []response.PermissionTree {
 	m := make([]response.PermissionTree, 0)
 	for _, v := range res {
 		if v.Pid == pid {
-			children := this.rolePermissionTree(res, rolePermission, roleID, v.ID)
+			children := this.rolePermissionTree(res, rolePermission, roleId, v.Id)
 			s := response.PermissionTree{
 				PermissionInfo: response.PermissionInfo{
-					ID:       v.ID,
-					PID:      v.Pid,
+					Id:       v.Id,
+					PId:      v.Pid,
 					Label:    v.Label,
 					Frontend: v.Frontend,
 					Backend:  v.Backend,
@@ -170,11 +170,11 @@ func (this RolePermissionTree) rolePermissionTree(res []model.Permission, rolePe
 				},
 				Children: children,
 			}
-			if roleID == 1 {
+			if roleId == 1 {
 				s.Checked = true
 			} else {
 				for _, rv := range rolePermission {
-					if rv.PermissionID == v.ID {
+					if rv.PermissionId == v.Id {
 						s.Checked = true
 					}
 				}

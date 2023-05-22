@@ -1,16 +1,16 @@
 package model
 
 import (
-	"finance/app/api/swag/response"
-	"finance/common"
-	"finance/global"
+	"china-russia/app/api/swag/response"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
 )
 
 type Notice struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Title      string `gorm:"column:title"`                      //标题
 	Intro      string `gorm:"column:intro"`                      //简介
 	Content    string `gorm:"column:content"`                    //内容
@@ -69,7 +69,7 @@ func (this *Notice) Get() bool {
 
 func (this *Notice) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyNotice, this.ID)
+	key := fmt.Sprintf(LockKeyNotice, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

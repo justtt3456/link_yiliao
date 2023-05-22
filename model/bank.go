@@ -1,14 +1,14 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type Bank struct {
-	ID         int    `gorm:"column:id;primary_key" json:"id"`   //
+	Id         int    `gorm:"column:id;primary_key" json:"id"`   //
 	BankName   string `gorm:"column:bank_name" json:"bank_name"` //银行名称
 	Sort       int    `gorm:"column:sort" json:"sort"`
 	Status     int    `gorm:"column:status" json:"status"` //状态
@@ -72,7 +72,7 @@ func (this *Bank) Get() bool {
 
 func (this *Bank) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyBank, this.ID)
+	key := fmt.Sprintf(LockKeyBank, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

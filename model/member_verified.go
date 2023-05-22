@@ -1,24 +1,24 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type MemberVerified struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
-	UID        int    `gorm:"column:uid"`                        //
+	Id         int    `gorm:"column:id;primary_key"`             //
+	UId        int    `gorm:"column:uid"`                        //
 	RealName   string `gorm:"column:real_name"`                  //
-	IDNumber   string `gorm:"column:id_number"`                  //
+	IdNumber   string `gorm:"column:id_number"`                  //
 	Mobile     string `gorm:"column:mobile"`                     //
 	Frontend   string `gorm:"column:frontend"`                   //
 	Backend    string `gorm:"column:backend"`                    //
 	Status     int    `gorm:"column:status"`                     //1审核中 2通过 3驳回
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //
-	Member     Member `gorm:"foreignKey:UID"`
+	Member     Member `gorm:"foreignKey:UId"`
 }
 
 // TableName sets the insert table name for this struct type
@@ -45,7 +45,7 @@ func (this *MemberVerified) Get() bool {
 
 func (this *MemberVerified) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyMemberVerified, this.ID)
+	key := fmt.Sprintf(LockKeyMemberVerified, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

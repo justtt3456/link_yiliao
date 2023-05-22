@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"finance/app/api/controller"
-	"finance/app/api/swag/response"
-	"finance/global"
-	"finance/model"
+	"china-russia/app/api/controller"
+	"china-russia/app/api/swag/response"
+	"china-russia/global"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +26,7 @@ func (this BankController) List(c *gin.Context) {
 	res := make([]response.Bank, 0)
 	for _, v := range bankList {
 		i := response.Bank{
-			ID:       v.ID,
+			Id:       v.Id,
 			BankName: v.BankName,
 		}
 		res = append(res, i)

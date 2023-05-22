@@ -1,8 +1,8 @@
 package model
 
 import (
+	"china-russia/global"
 	"encoding/json"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -10,7 +10,7 @@ import (
 )
 
 type SetLang struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
+	Id         int    `gorm:"column:id;primary_key"`             //
 	Name       string `gorm:"column:name"`                       //语言名称
 	Code       string `gorm:"column:code"`                       //英文简称
 	Icon       string `gorm:"column:icon"`                       //语言图标
@@ -38,7 +38,7 @@ func (this *SetLang) List(isFront bool) []SetLang {
 }
 func (this *SetLang) Get() bool {
 	//取redis
-	s := global.REDIS.HGet(HashKeyLangConfig, strconv.Itoa(this.ID)).Val()
+	s := global.REDIS.HGet(HashKeyLangConfig, strconv.Itoa(this.Id)).Val()
 	if s != "" {
 		err := json.Unmarshal([]byte(s), this)
 		if err == nil {
@@ -56,12 +56,12 @@ func (this *SetLang) Get() bool {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyLangConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyLangConfig, strconv.Itoa(this.Id), string(bytes))
 	return true
 }
 func (this *SetLang) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyLangConfig, this.ID)
+	key := fmt.Sprintf(LockKeyLangConfig, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}
@@ -76,6 +76,6 @@ func (this *SetLang) Update(col string, cols ...interface{}) error {
 	if err != nil {
 		log.Println(err)
 	}
-	global.REDIS.HSet(HashKeyLangConfig, strconv.Itoa(this.ID), string(bytes))
+	global.REDIS.HSet(HashKeyLangConfig, strconv.Itoa(this.Id), string(bytes))
 	return nil
 }

@@ -1,10 +1,10 @@
 package service
 
 import (
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,22 +25,22 @@ func (this Report) Member() response.MemberReportData {
 	res := make([]response.MemberReport, 0)
 	for _, v := range list {
 		item := response.MemberReport{
-			ID:             v.ID,
-			UID:            v.UID,
-			Username:       v.Username,
-			RechargeCount:  v.RechargeCount,
-			RechargeAmount: float64(v.RechargeAmount) / 100,
-			WithdrawCount:  v.WithdrawCount,
-			WithdrawAmount: float64(v.WithdrawAmount) / 100,
-			BetCount:       v.BetCount,
-			BetAmount:      float64(v.BetAmount) / 100,
-			BetResult:      float64(v.BetResult) / 100,
-			SysUp:          float64(v.SysUp) / 100,
-			SysDown:        float64(v.SysDown) / 100,
-			Freeze:         float64(v.Freeze) / 100,
-			Unfreeze:       float64(v.Unfreeze) / 100,
-			CreateTime:     v.CreateTime,
-			UpdateTime:     v.UpdateTime,
+			Id:            v.Id,
+			UId:           v.UId,
+			Username:      v.Username,
+			RechargeCount: v.RechargeCount,
+			//RechargeAmount: float64(v.RechargeAmount) / 100,
+			WithdrawCount: v.WithdrawCount,
+			//WithdrawAmount: float64(v.WithdrawAmount) / 100,
+			BetCount: v.BetCount,
+			//BetAmount:      float64(v.BetAmount) / 100,
+			//BetResult:      float64(v.BetResult) / 100,
+			//SysUp:          float64(v.SysUp) / 100,
+			//SysDown:        float64(v.SysDown) / 100,
+			//Freeze:         float64(v.Freeze) / 100,
+			//Unfreeze:       float64(v.Unfreeze) / 100,
+			CreateTime: v.CreateTime,
+			UpdateTime: v.UpdateTime,
 		}
 		res = append(res, item)
 	}
@@ -63,23 +63,23 @@ func (this Report) Agent() response.AgentReportData {
 	res := make([]response.AgentReport, 0)
 	for _, v := range list {
 		item := response.AgentReport{
-			ID:             v.ID,
-			Aid:            v.Aid,
-			Username:       v.Username,
-			RechargeCount:  v.RechargeCount,
-			RechargeAmount: float64(v.RechargeAmount) / 100,
-			WithdrawCount:  v.WithdrawCount,
-			WithdrawAmount: float64(v.WithdrawAmount) / 100,
-			BetCount:       v.BetCount,
-			BetAmount:      float64(v.BetAmount) / 100,
-			BetResult:      float64(v.BetResult) / 100,
-			SysUp:          float64(v.SysUp) / 100,
-			SysDown:        float64(v.SysDown) / 100,
-			Freeze:         float64(v.Freeze) / 100,
-			Unfreeze:       float64(v.Unfreeze) / 100,
-			RegisterCount:  v.RegisterCount,
-			CreateTime:     v.CreateTime,
-			UpdateTime:     v.UpdateTime,
+			Id:            v.Id,
+			Aid:           v.Aid,
+			Username:      v.Username,
+			RechargeCount: v.RechargeCount,
+			//RechargeAmount: float64(v.RechargeAmount) / 100,
+			WithdrawCount: v.WithdrawCount,
+			//WithdrawAmount: float64(v.WithdrawAmount) / 100,
+			BetCount: v.BetCount,
+			//BetAmount:      float64(v.BetAmount) / 100,
+			//BetResult:      float64(v.BetResult) / 100,
+			//SysUp:          float64(v.SysUp) / 100,
+			//SysDown:        float64(v.SysDown) / 100,
+			//Freeze:         float64(v.Freeze) / 100,
+			//Unfreeze:       float64(v.Unfreeze) / 100,
+			RegisterCount: v.RegisterCount,
+			CreateTime:    v.CreateTime,
+			UpdateTime:    v.UpdateTime,
 		}
 		res = append(res, item)
 	}

@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"finance/common"
-	"finance/global"
-	"finance/model"
+	"china-russia/common"
+	"china-russia/global"
+	"china-russia/model"
 	"strconv"
 	"time"
 )
@@ -45,7 +45,7 @@ func (this Invest) Do() {
 func (this Invest) sendIncome(member model.Member) {
 	in := model.InvestOrder{}
 	inWhere := "uid = ? and type = ? and unfreeze_status = ? and income_time <= ?"
-	inArgs := []interface{}{member.ID, 1, 2, time.Now().Unix()}
+	inArgs := []interface{}{member.Id, 1, 2, time.Now().Unix()}
 	amount := in.Sum(inWhere, inArgs, "amount")
 	invest := model.Invest{}
 	invest.Get()
@@ -57,15 +57,15 @@ func (this Invest) sendIncome(member model.Member) {
 	member.Update("invest_amount", "invest_income", "total_balance", "income")
 	investBalance := member.InvestAmount + member.InvestFreeze
 	r := model.InvestLog{
-		UID:     member.ID,
+		UId:     member.Id,
 		Income:  income,
 		Balance: investBalance,
 	}
 	r.Insert()
 	trade := model.Trade{
-		UID:       member.ID,
+		UId:       member.Id,
 		TradeType: 13,
-		ItemID:    r.ID,
+		ItemId:    r.Id,
 		Amount:    income,
 		Before:    investBalance - income,
 		After:     investBalance,

@@ -1,10 +1,12 @@
 package request
 
+import "github.com/shopspring/decimal"
+
 type ManualRequest struct {
-	UIDs       string  `json:"uids"`
-	Amount     float64 `json:"amount" `
-	IsFrontend int     `json:"is_frontend" ` //1=展示  2=不展示
-	Handle     int     `json:"handle"`       //操作 1上分可用余额  2下分可用余额  3下分可提现余额
+	UIds       string          `json:"uids"`
+	Amount     decimal.Decimal `json:"amount" `
+	IsFrontend int             `json:"is_frontend" ` //1=展示  2=不展示
+	Handle     int             `json:"handle"`       //操作 1上分可用余额  2下分可用余额  3下分可提现余额
 }
 type ManualListRequest struct {
 	Page      int    `json:"page" form:"page"`

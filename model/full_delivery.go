@@ -1,15 +1,16 @@
 package model
 
 import (
-	"finance/global"
+	"china-russia/global"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
 type FullDelivery struct {
-	ID       int64  `gorm:"column:id;primary_key"` //
-	Amout    int64  `gorm:"column:amout"`          //满多少
-	CouponId int64  `gorm:"column:coupon_id"`      //送什么优惠券
-	Coupon   Coupon `gorm:"foreignKey:CouponId"`   //
+	Id       int64           `gorm:"column:id;primary_key"` //
+	Amount   decimal.Decimal `gorm:"column:amount"`         //满多少
+	CouponId int64           `gorm:"column:coupon_id"`      //送什么优惠券
+	Coupon   Coupon          `gorm:"foreignKey:CouponId"`   //
 }
 
 // TableName sets the insert table name for this struct type
@@ -35,9 +36,9 @@ func (this *FullDelivery) Get() bool {
 	}
 	return true
 }
-func (this *FullDelivery) Find(amout int64) bool {
+func (this *FullDelivery) Find(amount decimal.Decimal) bool {
 	//取数据库
-	res := global.DB.Model(this).Joins("Coupon").Where("amout <= ?", amout).Order("amout desc").First(this)
+	res := global.DB.Model(this).Joins("Coupon").Where("amout <= ?", amount).Order("amout desc").First(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return false

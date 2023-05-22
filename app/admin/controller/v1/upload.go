@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"finance/common"
-	"finance/lang"
+	"china-russia/common"
+	"china-russia/lang"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

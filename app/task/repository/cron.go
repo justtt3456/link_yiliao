@@ -12,7 +12,7 @@ var SelfCron *Crontab
 // Crontab crontab manager
 type Crontab struct {
 	inner *cron.Cron
-	ids   map[string]cron.EntryID
+	ids   map[string]cron.EntryId
 	mutex sync.Mutex
 }
 
@@ -26,11 +26,11 @@ func InitCrontab() {
 	for i, v := range taskRule {
 		//如果存在先删除
 		if SelfCron.IsExists(fmt.Sprint(i)) {
-			SelfCron.DelByID(fmt.Sprint(i))
+			SelfCron.DelById(fmt.Sprint(i))
 		}
 		award := &Award{}
 		award.Times = i
-		err := SelfCron.AddByID(fmt.Sprint(i), v, award)
+		err := SelfCron.AddById(fmt.Sprint(i), v, award)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -46,27 +46,27 @@ func NewCrontab() *Crontab {
 		cron.Hour | cron.Dom | cron.Month | cron.DowOptional | cron.Descriptor)
 	return &Crontab{
 		inner: cron.New(cron.WithParser(secondParser), cron.WithChain()),
-		ids:   make(map[string]cron.EntryID),
+		ids:   make(map[string]cron.EntryId),
 	}
 }
 
-// IDs ...
-func (c *Crontab) IDs() []string {
+// Ids ...
+func (c *Crontab) Ids() []string {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	validIDs := make([]string, 0, len(c.ids))
-	invalidIDs := make([]string, 0)
+	validIds := make([]string, 0, len(c.ids))
+	invalidIds := make([]string, 0)
 	for sid, eid := range c.ids {
-		if e := c.inner.Entry(eid); e.ID != eid {
-			invalidIDs = append(invalidIDs, sid)
+		if e := c.inner.Entry(eid); e.Id != eid {
+			invalidIds = append(invalidIds, sid)
 			continue
 		}
-		validIDs = append(validIDs, sid)
+		validIds = append(validIds, sid)
 	}
-	for _, id := range invalidIDs {
+	for _, id := range invalidIds {
 		delete(c.ids, id)
 	}
-	return validIDs
+	return validIds
 }
 
 // Start start the crontab engine
@@ -79,8 +79,8 @@ func (c *Crontab) Stop() {
 	c.inner.Stop()
 }
 
-// DelByID remove one crontab task
-func (c *Crontab) DelByID(id string) {
+// DelById remove one crontab task
+func (c *Crontab) DelById(id string) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
@@ -92,10 +92,10 @@ func (c *Crontab) DelByID(id string) {
 	delete(c.ids, id)
 }
 
-// AddByID add one crontab task
+// AddById add one crontab task
 // id is unique
 // spec is the crontab expression
-func (c *Crontab) AddByID(id string, spec string, cmd cron.Job) error {
+func (c *Crontab) AddById(id string, spec string, cmd cron.Job) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 

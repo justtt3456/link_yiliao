@@ -1,9 +1,9 @@
 package model
 
 import (
+	"china-russia/common"
+	"china-russia/global"
 	"encoding/json"
-	"finance/common"
-	"finance/global"
 	"fmt"
 	"log"
 	"time"
@@ -12,8 +12,8 @@ import (
 )
 
 type Withdraw struct {
-	ID             int            `gorm:"column:id;primary_key"`             //
-	UID            int            `gorm:"column:uid"`                        //关联用户id
+	Id             int            `gorm:"column:id;primary_key"`             //
+	UId            int            `gorm:"column:uid"`                        //关联用户id
 	WithdrawType   int            `gorm:"column:withdraw_type"`              //提现类型1=银行卡
 	BankName       string         `gorm:"column:bank_name"`                  //关联银行名称
 	BankCode       string         `gorm:"column:bank_code"`                  //关联银行名称
@@ -26,18 +26,18 @@ type Withdraw struct {
 	TotalAmount    int64          `gorm:"column:total_amount"`               //提现总额
 	UsdtAmount     int64          `gorm:"column:usdt_amount"`                //提现总额
 	Description    string         `gorm:"column:description"`                //审核备注
-	Operator1       int            `gorm:"column:operator"`                   //操作管理员
+	Operator1      int            `gorm:"column:operator"`                   //操作管理员
 	ViewStatus     int            `gorm:"column:view_status"`                //已读状态，0=未读，1=已读
 	Status         int            `gorm:"column:status"`                     //提现状态，0为未审核，1为已审核，2为已拒绝
 	SuccessTime    int64          `gorm:"column:success_time"`               //成功时间
 	OrderSn        string         `gorm:"column:order_sn"`                   //订单号
-	PaymentID      int            `gorm:"column:payment_id"`                 //三方支付id
+	PaymentId      int            `gorm:"column:payment_id"`                 //三方支付id
 	TradeSn        string         `gorm:"column:trade_sn"`                   //三方订单号
 	CreateTime     int64          `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime     int64          `gorm:"column:update_time;autoUpdateTime"` //
-	Member         Member         `gorm:"foreignKey:UID"`
+	Member         Member         `gorm:"foreignKey:UId"`
 	Admin          Admin          `gorm:"foreignKey:Operator1"`
-	Payment        Payment        `gorm:"foreignKey:PaymentID"`
+	Payment        Payment        `gorm:"foreignKey:PaymentId"`
 	WithdrawMethod WithdrawMethod `gorm:"foreignKey:WithdrawType"`
 }
 
@@ -83,7 +83,7 @@ func (w *Withdraw) GetPageList(where string, args []interface{}, page, pageSize 
 
 func (w *Withdraw) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyWithdraw, w.ID)
+	key := fmt.Sprintf(LockKeyWithdraw, w.Id)
 
 	if err := r.Lock(key); err != nil {
 		return err
@@ -97,12 +97,12 @@ func (w *Withdraw) Update(col string, cols ...interface{}) error {
 		return res.Error
 	}
 	//同步redis
-	// if w.ID == nil {
-	// 	global.REDIS.Del(fmt.Sprintf(StringKeyWithdraw, w.ID))
+	// if w.Id == nil {
+	// 	global.REDIS.Del(fmt.Sprintf(StringKeyWithdraw, w.Id))
 	// } else {
 	bytes, _ := json.Marshal(w)
 
-	global.REDIS.Set(fmt.Sprintf(StringKeyWithdraw, w.ID), string(bytes), w.ExpireTime())
+	global.REDIS.Set(fmt.Sprintf(StringKeyWithdraw, w.Id), string(bytes), w.ExpireTime())
 	// }
 	return nil
 }
@@ -127,8 +127,8 @@ func (this *Withdraw) Sum(where string, args []interface{}, field string) int64 
 	return total
 }
 func (this *Withdraw) Get() bool {
-	if this.ID != 0 {
-		key := fmt.Sprintf(StringKeyWithdraw, this.ID)
+	if this.Id != 0 {
+		key := fmt.Sprintf(StringKeyWithdraw, this.Id)
 		//取redis
 		s := global.REDIS.Get(key).Val()
 		if s != "" {
@@ -144,7 +144,7 @@ func (this *Withdraw) Get() bool {
 		logrus.Error(res.Error)
 		return false
 	}
-	key := fmt.Sprintf(StringKeyWithdraw, this.ID)
+	key := fmt.Sprintf(StringKeyWithdraw, this.Id)
 	//同步redis
 	bytes, err := json.Marshal(this)
 	if err != nil {

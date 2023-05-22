@@ -1,18 +1,19 @@
 package model
 
 import (
-	"finance/common"
-	"finance/global"
+	"china-russia/common"
+	"china-russia/global"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
 type InvestLog struct {
-	ID         int    `gorm:"column:id;primary_key"`             //
-	UID        int    `gorm:"column:uid"`                        //关联用户id
-	Income     int64  `gorm:"column:income"`                     //余额宝奖励金额
-	Balance    int64  `gorm:"column:balance"`                    //余额宝余额
-	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //生成时间
-	Member     Member `gorm:"foreignKey:UID"`
+	Id         int             `gorm:"column:id;primary_key"`             //
+	UId        int             `gorm:"column:uid"`                        //关联用户id
+	Income     decimal.Decimal `gorm:"column:income"`                     //余额宝奖励金额
+	Balance    decimal.Decimal `gorm:"column:balance"`                    //余额宝余额
+	CreateTime int64           `gorm:"column:create_time;autoCreateTime"` //生成时间
+	Member     Member          `gorm:"foreignKey:UId"`
 }
 
 // TableName sets the insert table name for this struct type
@@ -49,15 +50,15 @@ func (this *InvestLog) PageList(where string, args []interface{}, page, pageSize
 	pageUtil.SetPage(pageSize, total)
 	return res, pageUtil
 }
-func (r *InvestLog) YesterdayIncome(uid int) int64 {
-	var total int64
+func (r *InvestLog) YesterdayIncome(uid int) decimal.Decimal {
+	var total decimal.Decimal
 	zero := common.GetTodayZero()
 	where := "uid = ? and create_time >= ?"
 	args := []interface{}{uid, zero}
 	tx := global.DB.Model(r).Select("income").Where(where, args...).Scan(&total)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)
-		return 0
+		return decimal.Zero
 	}
 	return total
 }

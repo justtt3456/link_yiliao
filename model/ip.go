@@ -1,14 +1,14 @@
 package model
 
 import (
+	"china-russia/global"
 	"encoding/json"
-	"finance/global"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 type IP struct {
-	ID int    `gorm:"column:id;primary_key"` //
+	Id int    `gorm:"column:id;primary_key"` //
 	IP string `gorm:"column:ip"`             //
 
 }
@@ -36,7 +36,7 @@ func (this *IP) Get() bool {
 }
 func (this *IP) Update(col string, cols ...interface{}) error {
 	r := Redis{}
-	key := fmt.Sprintf(LockKeyWhiteIP, this.ID)
+	key := fmt.Sprintf(LockKeyWhiteIP, this.Id)
 	if err := r.Lock(key); err != nil {
 		return err
 	}

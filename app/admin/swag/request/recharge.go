@@ -1,8 +1,8 @@
 package request
 
 type RechargeRequest struct {
-	ID          int    `json:"id"`
-	UID         int    `json:"uid" form:"uid"`               //用户id
+	Id          int    `json:"id"`
+	UId         int    `json:"uid" form:"uid"`               //用户id
 	OrderSn     string `json:"order_sn" form:"order_sn"`     //订单号
 	Username    string `json:"username" form:"username"`     //用户名
 	StartTime   string `json:"start_time" form:"start_time"` //开始时间

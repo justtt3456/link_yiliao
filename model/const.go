@@ -3,9 +3,8 @@ package model
 const (
 	//由于gorm或probuf等原因,过滤非零值,所以状态不使用0
 	//状态 1开启true 2关闭false
-	UNITY       float64 = 10000
-	StatusOk            = 1
-	StatusClose         = 2
+	StatusOk    = 1
+	StatusClose = 2
 	//订单状态 1审核中null 2通过true 3驳回false
 	StatusReview   = 1
 	StatusAccept   = 2

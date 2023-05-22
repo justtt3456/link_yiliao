@@ -1,11 +1,11 @@
 package route
 
 import (
-	"finance/app/admin/controller"
-	"finance/app/admin/controller/v1"
-	_ "finance/app/admin/docs"
-	"finance/app/admin/middleware"
-	"finance/global"
+	"china-russia/app/admin/controller"
+	"china-russia/app/admin/controller/v1"
+	_ "china-russia/app/admin/docs"
+	"china-russia/app/admin/middleware"
+	"china-russia/global"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger"

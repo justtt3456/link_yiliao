@@ -1,10 +1,10 @@
 package service
 
 import (
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,14 +25,14 @@ func (this TradeService) PageList() response.TradeData {
 	sli := make([]response.TradeInfo, 0)
 	for _, v := range list {
 		item := response.TradeInfo{
-			Tid:          v.ID,
-			Username:     v.Member.Username,
-			TradeType:    v.TradeType,
-			Amount:       float64(v.Amount) / model.UNITY,
-			BeforeAmount: float64(v.Before) / model.UNITY,
-			AfterAmount:  float64(v.After) / model.UNITY,
-			Desc:         v.Desc,
-			CreateTime:   v.CreateTime,
+			Tid:       v.Id,
+			Username:  v.Member.Username,
+			TradeType: v.TradeType,
+			//Amount:       float64(v.Amount),
+			//BeforeAmount: float64(v.Before),
+			//AfterAmount:  float64(v.After),
+			Desc:       v.Desc,
+			CreateTime: v.CreateTime,
 		}
 		sli = append(sli, item)
 	}

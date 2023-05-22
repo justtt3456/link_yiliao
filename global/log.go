@@ -1,7 +1,7 @@
 package global
 
 import (
-	"finance/extends"
+	"china-russia/extends"
 	"github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"

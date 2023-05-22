@@ -2,9 +2,9 @@ package controller
 
 import (
 	"bytes"
+	"china-russia/model"
+	"china-russia/withdraw"
 	"encoding/json"
-	"finance/model"
-	"finance/withdraw"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -82,7 +82,7 @@ func (this NotifyController) Notify(c *gin.Context) {
 		c.String(http.StatusOK, "金额错误")
 		return
 	}
-	member := model.Member{ID: item.UID}
+	member := model.Member{Id: item.UId}
 	if !member.Get() {
 		log.Println("用户不存在")
 		return

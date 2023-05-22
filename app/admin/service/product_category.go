@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,7 +20,7 @@ func (this ProductCategoryList) List() response.ProductCategoryData {
 	res := make([]response.ProductCategory, 0)
 	for _, v := range list {
 		i := response.ProductCategory{
-			ID:         v.ID,
+			Id:         v.Id,
 			Name:       v.Name,
 			Status:     v.Status,
 			CreateTime: v.CreateTime,
@@ -66,7 +66,7 @@ type ProductCategoryUpdate struct {
 }
 
 func (this ProductCategoryUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Name == "" {
@@ -77,7 +77,7 @@ func (this ProductCategoryUpdate) Update() error {
 	}
 
 	m := model.ProductCategory{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("分类不存在")
@@ -92,11 +92,11 @@ type ProductCategoryUpdateStatus struct {
 }
 
 func (this ProductCategoryUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.ProductCategory{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("分类不存在")
@@ -110,18 +110,18 @@ type ProductCategoryRemove struct {
 }
 
 func (this ProductCategoryRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.ProductCategory{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if err := m.Remove(); err != nil {
 		return err
 	}
 	//删除分类下产品
 	p := model.Product{
-		Category: this.ID,
+		Category: this.Id,
 	}
 	return p.Remove()
 }

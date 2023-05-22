@@ -1,11 +1,11 @@
 package service
 
 import (
+	"china-russia/app/admin/swag/request"
+	"china-russia/app/admin/swag/response"
+	"china-russia/common"
+	"china-russia/model"
 	"errors"
-	"finance/app/admin/swag/request"
-	"finance/app/admin/swag/response"
-	"finance/common"
-	"finance/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,8 +26,8 @@ func (this MessageList) PageList() response.MessageData {
 	res := make([]response.MessageInfo, 0)
 	for _, v := range list {
 		i := response.MessageInfo{
-			ID:         v.ID,
-			UID:        v.UID,
+			Id:         v.Id,
+			UId:        v.UId,
 			Title:      v.Title,
 			Content:    v.Content,
 			Status:     v.Status,
@@ -55,7 +55,7 @@ type MessageCreate struct {
 }
 
 func (this MessageCreate) Create() error {
-	if this.UID == 0 {
+	if this.UId == 0 {
 		return errors.New("接收用户错误")
 	}
 	if this.Title == "" {
@@ -65,7 +65,7 @@ func (this MessageCreate) Create() error {
 		return errors.New("内容不能为空")
 	}
 	m := model.Message{
-		UID:     this.UID,
+		UId:     this.UId,
 		Title:   this.Title,
 		Content: this.Content,
 		Status:  model.StatusClose,
@@ -79,10 +79,10 @@ type MessageUpdate struct {
 }
 
 func (this MessageUpdate) Update() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
-	if this.UID == 0 {
+	if this.UId == 0 {
 		return errors.New("接收用户错误")
 	}
 	if this.Title == "" {
@@ -92,7 +92,7 @@ func (this MessageUpdate) Update() error {
 		return errors.New("内容不能为空")
 	}
 	m := model.Message{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("站内信不存在")
@@ -109,11 +109,11 @@ type MessageUpdateStatus struct {
 }
 
 func (this MessageUpdateStatus) UpdateStatus() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Message{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	if !m.Get() {
 		return errors.New("站内信不存在")
@@ -128,11 +128,11 @@ type MessageRemove struct {
 }
 
 func (this MessageRemove) Remove() error {
-	if this.ID == 0 {
+	if this.Id == 0 {
 		return errors.New("参数错误")
 	}
 	m := model.Message{
-		ID: this.ID,
+		Id: this.Id,
 	}
 	return m.Remove()
 }
