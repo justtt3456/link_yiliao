@@ -12,8 +12,8 @@ type Member struct {
 	Username            string          `json:"username"`              //手机号
 	TotalBalance        decimal.Decimal `json:"total_balance"`         //可用余额
 	Balance             decimal.Decimal `json:"balance"`               //可用余额
-	UseBalance          decimal.Decimal `json:"withdraw_balance"`      //可提现余额
-	ParentId            int             `json:"parent_id"`             //推荐人id
+	WithdrawBalance     decimal.Decimal `json:"withdraw_balance"`      //可提现余额
+	WithdrawThreshold   decimal.Decimal `json:"withdraw_threshold"`    //可提现额度
 	IsReal              int             `json:"is_real"`               //是否实名 0未实名 1审核中 2通过 3驳回
 	RealName            string          `json:"real_name"`             //真实姓名
 	InvestFreeze        decimal.Decimal `json:"invest_freeze"`         //余额宝冻结金额
@@ -30,17 +30,13 @@ type Member struct {
 	HasWithdrawPassword int             `json:"has_withdraw_password"` //是否设置提现密码
 	RegisterIP          string          `json:"register_ip"`           //注册ip
 	Token               string          `json:"token"`                 //token盐
-	Nickname            string          `json:"nickname"`              //昵称
-	Mobile              string          `json:"mobile"`                //手机号
-	Email               string          `json:"email"`                 //邮箱
-	Qq                  string          `json:"qq"`                    //qq
-	Wechat              string          `json:"wechat"`                //微信
 	InviteCode          string          `json:"invite_code"`           //邀请码
-	Coupon              []Coupon        `json:"coupon"`                //用户有的优惠券
-	Income              decimal.Decimal `json:"income"`                //总收益
-	Guquan              int64           `json:"guquan"`                //股权
-	Message             int64           `json:"message"`               //站内信总条数
-	WillIncome          decimal.Decimal `json:"will_income"`           //待收益
+	//Coupon              []Coupon        `json:"coupon"`                //用户有的优惠券
+	Income decimal.Decimal `json:"income"` //总收益
+	//Guquan              int64           `json:"guquan"`                //股权
+	//Message    int64           `json:"message"`     //站内信总条数
+	PreIncome  decimal.Decimal `json:"pre_income"`  //待收益
+	PreCapital decimal.Decimal `json:"pre_capital"` //待收本金
 }
 
 type Coupon struct {

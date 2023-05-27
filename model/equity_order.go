@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type OrderGuquan struct {
+type OrderEquity struct {
 	Id           int             `gorm:"column:id;primary_key"`             //
 	UId          int             `gorm:"column:uid"`                        //关联用户id
 	Pid          int             `gorm:"column:pid"`                        //关联商品种类id
@@ -17,15 +17,15 @@ type OrderGuquan struct {
 	CreateTime   int64           `gorm:"column:create_time;autoCreateTime"` //创建时间
 	UpdateTime   int64           `gorm:"column:update_time;autoUpdateTime"` //系统开奖时间
 	Member       Member          `gorm:"foreignKey:UId;"`                   //BeLongsTo 关联用户 自身外键UId
-	Guquan       Guquan          `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
+	Equity       Equity          `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
 }
 
 // TableName sets the insert table name for this struct type
-func (o OrderGuquan) TableName() string {
+func (o OrderEquity) TableName() string {
 	return "c_guquan_order"
 }
 
-func (o *OrderGuquan) Insert() error {
+func (o *OrderEquity) Insert() error {
 	res := global.DB.Create(o)
 	if res.Error != nil {
 		logrus.Error(res.Error)
@@ -33,7 +33,7 @@ func (o *OrderGuquan) Insert() error {
 	}
 	return nil
 }
-func (this *OrderGuquan) Get() bool {
+func (this *OrderEquity) Get() bool {
 	//取数据库
 	res := global.DB.Where(this).First(this)
 	if res.Error != nil {
@@ -43,7 +43,7 @@ func (this *OrderGuquan) Get() bool {
 	return true
 }
 
-func (o *OrderGuquan) Update(col string, cols ...interface{}) error {
+func (o *OrderEquity) Update(col string, cols ...interface{}) error {
 	res := global.DB.Select(col, cols...).Updates(o)
 	if res.Error != nil {
 		logrus.Error(res.Error)
@@ -52,7 +52,7 @@ func (o *OrderGuquan) Update(col string, cols ...interface{}) error {
 	return nil
 }
 
-func (o *OrderGuquan) Count() (int64, error) {
+func (o *OrderEquity) Count() (int64, error) {
 	var count int64
 	err := global.DB.Model(o).Where(o).Count(&count)
 	if err.Error != nil {
@@ -62,7 +62,7 @@ func (o *OrderGuquan) Count() (int64, error) {
 	return count, nil
 }
 
-func (o *OrderGuquan) Sum() decimal.Decimal {
+func (o *OrderEquity) Sum() decimal.Decimal {
 	var count decimal.Decimal
 	err := global.DB.Model(o).Where(o).Pluck("COALESCE(SUM(pay_money),0) as count", &count)
 	if err.Error != nil {
@@ -72,7 +72,7 @@ func (o *OrderGuquan) Sum() decimal.Decimal {
 	return count
 }
 
-func (this *OrderGuquan) Sum2(where string, args []interface{}, field string) int64 {
+func (this *OrderEquity) Sum2(where string, args []interface{}, field string) int64 {
 	var total int64
 	tx := global.DB.Model(this).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
 	if tx.Error != nil {
@@ -82,8 +82,8 @@ func (this *OrderGuquan) Sum2(where string, args []interface{}, field string) in
 	return total
 }
 
-func (this *OrderGuquan) List(where string, args []interface{}) []*OrderGuquan {
-	res := make([]*OrderGuquan, 0)
+func (this *OrderEquity) List(where string, args []interface{}) []*OrderEquity {
+	res := make([]*OrderEquity, 0)
 	tx := global.DB.Model(this).Joins("Guquan").Joins("Member").Where(where, args...).Find(&res)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)
@@ -93,8 +93,8 @@ func (this *OrderGuquan) List(where string, args []interface{}) []*OrderGuquan {
 }
 
 // 订单列表 使用joins联合查询 或使用Preload 根据需求决定
-func (this *OrderGuquan) PageList(where string, args []interface{}, page, pageSize int) ([]OrderGuquan, common.Page) {
-	res := make([]OrderGuquan, 0)
+func (this *OrderEquity) PageList(where string, args []interface{}, page, pageSize int) ([]OrderEquity, common.Page) {
+	res := make([]OrderEquity, 0)
 	pageUtil := common.Page{
 		Page: page,
 	}

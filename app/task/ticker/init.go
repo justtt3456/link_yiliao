@@ -11,7 +11,7 @@ func Run() {
 	//余额宝接触冻结
 	go unfreeze()
 	//股权
-	go guquan()
+	go equity()
 	//定时任务:收益结算
 	go repository.InitCrontab()
 	select {}
@@ -35,8 +35,8 @@ func unfreeze() {
 	}
 }
 
-func guquan() {
-	i := repository.Guquan{}
+func equity() {
+	i := repository.Equity{}
 	ticker := time.NewTicker(time.Second)
 	for {
 		<-ticker.C

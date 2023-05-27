@@ -52,10 +52,10 @@ func (this *OrderCommissionRepair) Repair() error {
 }
 
 // 代理返佣, 购买产品后,立即返佣
-func (this *OrderCommissionRepair) ProxyRebate(c *model.SetBase, level int64, productOrder model.OrderProduct) {
+func (this *OrderCommissionRepair) ProxyRebate(c *model.SetBase, level int, productOrder model.OrderProduct) {
 	//1级代理佣金计算  18=一级返佣 19=二级返佣 20=三级返佣
-	agent := model.MemberRelation{
-		UId:   productOrder.UId,
+	agent := model.MemberParents{
+		Uid:   productOrder.UId,
 		Level: level,
 	}
 	//当代理不存在时
@@ -85,12 +85,12 @@ func (this *OrderCommissionRepair) ProxyRebate(c *model.SetBase, level int64, pr
 		t = 20
 	}
 
-	memberModel := model.Member{Id: agent.Puid}
+	memberModel := model.Member{Id: agent.ParentId}
 	//获取代理当前余额
 	memberModel.Get()
 
 	trade := model.Trade{
-		UId:       agent.Puid,
+		UId:       agent.ParentId,
 		TradeType: t,
 		ItemId:    productOrder.UId,
 		//Amount:     income,

@@ -13,7 +13,7 @@ type SetBase struct {
 	VerifiedSend      decimal.Decimal `gorm:"column:verified_send"`       //实名送金币
 	RegisterSend      decimal.Decimal `gorm:"column:register_send"`       //注册24小时后  第一次充值送金币
 	OneSend           decimal.Decimal `gorm:"column:one_send"`            //一级奖励
-	OneSendMoeny      decimal.Decimal `gorm:"column:one_send_moeny"`      //三级代理享受现金奖励
+	OneSendMoney      decimal.Decimal `gorm:"column:one_send_money"`      //三级代理享受现金奖励
 	TwoSend           decimal.Decimal `gorm:"column:two_send"`            //二级奖励
 	ThreeSend         decimal.Decimal `gorm:"column:three_send"`          //三级奖励
 	SendDesc          string          `gorm:"column:send_desc"`           //奖励描述
@@ -21,6 +21,7 @@ type SetBase struct {
 	TeamDesc          string          `gorm:"column:team_desc"`           //团队奖励描述
 	GiftRate          decimal.Decimal `gorm:"column:gift_rate"`           //赠品赠送比例
 	RetreatStartDate  string          `gorm:"column:retreat_start_date"`  //开始收盘日期
+	EquityStartDate   string          `gorm:"column:equity_start_date"`   //股权分开始日期
 	OneReleaseRate    decimal.Decimal `gorm:"column:one_release_rate"`    //一级代理释放比例
 	TwoReleaseRate    decimal.Decimal `gorm:"column:two_release_rate"`    //二级代理释放比例
 	ThreeReleaseRate  decimal.Decimal `gorm:"column:three_release_rate"`  //三级代理释放比例

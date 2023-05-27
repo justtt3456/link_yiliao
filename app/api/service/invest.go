@@ -53,7 +53,7 @@ func (this InvestIndex) Index(member model.Member) *response.InvestIndexData {
 		res = append(res, i)
 	}
 	//万元日收益金额
-	profitAmount := invest.Ratio / 100
+	profitAmount := invest.Ratio.Div(decimal.NewFromInt(100)).Round(2)
 	return &response.InvestIndexData{
 		Info: response.InvestInfo{
 			Name:           invest.Name,

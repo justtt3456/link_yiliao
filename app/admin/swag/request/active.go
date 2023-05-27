@@ -7,10 +7,10 @@ type AddCoupon struct {
 }
 
 type AddActive struct {
-	Amout    decimal.Decimal `json:"amout"`     //满多少
-	CouponId int64           `json:"coupon_id"` //送的优惠券Id
+	Amount   decimal.Decimal `json:"amount"`    //满多少
+	CouponId int             `json:"coupon_id"` //送的优惠券Id
 }
 
 type DelActive struct {
-	Id int64 `json:"id"` //活动Id
+	Id int `json:"id"` //活动Id
 }

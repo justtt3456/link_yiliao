@@ -43,7 +43,7 @@ type ActiveList struct {
 
 func (this *ActiveList) PageList() response.ActiveResp {
 	res := make([]response.Active, 0)
-	m := model.FullDelivery{}
+	m := model.CouponActivity{}
 	s := m.List()
 	for i := range s {
 		res = append(res, response.Active{
@@ -61,7 +61,7 @@ type ActiveAdd struct {
 }
 
 func (this *ActiveAdd) Add() error {
-	m := model.FullDelivery{}
+	m := model.CouponActivity{}
 	if this.CouponId == 0 {
 		return errors.New("优惠券Id不能为空")
 	}
@@ -86,7 +86,7 @@ func (this *DelActive) Del() error {
 	if this.Id == 0 {
 		return errors.New("活动Id不能为空")
 	}
-	m := model.FullDelivery{Id: this.Id}
+	m := model.CouponActivity{Id: this.Id}
 	if !m.Get() {
 		return errors.New("活动不存在")
 	}

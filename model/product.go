@@ -12,28 +12,28 @@ import (
 )
 
 type Product struct {
-	Id              int             `gorm:"column:id;primary_key"` //
-	Name            string          `gorm:"column:name"`           //产品名称
-	Category        int             `gorm:"column:category"`       //分类id
-	CreateTime      int64           `gorm:"column:create_time"`    //创建时间
-	Status          int             `gorm:"column:status"`         //是否开启，1为开启，0为关闭
-	Tag             int             `gorm:"column:tag"`            //1=热
-	TimeLimit       int             `gorm:"column:time_limit"`     //投资期限 （天）
-	IsRecommend     int             `gorm:"column:is_recommend"`   //是否推荐到首页 1是 2否
-	DayIncome       decimal.Decimal `gorm:"column:day_income"`     //每日收益  千分比
-	Price           decimal.Decimal `gorm:"column:price"`          //价格  (最低买多少)
-	TotalPrice      decimal.Decimal `gorm:"column:total_price"`    //项目规模
-	OtherPrice      decimal.Decimal `gorm:"column:other_price"`    //可投余额
-	MoreBuy         decimal.Decimal `gorm:"column:more_buy"`       //最多可以买多少份
-	Desc            string          `gorm:"column:desc"`           //描述
-	IsFinish        int             `gorm:"column:is_finish"`      //1=进行中  2=已投满
-	IsManjian       int             `gorm:"column:is_manjian"`     //1=有满减  2=无满减
-	BuyTimeLimit    int             `gorm:"column:buy_time_limit"` //产品限时多少天
-	Progress        decimal.Decimal `gorm:"column:progress"`       //项目进度
-	Type            int             `gorm:"column:type"`           //1=到期返本金 2=延迟反本金
-	DelayTime       int             `gorm:"column:delay_time"`     //延迟多少天
-	GiftId          int             `gorm:"column:gift_id"`        //赠送产品Id, 当值为0时,则没有赠送
-	ProductCategory ProductCategory `gorm:"foreignKey:Category"`
+	Id                    int             `gorm:"column:id"`
+	Name                  string          `gorm:"column:name"`                       //产品名称
+	Category              int             `gorm:"column:category"`                   //分类id
+	Type                  int             `gorm:"column:type"`                       //1=到期返本金 2=延迟反本金
+	Price                 decimal.Decimal `gorm:"column:price"`                      //价格
+	Img                   string          `gorm:"column:img"`                        //图片
+	Interval              int             `gorm:"column:interval"`                   //投资期限 （天）
+	IncomeRate            decimal.Decimal `gorm:"column:income_rate"`                //每日收益率
+	LimitBuy              int             `gorm:"column:limit_buy"`                  //限购数量
+	Total                 decimal.Decimal `gorm:"column:total"`                      //项目规模
+	Current               decimal.Decimal `gorm:"column:current"`                    //当前规模
+	Desc                  string          `gorm:"column:desc"`                       //描述
+	DelayTime             int             `gorm:"column:delay_time"`                 //延迟多少天
+	GiftId                int             `gorm:"column:gift_id"`                    //赠送产品ID
+	WithdrawThresholdRate decimal.Decimal `gorm:"column:withdraw_threshold_rate"`    //提现额度比例
+	IsHot                 int             `gorm:"column:is_hot"`                     //是否热门
+	IsFinished            int             `gorm:"column:is_finished"`                //是否已满
+	IsCouponGift          int             `gorm:"column:is_coupon_gift"`             //是否赠送优惠券
+	Sort                  int             `gorm:"column:sort"`                       //排序值
+	Status                int             `gorm:"column:status"`                     //是否开启，1为开启，2为关闭
+	CreateTime            int64           `gorm:"column:create_time;autoCreateTime"` //创建时间
+	ProductCategory       ProductCategory `gorm:"foreignKey:Category"`
 }
 
 // TableName sets the insert table name for this struct type

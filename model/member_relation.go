@@ -6,20 +6,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type MemberRelation struct {
-	UId            int            `gorm:"column:uid"`   //查询祖先
-	Puid           int            `gorm:"column:puid"`  //查询后代
-	Level          int64          `gorm:"column:level"` //代理层级
+type MemberParents struct {
+	Uid            int            `gorm:"column:uid" db:"uid" json:"uid" form:"uid"`                         //查询祖先
+	ParentId       int            `gorm:"column:parent_id" db:"parent_id" json:"parent_id" form:"parent_id"` //查询后代
+	Level          int            `gorm:"column:level" db:"level" json:"level" form:"level"`
+	IsBuy          int8           `gorm:"column:is_buy" db:"is_buy" json:"is_buy" form:"is_buy"`         //是否已购
+	Recharge       float64        `gorm:"column:recharge" db:"recharge" json:"recharge" form:"recharge"` //充值金额
+	Rebate         float64        `gorm:"column:rebate" db:"rebate" json:"rebate" form:"rebate"`         //返佣金额
 	Member         Member         `gorm:"foreignKey:uid"`
-	Member2        Member         `gorm:"foreignKey:puid"`
-	MemberVerified MemberVerified `gorm:"foreignKey:UId;references:UId"`
+	Parent         Member         `gorm:"foreignKey:parent_id"`
+	MemberVerified MemberVerified `gorm:"foreignKey:Uid;references:UId"`
 }
 
-func (m *MemberRelation) TableName() string {
-	return "c_member_relation"
+func (m *MemberParents) TableName() string {
+	return "c_member_parents"
 }
 
-func (this *MemberRelation) Get() bool {
+func (this *MemberParents) Get() bool {
 	//取数据库
 	res := global.DB.Model(this).Joins("Member").Where(this).First(this)
 	if res.Error != nil {
@@ -29,7 +32,7 @@ func (this *MemberRelation) Get() bool {
 	return true
 }
 
-func (this *MemberRelation) Get2() bool {
+func (this *MemberParents) Get2() bool {
 	//取数据库
 	res := global.DB.Model(this).Joins("Member2").Where(this).First(this)
 	if res.Error != nil {
@@ -39,7 +42,7 @@ func (this *MemberRelation) Get2() bool {
 	return true
 }
 
-func (this *MemberRelation) Update(col string, cols ...interface{}) error {
+func (this *MemberParents) Update(col string, cols ...interface{}) error {
 	res := global.DB.Select(col, cols...).Updates(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
@@ -48,7 +51,7 @@ func (this *MemberRelation) Update(col string, cols ...interface{}) error {
 	return nil
 }
 
-func (this *MemberRelation) Insert() error {
+func (this *MemberParents) Insert() error {
 	res := global.DB.Create(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
@@ -57,7 +60,7 @@ func (this *MemberRelation) Insert() error {
 	return nil
 }
 
-func (this *MemberRelation) InsertAll(result []MemberRelation) error {
+func (this *MemberParents) InsertAll(result []MemberParents) error {
 	res := global.DB.Create(result)
 	if res.Error != nil {
 		logrus.Error(res.Error)
@@ -67,9 +70,9 @@ func (this *MemberRelation) InsertAll(result []MemberRelation) error {
 }
 
 // 查询祖先
-func (this *MemberRelation) GetByUid() ([]MemberRelation, error) {
-	var res []MemberRelation
-	err := global.DB.Model(this).Where("uid = ?", this.UId).Find(&res)
+func (this *MemberParents) GetByUid() ([]MemberParents, error) {
+	var res []MemberParents
+	err := global.DB.Model(this).Where("uid = ?", this.Uid).Order("level asc").Find(&res)
 	if err.Error != nil {
 		logrus.Error(err.Error)
 		return nil, err.Error
@@ -78,8 +81,8 @@ func (this *MemberRelation) GetByUid() ([]MemberRelation, error) {
 }
 
 // 查询后代
-func (this *MemberRelation) GetByPuid(where string, args []interface{}, page, pageSize int) ([]MemberRelation, common.Page) {
-	res := make([]MemberRelation, 0)
+func (this *MemberParents) GetByPuid(where string, args []interface{}, page, pageSize int) ([]MemberParents, common.Page) {
+	res := make([]MemberParents, 0)
 	pageUtil := common.Page{
 		Page: page,
 	}
@@ -102,9 +105,9 @@ func (this *MemberRelation) GetByPuid(where string, args []interface{}, page, pa
 }
 
 // 查询后代
-func (this *MemberRelation) GetByPuidAll(where string, args []interface{}) ([]*MemberRelation, int64) {
+func (this *MemberParents) GetByPuidAll(where string, args []interface{}) ([]*MemberParents, int64) {
 
-	res := make([]*MemberRelation, 0)
+	res := make([]*MemberParents, 0)
 
 	var total int64
 	count := global.DB.Model(this).Joins("Member").Where(where, args...).Count(&total)
@@ -123,8 +126,8 @@ func (this *MemberRelation) GetByPuidAll(where string, args []interface{}) ([]*M
 }
 
 // 根据下线会员Id获取团队代理Id列表
-func (this *MemberRelation) GetTeamLeaderIds(userIds []int) []int {
-	res := make([]*MemberRelation, 0)
+func (this *MemberParents) GetTeamLeaderIds(userIds []int) []int {
+	res := make([]*MemberParents, 0)
 	var proxyIds []int
 
 	tx := global.DB.Model(this).Select("DISTINCT puid").Where("uid in ?", userIds).Where("level > 0").Find(&res)
@@ -138,14 +141,14 @@ func (this *MemberRelation) GetTeamLeaderIds(userIds []int) []int {
 	}
 
 	for _, lines := range res {
-		proxyIds = append(proxyIds, lines.Puid)
+		proxyIds = append(proxyIds, lines.ParentId)
 	}
 	return proxyIds
 }
 
 // 查询后代, 注:前台使用, 前台/后台的排序不一样,所以前台显示的数据使用独立的函数
-func (this *MemberRelation) GetChildListByParentId(where string, args []interface{}, page, pageSize int) ([]MemberRelation, common.Page) {
-	res := make([]MemberRelation, 0)
+func (this *MemberParents) GetChildListByParentId(where string, args []interface{}, page, pageSize int) ([]MemberParents, common.Page) {
+	res := make([]MemberParents, 0)
 	pageUtil := common.Page{
 		Page: page,
 	}

@@ -38,4 +38,6 @@ func (s PublicRouter) InitRouter(r *gin.RouterGroup) {
 	notify := controller.NotifyController{}
 	r.GET("notify/:payment", notify.Notify)
 	r.POST("notify/:payment", notify.Notify)
+	news := v1.NewsController{}
+	r.GET("news/page_list", news.PageList)
 }

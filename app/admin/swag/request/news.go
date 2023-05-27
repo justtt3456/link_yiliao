@@ -14,7 +14,6 @@ type NewsCreate struct {
 	Sort    int    `json:"sort"`    //
 	Intro   string `json:"intro"`   //
 	Cover   string `json:"cover"`   //封面图
-	Lang    string `json:"lang"`    //
 }
 type NewsUpdate struct {
 	Id      int    `json:"id"`
@@ -24,7 +23,6 @@ type NewsUpdate struct {
 	Sort    int    `json:"sort"`    //
 	Intro   string `json:"intro"`   //
 	Cover   string `json:"cover"`   //封面图
-	Lang    string `json:"lang"`    //
 }
 type NewsUpdateStatus struct {
 	Id     int `json:"id"`

@@ -10,7 +10,7 @@ import (
 type Invest struct {
 	Id             int             `gorm:"column:id;primary_key"`             //
 	Name           string          `gorm:"column:name"`                       //余额宝名称
-	Ratio          int             `gorm:"column:ratio"`                      //利率 0.01=1%!
+	Ratio          decimal.Decimal `gorm:"column:ratio"`                      //利率 0.01=1%!
 	FreezeDay      int             `gorm:"column:freeze_day"`                 //冻结天数
 	IncomeInterval int             `gorm:"column:income_interval"`            //收益发放间隔天数
 	Status         int             `gorm:"column:status"`                     //余额宝开关，1开启，2关闭

@@ -7,7 +7,7 @@ import (
 )
 
 type Coupon struct {
-	Id    int64           `gorm:"column:id;primary_key"` //
+	Id    int             `gorm:"column:id;primary_key"` //
 	Price decimal.Decimal `gorm:"column:price"`          //优惠券面额
 }
 

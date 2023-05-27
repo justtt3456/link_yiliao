@@ -13,7 +13,7 @@ func init() {
 }
 func main() {
 	//初始化viper
-	global.VP = global.Viper()
+	global.Viper()
 	//初始化log
 	global.Log()
 	//dao连接

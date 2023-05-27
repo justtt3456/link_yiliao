@@ -16,7 +16,6 @@ type InviteCode struct {
 	AgentId    int    `gorm:"column:agent_id"`                   //代理id
 	AgentName  string `gorm:"column:agent_name"`                 //
 	Code       string `gorm:"column:code"`                       //邀请码
-	RegCount   int    `gorm:"column:reg_count"`                  //注册人数
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //
 }
@@ -25,7 +24,15 @@ type InviteCode struct {
 func (i *InviteCode) TableName() string {
 	return "c_invite_code"
 }
-
+func (this InviteCode) InviteCode() string {
+	randCode := common.RandIntRunes(6)
+	this.Code = randCode
+	//当邀请码重复时
+	if !this.Get() {
+		return randCode
+	}
+	return this.InviteCode()
+}
 func (m *InviteCode) ExpireTime() time.Duration {
 	return time.Hour * 24 * 7
 }
@@ -101,7 +108,6 @@ func (i InviteCode) Info() *InviteCode {
 		UId:        i.UId,
 		AgentId:    i.AgentId,
 		Code:       i.Code,
-		RegCount:   i.RegCount,
 		CreateTime: i.CreateTime,
 	}
 }

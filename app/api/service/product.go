@@ -30,7 +30,7 @@ func (this ProductList) PageList() response.ProductListData {
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.Product, 0)
 	act := make([]response.ManSongActive, 0)
-	acts := model.FullDelivery{}
+	acts := model.CouponActivity{}
 	FullDelivery := acts.List()
 	for i := range FullDelivery {
 		act = append(act, response.ManSongActive{
@@ -41,42 +41,34 @@ func (this ProductList) PageList() response.ProductListData {
 	}
 	for _, v := range list {
 		//获取赠品产品名称
-		giftName := ""
-		if v.GiftId > 0 {
-			giftModel := model.Product{
-				Id: v.GiftId,
-			}
-			if giftModel.Get() {
-				giftName = giftModel.Name
-			}
-		}
+		//giftName := ""
+		//if v.GiftId > 0 {
+		//	giftModel := model.Product{
+		//		Id: v.GiftId,
+		//	}
+		//	if giftModel.Get() {
+		//		giftName = giftModel.Name
+		//	}
+		//}
 
 		i := response.Product{
 			Id:           v.Id,
 			Name:         v.Name,
 			Category:     v.Category,
-			CategoryName: v.ProductCategory.Name,
-			Status:       v.Status,
-			Tag:          v.Tag,
-			TimeLimit:    v.TimeLimit,
-			IsRecommend:  v.IsRecommend,
-			Dayincome:    v.DayIncome,
-			Price:        v.Price,
-			TotalPrice:   v.TotalPrice,
-			OtherPrice:   v.OtherPrice,
-			MoreBuy:      v.MoreBuy,
-			Desc:         v.Desc,
-			CreateTime:   v.CreateTime,
-			IsFinish:     v.IsFinish,
-			IsManjian:    v.IsManjian,
-			BuyTimeLimit: v.BuyTimeLimit,
 			Type:         v.Type,
+			Price:        v.Price,
+			Img:          v.Img,
+			Interval:     v.Interval,
+			IncomeRate:   v.IncomeRate,
+			LimitBuy:     v.LimitBuy,
+			Total:        v.Total,
+			Current:      v.Current,
+			Desc:         v.Desc,
 			DelayTime:    v.DelayTime,
-			Progress:     v.Progress,
-			GiftName:     giftName,
-		}
-		if v.IsManjian == 1 {
-			i.ManSongActive = act
+			IsHot:        v.IsHot,
+			IsFinished:   v.IsFinished,
+			IsCouponGift: v.IsCouponGift,
+			Status:       v.Status,
 		}
 		res = append(res, i)
 	}
@@ -93,7 +85,7 @@ func (this RecommendList) PageList() response.ProductListData {
 	list, page := m.PageList("is_recommend = ? and c_product.status = ?", []interface{}{1, 1}, 1, 10)
 	res := make([]response.Product, 0)
 	act := make([]response.ManSongActive, 0)
-	acts := model.FullDelivery{}
+	acts := model.CouponActivity{}
 	FullDelivery := acts.List()
 	for i := range FullDelivery {
 		act = append(act, response.ManSongActive{
@@ -105,30 +97,23 @@ func (this RecommendList) PageList() response.ProductListData {
 	for _, v := range list {
 
 		i := response.Product{
-			Id:           v.Id,
-			Name:         v.Name,
-			Category:     v.Category,
-			CategoryName: v.ProductCategory.Name,
-			Status:       v.Status,
-			Tag:          v.Tag,
-			TimeLimit:    v.TimeLimit,
-			IsRecommend:  v.IsRecommend,
-			Dayincome:    v.DayIncome,
-			Price:        v.Price,
-			TotalPrice:   v.TotalPrice,
-			OtherPrice:   v.OtherPrice,
-			MoreBuy:      v.MoreBuy,
-			Desc:         v.Desc,
-			CreateTime:   v.CreateTime,
-			IsFinish:     v.IsFinish,
-			IsManjian:    v.IsManjian,
-			BuyTimeLimit: v.BuyTimeLimit,
-			Type:         v.Type,
-			DelayTime:    v.DelayTime,
-			Progress:     v.Progress,
-		}
-		if v.IsManjian == 1 {
-			i.ManSongActive = act
+			Id:         v.Id,
+			Name:       v.Name,
+			Category:   v.Category,
+			Type:       v.Type,
+			Price:      v.Price,
+			Img:        v.Img,
+			Interval:   v.Interval,
+			IncomeRate: v.IncomeRate,
+			LimitBuy:   v.LimitBuy,
+			Total:      v.Total,
+			Current:    v.Current,
+			Desc:       v.Desc,
+			DelayTime:  v.DelayTime,
+			//GiftId:                v.GiftId,
+			//WithdrawThresholdRate: decimal.Decimal{},
+			IsHot:  v.IsHot,
+			Status: v.Status,
 		}
 		res = append(res, i)
 	}
@@ -139,80 +124,80 @@ type GetProduct struct {
 	request.GetProduct
 }
 
-func (this GetProduct) GetOne() response.Product {
-
-	m := model.Product{
-		Id:     this.Id,
-		Status: 1,
-	}
-	m.Get()
-
-	act := make([]response.ManSongActive, 0)
-	acts := model.FullDelivery{}
-	FullDelivery := acts.List()
-	for i := range FullDelivery {
-		act = append(act, response.ManSongActive{
-			Amount: FullDelivery[i].Amount,
-			Price:  FullDelivery[i].Coupon.Price,
-			Id:     FullDelivery[i].Coupon.Id,
-		})
-	}
-
-	//获取当前项目进度
-	startProgress := m.Progress
-	var progress decimal.Decimal
-	if m.OtherPrice.LessThanOrEqual(m.TotalPrice) {
-		usedAmount := m.TotalPrice.Sub(m.OtherPrice)
-		trueProgress := usedAmount.Div(m.TotalPrice).Round(2)
-		if trueProgress.LessThan(startProgress) {
-			progress = startProgress
-		} else {
-			progress = trueProgress
-		}
-	} else {
-		progress = decimal.NewFromFloat(0)
-	}
-
-	//获取赠品产品名称
-	giftName := ""
-	if m.GiftId > 0 {
-		giftModel := model.Product{
-			Id:     m.GiftId,
-			Status: 1,
-		}
-		if giftModel.Get() {
-			giftName = giftModel.Name
-		}
-	}
-
-	res := response.Product{
-		Id:           m.Id,
-		Name:         m.Name,
-		Category:     m.Category,
-		CategoryName: m.ProductCategory.Name,
-		Status:       m.Status,
-		Tag:          m.Tag,
-		TimeLimit:    m.TimeLimit,
-		IsRecommend:  m.IsRecommend,
-		Dayincome:    m.DayIncome,
-		Price:        m.Price,
-		TotalPrice:   m.TotalPrice,
-		OtherPrice:   m.OtherPrice,
-		MoreBuy:      m.MoreBuy,
-		Desc:         m.Desc,
-		CreateTime:   m.CreateTime,
-		IsFinish:     m.IsFinish,
-		IsManjian:    m.IsManjian,
-		BuyTimeLimit: m.BuyTimeLimit,
-		Progress:     progress,
-		Type:         m.Type,
-		GiftName:     giftName,
-	}
-	if res.IsManjian == 1 {
-		res.ManSongActive = act
-	}
-	return res
-}
+//func (this GetProduct) GetOne() response.Product {
+//
+//	m := model.Product{
+//		Id:     this.Id,
+//		Status: 1,
+//	}
+//	m.Get()
+//
+//	act := make([]response.ManSongActive, 0)
+//	acts := model.FullDelivery{}
+//	FullDelivery := acts.List()
+//	for i := range FullDelivery {
+//		act = append(act, response.ManSongActive{
+//			Amount: FullDelivery[i].Amount,
+//			Price:  FullDelivery[i].Coupon.Price,
+//			Id:     FullDelivery[i].Coupon.Id,
+//		})
+//	}
+//
+//	//获取当前项目进度
+//	startProgress := m.Progress
+//	var progress decimal.Decimal
+//	if m.OtherPrice.LessThanOrEqual(m.TotalPrice) {
+//		usedAmount := m.TotalPrice.Sub(m.OtherPrice)
+//		trueProgress := usedAmount.Div(m.TotalPrice).Round(2)
+//		if trueProgress.LessThan(startProgress) {
+//			progress = startProgress
+//		} else {
+//			progress = trueProgress
+//		}
+//	} else {
+//		progress = decimal.NewFromFloat(0)
+//	}
+//
+//	//获取赠品产品名称
+//	giftName := ""
+//	if m.GiftId > 0 {
+//		giftModel := model.Product{
+//			Id:     m.GiftId,
+//			Status: 1,
+//		}
+//		if giftModel.Get() {
+//			giftName = giftModel.Name
+//		}
+//	}
+//
+//	res := response.Product{
+//		Id:           m.Id,
+//		Name:         m.Name,
+//		Category:     m.Category,
+//		CategoryName: m.ProductCategory.Name,
+//		Status:       m.Status,
+//		Tag:          m.Tag,
+//		TimeLimit:    m.TimeLimit,
+//		IsRecommend:  m.IsRecommend,
+//		Dayincome:    m.DayIncome,
+//		Price:        m.Price,
+//		TotalPrice:   m.TotalPrice,
+//		OtherPrice:   m.OtherPrice,
+//		MoreBuy:      m.MoreBuy,
+//		Desc:         m.Desc,
+//		CreateTime:   m.CreateTime,
+//		IsFinish:     m.IsFinish,
+//		IsManjian:    m.IsManjian,
+//		BuyTimeLimit: m.BuyTimeLimit,
+//		Progress:     progress,
+//		Type:         m.Type,
+//		GiftName:     giftName,
+//	}
+//	if res.IsManjian == 1 {
+//		res.ManSongActive = act
+//	}
+//	return res
+//}
 
 func (this ProductList) getWhere() (string, []interface{}, error) {
 	where := map[string]interface{}{
@@ -273,27 +258,27 @@ type GuQuanList struct {
 	request.Request
 }
 
-func (this GuQuanList) List() *response.GuquanListResp {
+func (this GuQuanList) List() *response.EquityListResp {
 
-	m := model.Guquan{}
+	m := model.Equity{}
 	if !m.Get(true) {
 		return nil
 	}
-	return &response.GuquanListResp{
-		Id:              m.Id,
-		TotalGuquan:     m.TotalGuquan,
-		OtherGuquan:     m.OtherGuquan,
-		ReleaseRate:     m.ReleaseRate,
-		Price:           m.Price,
-		LimitBuy:        m.LimitBuy,
-		LuckyRate:       m.LuckyRate,
-		ReturnRate:      m.ReturnRate,
-		ReturnLuckyRate: m.ReturnLuckyRate,
-		PreStartTime:    m.PreStartTime,
-		PreEndTime:      m.PreEndTime,
-		OpenTime:        m.OpenTime,
-		ReturnTime:      m.ReturnTime,
-		Status:          m.Status,
+	return &response.EquityListResp{
+		Id:           m.Id,
+		Total:        m.Total,
+		Current:      m.Current,
+		ReleaseRate:  m.ReleaseRate,
+		Price:        m.Price,
+		MinBuy:       m.MinBuy,
+		HitRate:      m.HitRate,
+		MissRate:     m.MissRate,
+		SellRate:     m.SellRate,
+		PreStartTime: m.PreStartTime,
+		PreEndTime:   m.PreEndTime,
+		OpenTime:     m.OpenTime,
+		RecoverTime:  m.RecoverTime,
+		Status:       m.Status,
 	}
 
 }
@@ -311,145 +296,103 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	if this.Id <= 0 {
 		return errors.New("产品Id格式不正确！")
 	}
-	//金额分析
-	if this.Amount.LessThanOrEqual(decimal.Zero) {
-		return errors.New("购买金额必须大于0！")
+	//添加Redis乐观锁
+	lockKey := fmt.Sprintf("product_buy:%v:%v", member.Id, this.Id)
+	redisLock := common.RedisLock{RedisClient: global.REDIS}
+	if !redisLock.Lock(lockKey) {
+		return errors.New(lang.Lang("During data processing, Please try again later"))
+	}
+	defer redisLock.Unlock(lockKey)
+	if this.Quantity <= 0 {
+		return errors.New("数量错误！")
+	}
+	product := model.Product{Id: this.Id}
+	if !product.Get() {
+		return errors.New("产品不存在！")
+	}
+	if product.Type == 5 {
+		return errors.New("产品为赠品！不能购买")
+	}
+	if product.IsFinished == model.StatusOk {
+		return errors.New("项目已投满！")
+	}
+	amount := product.Price.Mul(decimal.NewFromInt(int64(this.Quantity)))
+	if product.Total.LessThan(product.Current.Add(amount)) {
+		return errors.New("可投额度不足！")
+	}
+	//余额检查
+	if member.Balance.LessThanOrEqual(amount) {
+		return errors.New("余额不足,请先充值！")
 	}
 	//交易密码验证
 	if common.Md5String(this.TransferPwd+member.WithdrawSalt) != member.WithdrawPassword {
 		return errors.New("交易密码错误")
 	}
-
+	//限购
+	order := model.OrderProduct{}
+	count := order.Count("uid = ?", []interface{}{member.Id})
+	if int(count)+this.Quantity > product.LimitBuy {
+		return errors.New(fmt.Sprintf("限购%v份！", product.LimitBuy))
+	}
 	//优惠券分析
+	var memberCoupon model.MemberCoupon
 	var couponAmount decimal.Decimal
 	if this.UseId != 0 {
-		MemberCoupon := model.MemberCoupon{
+		memberCoupon = model.MemberCoupon{
 			Uid:   int64(member.Id),
 			Id:    this.UseId,
 			IsUse: 1,
 		}
-		if !MemberCoupon.Get() {
+		if !memberCoupon.Get() {
 			return errors.New("没有找到可用的优惠券信息！")
 		}
-		couponAmount = MemberCoupon.Coupon.Price
+		couponAmount = memberCoupon.Coupon.Price
 	}
-
-	//添加Redis乐观锁
-	lockKey := fmt.Sprintf("redisLock:api:submitProductOrder:memberId_%s_productId_%d_amount_%d", member.Id, this.Id, this.Amount)
-	redisLock := common.RedisLock{RedisClient: global.REDIS}
-	lockResult := redisLock.Lock(lockKey)
-	if !lockResult {
-		return errors.New(lang.Lang("During data processing, Please try again later"))
+	//24小时内购买赠送可提现余额
+	var registerGift bool
+	lastOrder := model.OrderProduct{UId: member.Id}
+	if !lastOrder.Get() {
+		registerGift = true
 	}
-
-	//获取会员当前最新余额
-	memberModel := model.Member{
-		Id: member.Id,
-	}
-	memberModel.Get()
-
-	//所需用户金额
-	needAmount := this.Amount.Sub(couponAmount)
-	if memberModel.Balance.LessThan(needAmount) {
-		//解锁
-		redisLock.Unlock(lockKey)
-		return errors.New("余额不足,请先充值！")
-	}
-
-	//检查用户是否在注册24小时内第一次购买产品或股权
-	var isSendRigster bool
-	if member.RegTime+24*3600 >= time.Now().Unix() {
-		guquan := model.OrderGuquan{UId: member.Id}
-		product := model.OrderProduct{UId: member.Id}
-		guquanNum, _ := guquan.Count()
-		productNum := product.Count("uid = ?", []interface{}{member.Id})
-		if guquanNum == 0 && productNum == 0 {
-			isSendRigster = true
-		}
-	}
-
 	//基础配置表
 	config := model.SetBase{}
 	config.Get()
-
 	//购买不同分类的产品的订单处理
 	switch this.Cate {
 	case 1:
-		//产品
-		p := model.Product{Id: this.Id, Status: 1}
-		if !p.Get() {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New("产品不存在！")
-		}
-		//赠品分析
-		if p.Type == 5 {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New("产品为赠品！不能购买")
-		}
-
-		if this.Amount.LessThan(p.Price) {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New(fmt.Sprintf("购买金额必须大于%v！", p.Price))
-		}
-		if p.MoreBuy.LessThan(this.Amount) {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New(fmt.Sprintf("购买金额必须小于%v！", p.MoreBuy))
-		}
-
-		money := model.OrderProduct{}
-		wheres := "uid = ? and pid=?"
-		agrss := []interface{}{member.Id, this.Id}
-		pmoney := money.Sum(wheres, agrss, "pay_money")
-
-		if p.MoreBuy.LessThan(pmoney.Add(this.Amount)) {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New(fmt.Sprintf("您购买的产品已达到上限%v", p.MoreBuy))
-		}
-		if p.OtherPrice.LessThan(this.Amount) {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New("项目可投余额不足")
-		}
-
 		//购买
 		inc := &model.OrderProduct{
 			UId:          member.Id,
-			Pid:          p.Id,
-			PayMoney:     this.Amount,
+			Pid:          product.Id,
+			PayMoney:     amount.Sub(couponAmount),
 			IsReturnTop:  1,
-			AfterBalance: memberModel.Balance.Sub(needAmount),
+			AfterBalance: member.Balance.Sub(amount.Sub(couponAmount)),
 			CreateTime:   time.Now().Unix(),
 			UpdateTime:   time.Now().Unix(),
-			IncomeRate:   p.DayIncome,
-			EndTime:      time.Now().Unix() + int64(p.TimeLimit*86400),
+			IncomeRate:   product.IncomeRate,
+			EndTime:      time.Now().Unix() + int64(product.Interval*86400),
 		}
 		err := inc.Insert()
 		if err != nil {
-			//解锁
-			redisLock.Unlock(lockKey)
 			return err
 		}
-
 		//减去可投余额
-		p.OtherPrice = p.OtherPrice.Sub(this.Amount)
-		err = p.Update("other_price")
+		product.Current = product.Current.Add(amount)
+		if product.Total.LessThanOrEqual(product.Current) {
+			product.IsFinished = model.StatusOk
+		}
+		err = product.Update("current", "is_finished")
 		if err != nil {
 			logrus.Errorf("购买产品减去可投余额失败%v", err)
 		}
-
 		//加入账变记录
 		trade := model.Trade{
 			UId:        member.Id,
 			TradeType:  1,
 			ItemId:     inc.Id,
-			Amount:     needAmount,
-			Before:     memberModel.Balance,
-			After:      memberModel.Balance.Sub(needAmount),
+			Amount:     amount,
+			Before:     member.Balance,
+			After:      member.Balance.Sub(amount),
 			Desc:       "购买产品",
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
@@ -459,25 +402,19 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		if err != nil {
 			logrus.Errorf("购买产品加入账变记录失败%v", err)
 		}
-
 		//扣减可用余额
-		memberModel.Balance = memberModel.Balance.Sub(needAmount)
-		memberModel.IsBuy = 1
-		err = memberModel.Update("balance", "is_buy")
-		if err != nil {
-			logrus.Errorf("更改会员余额信息失败%v", err)
-		}
+		member.Balance = member.Balance.Sub(amount.Sub(couponAmount))
+		member.IsBuy = 1
 
 		//优惠券使用记录
 		if decimal.Zero.LessThan(couponAmount) {
-			//使用优惠券记录
 			trade3 := model.Trade{
 				UId:        member.Id,
 				TradeType:  10,
 				ItemId:     int(this.UseId),
 				Amount:     couponAmount,
-				Before:     memberModel.Balance,
-				After:      memberModel.Balance,
+				Before:     member.Balance,
+				After:      member.Balance,
 				Desc:       "使用优惠券",
 				CreateTime: time.Now().Unix(),
 				UpdateTime: time.Now().Unix(),
@@ -488,128 +425,67 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				logrus.Errorf("使用优惠券记录 加入账变记录失败%v", err)
 			}
 			//更改优惠券状态
-			MemberCoupon2 := model.MemberCoupon{
-				Id: this.UseId,
-			}
-			MemberCoupon2.IsUse = 2
-			err = MemberCoupon2.Update("is_use")
+			memberCoupon.IsUse = 2
+			err = memberCoupon.Update("is_use")
 			if err != nil {
 				logrus.Errorf("修改用户优惠券失败%v", err)
 			}
 		}
-
-		if isSendRigster {
-			//获取会员当前最新余额信息
-			memberModel.Get()
-			//收盘状态分析
-			isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
-			if isRetreatStatus == true {
-				//可用余额转换比例分析, 默认为90%
-				if config.IncomeBalanceRate.Equal(decimal.Zero) {
-					config.IncomeBalanceRate = decimal.NewFromFloat(0.9)
-				}
-				//可用余额,可提现余额分析
-				balanceAmount := config.IncomeBalanceRate.Mul(config.RegisterSend)
-				useBalanceAmount := config.RegisterSend.Sub(balanceAmount)
-
-				//赠送礼金 加入账变记录
-				trade2 := model.Trade{
-					UId:        member.Id,
-					TradeType:  7,
-					ItemId:     inc.Id,
-					Amount:     useBalanceAmount,
-					Before:     memberModel.WithdrawBalance,
-					After:      memberModel.WithdrawBalance.Add(useBalanceAmount),
-					Desc:       "第一次购买赠送礼金",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade2.Insert()
-				if err != nil {
-					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				}
-
-				trade2 = model.Trade{
-					UId:        member.Id,
-					TradeType:  7,
-					ItemId:     inc.Id,
-					Amount:     balanceAmount,
-					Before:     memberModel.Balance,
-					After:      memberModel.Balance.Add(balanceAmount),
-					Desc:       "第一次购买赠送礼金",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade2.Insert()
-				if err != nil {
-					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				}
-
-				//更改会员当前余额信息
-				memberModel.Balance = memberModel.Balance.Add(balanceAmount)
-				memberModel.WithdrawBalance = memberModel.Balance.Add(useBalanceAmount)
-			} else {
-				//赠送礼金 加入账变记录
-				trade2 := model.Trade{
-					UId:        member.Id,
-					TradeType:  7,
-					ItemId:     inc.Id,
-					Amount:     config.RegisterSend,
-					Before:     memberModel.WithdrawBalance,
-					After:      memberModel.WithdrawBalance.Add(config.RegisterSend),
-					Desc:       "第一次购买赠送礼金",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade2.Insert()
-				if err != nil {
-					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				}
-
-				//更改会员当前余额信息
-				memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(config.RegisterSend)
+		//赠送
+		if registerGift && decimal.Zero.LessThan(config.RegisterSend) {
+			//赠送礼金 加入账变记录
+			trade2 := model.Trade{
+				UId:        member.Id,
+				TradeType:  7,
+				ItemId:     inc.Id,
+				Amount:     config.RegisterSend,
+				Before:     member.WithdrawBalance,
+				After:      member.WithdrawBalance.Add(config.RegisterSend),
+				Desc:       "第一次购买赠送礼金",
+				CreateTime: time.Now().Unix(),
+				UpdateTime: time.Now().Unix(),
+				IsFrontend: 1,
 			}
-
-			//memberModel.TotalBalance = memberModel.TotalBalance.Add(config.RegisterSend)
-			memberModel.TotalIncome = memberModel.TotalIncome.Add(config.RegisterSend)
-			err = memberModel.Update("balance", "withdraw_balance", "total_income")
+			err = trade2.Insert()
+			if err != nil {
+				logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+			}
+			member.WithdrawBalance = member.WithdrawBalance.Add(config.RegisterSend)
+			member.PreIncome = member.PreIncome.Add(product.IncomeRate.Mul(decimal.NewFromInt(int64(product.Interval))))
+			member.PreCapital = member.PreCapital.Add(product.Price)
+			err = member.Update("balance", "withdraw_balance", "total_income")
 			if err != nil {
 				logrus.Errorf("更改会员余额信息失败%v", err)
 			}
 		}
 
 		//检查是否有满送活动
-		if p.IsManjian == 1 {
-			//获取会员当前最新余额
-			memberModel.Get()
-			full := model.FullDelivery{}
-			if full.Find(this.Amount) {
+		if product.IsCouponGift == model.StatusOk {
+			full := model.CouponActivity{}
+			if full.Find(amount) {
 				//满送活动加入账变记录
-				//trade3 := model.Trade{
-				//	UId:        member.Id,
-				//	TradeType:  9,
-				//	ItemId:     int(full.Coupon.Id),
-				//	Amount:     full.Coupon.Price,
-				//	Before:     memberModel.Balance,
-				//	After:      memberModel.Balance + full.Coupon.Price,
-				//	Desc:       "赠送优惠券",
-				//	CreateTime: time.Now().Unix(),
-				//	UpdateTime: time.Now().Unix(),
-				//	IsFrontend: 1,
-				//}
-				//err = trade3.Insert()
-				//if err != nil {
-				//	logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				//}
-				MemberCoupon := model.MemberCoupon{
+				trade3 := model.Trade{
+					UId:        member.Id,
+					TradeType:  9,
+					ItemId:     int(full.Coupon.Id),
+					Amount:     full.Coupon.Price,
+					Before:     member.Balance,
+					After:      member.Balance,
+					Desc:       fmt.Sprintf("赠送%v优惠券", full.Coupon.Price),
+					CreateTime: time.Now().Unix(),
+					UpdateTime: time.Now().Unix(),
+					IsFrontend: 1,
+				}
+				err = trade3.Insert()
+				if err != nil {
+					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+				}
+				couponIns := model.MemberCoupon{
 					Uid:      int64(member.Id),
 					CouponId: full.Coupon.Id,
 					IsUse:    1,
 				}
-				err = MemberCoupon.Insert()
+				err = couponIns.Insert()
 				if err != nil {
 					logrus.Errorf("赠赠送优惠券记录失败%v %v", err, member.Id)
 				}
@@ -621,14 +497,6 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				//}
 			}
 		}
-
-		//更改用户收益
-		memberModel.PreIncome = memberModel.PreIncome.Add(this.Amount).Mul(p.DayIncome.Mul(decimal.NewFromInt(int64(p.TimeLimit))))
-		err = memberModel.Update("pre_income")
-		if err != nil {
-			logrus.Errorf("更改会员余额信息失败%v", err)
-		}
-
 		//上级返佣
 		if inc.IsReturnTop == 1 {
 			//1级代理佣金计算
@@ -640,27 +508,24 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		}
 
 		//赠品分析
-		if p.GiftId > 0 {
+		if product.GiftId > 0 {
 			giftModel := model.Product{
-				Id:     p.GiftId,
+				Id:     product.GiftId,
 				Status: 1,
 				Type:   5,
 			}
 
 			//当赠品产品信息存在时
 			if giftModel.Get() {
-				//获取会员当前最新余额信息
-				memberModel.Get()
-				//赠品金额 @todo
-				giftAmount := this.Amount.Mul(config.GiftRate)
-
+				//赠品金额
+				//giftAmount := this.Amount.Mul(config.GiftRate)
 				//赠品订单
 				orderModel := &model.OrderProduct{
 					UId:          member.Id,
 					Pid:          giftModel.Id,
-					PayMoney:     giftAmount,
+					PayMoney:     giftModel.Price,
 					IsReturnTop:  1,
-					AfterBalance: memberModel.Balance,
+					AfterBalance: member.Balance,
 					CreateTime:   time.Now().Unix(),
 					UpdateTime:   time.Now().Unix(),
 				}
@@ -676,10 +541,10 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 					UId:        member.Id,
 					TradeType:  1,
 					ItemId:     orderModel.Id,
-					Amount:     giftAmount,
-					Before:     memberModel.Balance,
-					After:      memberModel.Balance,
-					Desc:       "赠品:购买产品赠送",
+					Amount:     decimal.Zero,
+					Before:     member.Balance,
+					After:      member.Balance,
+					Desc:       fmt.Sprintf("赠送:%v", giftModel.Name),
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
 					IsFrontend: 1,
@@ -688,192 +553,184 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 				if err != nil {
 					logrus.Errorf("赠送赠品加入账变记录失败%v", err)
 				}
-
 				//更改用户收益
-				memberModel.PreIncome = memberModel.PreIncome.Add(giftAmount.Mul(giftModel.DayIncome.Mul(decimal.NewFromInt(int64(p.TimeLimit)))))
-				err = memberModel.Update("pre_income")
-				if err != nil {
-					logrus.Errorf("赠送赠品更改会员收益信息失败%v", err)
-				}
+				member.PreIncome = member.PreIncome.Add(giftModel.IncomeRate.Mul(decimal.NewFromInt(int64(giftModel.Interval))))
+				member.PreCapital = member.PreCapital.Add(giftModel.Price)
 			}
 		}
-
-		//解锁
-		redisLock.Unlock(lockKey)
-		return nil
-
-	case 2:
-		//股权
-		p := model.Guquan{Id: int64(this.Id)}
-		if !p.Get(true) {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New("股权不存在！")
-		}
-		if p.PreStartTime > time.Now().Unix() {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New("股权预售时间未开始")
-		}
-		if p.PreEndTime < time.Now().Unix() {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New("股权预售时间已结束")
-		}
-		if this.Amount.LessThan(decimal.NewFromInt(p.LimitBuy)) {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return errors.New(fmt.Sprintf("购买金额必须大于%v！", p.LimitBuy))
-		}
-
-		//购买
-		inc := &model.OrderGuquan{
-			UId:          member.Id,
-			Pid:          int(p.Id),
-			PayMoney:     this.Amount,
-			Rate:         decimal.NewFromInt(1),
-			AfterBalance: memberModel.Balance.Sub(this.Amount),
-			CreateTime:   time.Now().Unix(),
-			UpdateTime:   time.Now().Unix(),
-		}
-		err := inc.Insert()
-		if err != nil {
-			//解锁
-			redisLock.Unlock(lockKey)
-			return err
-		}
-
-		//减去可投余额
-		p.OtherGuquan = p.OtherGuquan.Sub(this.Amount)
-		err = p.Update("other_guquan")
-		if err != nil {
-			logrus.Errorf("购买产品减去可投余额失败%v", err)
-		}
-
-		//加入账变记录
-		trade := model.Trade{
-			UId:        member.Id,
-			TradeType:  2,
-			ItemId:     inc.Id,
-			Amount:     this.Amount,
-			Before:     memberModel.Balance,
-			After:      memberModel.Balance.Sub(this.Amount),
-			Desc:       "购买股权",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		err = trade.Insert()
-		if err != nil {
-			logrus.Errorf("购买股权加入账变记录失败%v", err)
-		}
-
-		//扣减余额
-		memberModel.Balance = memberModel.Balance.Mul(this.Amount)
-		memberModel.IsBuy = 1
-		memberModel.Guquan = memberModel.Guquan.Add(this.Amount)
-		err = memberModel.Update("balance", "is_buy", "guquan")
+		err = member.Update("balance", "is_buy", "pre_income", "pre_capital")
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
 		}
-
-		if isSendRigster {
-			//获取会员当前最新余额信息
-			memberModel.Get()
-			//收盘状态分析
-			isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
-			if isRetreatStatus == true {
-				//可用余额转换比例分析, 默认为90%
-				if config.IncomeBalanceRate.LessThanOrEqual(decimal.Zero) {
-					config.IncomeBalanceRate = decimal.NewFromFloat(0.9)
-				}
-				//可用余额,可提现余额分析
-				balanceAmount := config.IncomeBalanceRate.Mul(config.RegisterSend)
-				useBalanceAmount := config.RegisterSend.Sub(balanceAmount)
-
-				//赠送礼金 加入账变记录
-				trade2 := model.Trade{
-					UId:        member.Id,
-					TradeType:  7,
-					ItemId:     inc.Id,
-					Amount:     useBalanceAmount,
-					Before:     memberModel.WithdrawBalance,
-					After:      memberModel.WithdrawBalance.Add(useBalanceAmount),
-					Desc:       "第一次购买赠送礼金",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade2.Insert()
-				if err != nil {
-					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				}
-
-				trade2 = model.Trade{
-					UId:        member.Id,
-					TradeType:  7,
-					ItemId:     inc.Id,
-					Amount:     balanceAmount,
-					Before:     memberModel.Balance,
-					After:      memberModel.Balance.Add(balanceAmount),
-					Desc:       "第一次购买赠送礼金",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade2.Insert()
-				if err != nil {
-					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				}
-
-				//更改会员当前余额信息
-				memberModel.Balance = memberModel.Balance.Add(balanceAmount)
-				memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(useBalanceAmount)
-			} else {
-				//赠送礼金 加入账变记录
-				trade2 := model.Trade{
-					UId:        member.Id,
-					TradeType:  7,
-					ItemId:     inc.Id,
-					Amount:     config.RegisterSend,
-					Before:     memberModel.Balance,
-					After:      memberModel.Balance.Add(config.RegisterSend),
-					Desc:       "第一次购买赠送礼金",
-					CreateTime: time.Now().Unix(),
-					UpdateTime: time.Now().Unix(),
-					IsFrontend: 1,
-				}
-				err = trade2.Insert()
-				if err != nil {
-					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
-				}
-				//更改会员余额
-				memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(config.RegisterSend)
-			}
-
-			//memberModel.TotalBalance = memberModel.TotalBalance.Add(config.RegisterSend)
-			memberModel.TotalIncome = memberModel.TotalIncome.Add(config.RegisterSend)
-			err = memberModel.Update("balance", "withdraw_balance", "total_income")
-			if err != nil {
-				logrus.Errorf("更改会员余额信息失败%v", err)
-			}
-		}
+		return nil
+	case 2:
+		//股权
+		//p := model.Guquan{Id: int64(this.Id)}
+		//if !p.Get(true) {
+		//	//解锁
+		//	redisLock.Unlock(lockKey)
+		//	return errors.New("股权不存在！")
+		//}
+		//if p.PreStartTime > time.Now().Unix() {
+		//	//解锁
+		//	redisLock.Unlock(lockKey)
+		//	return errors.New("股权预售时间未开始")
+		//}
+		//if p.PreEndTime < time.Now().Unix() {
+		//	//解锁
+		//	redisLock.Unlock(lockKey)
+		//	return errors.New("股权预售时间已结束")
+		//}
+		//if this.Amount.LessThan(decimal.NewFromInt(p.LimitBuy)) {
+		//	//解锁
+		//	redisLock.Unlock(lockKey)
+		//	return errors.New(fmt.Sprintf("购买金额必须大于%v！", p.LimitBuy))
+		//}
+		//
+		////购买
+		//inc := &model.OrderGuquan{
+		//	UId:          member.Id,
+		//	Pid:          int(p.Id),
+		//	PayMoney:     this.Amount,
+		//	Rate:         decimal.NewFromInt(1),
+		//	AfterBalance: memberModel.Balance.Sub(this.Amount),
+		//	CreateTime:   time.Now().Unix(),
+		//	UpdateTime:   time.Now().Unix(),
+		//}
+		//err := inc.Insert()
+		//if err != nil {
+		//	//解锁
+		//	redisLock.Unlock(lockKey)
+		//	return err
+		//}
+		//
+		////减去可投余额
+		//p.OtherGuquan = p.OtherGuquan.Sub(this.Amount)
+		//err = p.Update("other_guquan")
+		//if err != nil {
+		//	logrus.Errorf("购买产品减去可投余额失败%v", err)
+		//}
+		//
+		////加入账变记录
+		//trade := model.Trade{
+		//	UId:        member.Id,
+		//	TradeType:  2,
+		//	ItemId:     inc.Id,
+		//	Amount:     this.Amount,
+		//	Before:     memberModel.Balance,
+		//	After:      memberModel.Balance.Sub(this.Amount),
+		//	Desc:       "购买股权",
+		//	CreateTime: time.Now().Unix(),
+		//	UpdateTime: time.Now().Unix(),
+		//	IsFrontend: 1,
+		//}
+		//err = trade.Insert()
+		//if err != nil {
+		//	logrus.Errorf("购买股权加入账变记录失败%v", err)
+		//}
+		//
+		////扣减余额
+		//memberModel.Balance = memberModel.Balance.Mul(this.Amount)
+		//memberModel.IsBuy = 1
+		//memberModel.Guquan = memberModel.Guquan.Add(this.Amount)
+		//err = memberModel.Update("balance", "is_buy", "guquan")
+		//if err != nil {
+		//	logrus.Errorf("更改会员余额信息失败%v", err)
+		//}
+		//
+		//if isSendRigster {
+		//	//获取会员当前最新余额信息
+		//	memberModel.Get()
+		//	//收盘状态分析
+		//	isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
+		//	if isRetreatStatus == true {
+		//		//可用余额转换比例分析, 默认为90%
+		//		if config.IncomeBalanceRate.LessThanOrEqual(decimal.Zero) {
+		//			config.IncomeBalanceRate = decimal.NewFromFloat(0.9)
+		//		}
+		//		//可用余额,可提现余额分析
+		//		balanceAmount := config.IncomeBalanceRate.Mul(config.RegisterSend)
+		//		useBalanceAmount := config.RegisterSend.Sub(balanceAmount)
+		//
+		//		//赠送礼金 加入账变记录
+		//		trade2 := model.Trade{
+		//			UId:        member.Id,
+		//			TradeType:  7,
+		//			ItemId:     inc.Id,
+		//			Amount:     useBalanceAmount,
+		//			Before:     memberModel.WithdrawBalance,
+		//			After:      memberModel.WithdrawBalance.Add(useBalanceAmount),
+		//			Desc:       "第一次购买赠送礼金",
+		//			CreateTime: time.Now().Unix(),
+		//			UpdateTime: time.Now().Unix(),
+		//			IsFrontend: 1,
+		//		}
+		//		err = trade2.Insert()
+		//		if err != nil {
+		//			logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+		//		}
+		//
+		//		trade2 = model.Trade{
+		//			UId:        member.Id,
+		//			TradeType:  7,
+		//			ItemId:     inc.Id,
+		//			Amount:     balanceAmount,
+		//			Before:     memberModel.Balance,
+		//			After:      memberModel.Balance.Add(balanceAmount),
+		//			Desc:       "第一次购买赠送礼金",
+		//			CreateTime: time.Now().Unix(),
+		//			UpdateTime: time.Now().Unix(),
+		//			IsFrontend: 1,
+		//		}
+		//		err = trade2.Insert()
+		//		if err != nil {
+		//			logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+		//		}
+		//
+		//		//更改会员当前余额信息
+		//		memberModel.Balance = memberModel.Balance.Add(balanceAmount)
+		//		memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(useBalanceAmount)
+		//	} else {
+		//		//赠送礼金 加入账变记录
+		//		trade2 := model.Trade{
+		//			UId:        member.Id,
+		//			TradeType:  7,
+		//			ItemId:     inc.Id,
+		//			Amount:     config.RegisterSend,
+		//			Before:     memberModel.Balance,
+		//			After:      memberModel.Balance.Add(config.RegisterSend),
+		//			Desc:       "第一次购买赠送礼金",
+		//			CreateTime: time.Now().Unix(),
+		//			UpdateTime: time.Now().Unix(),
+		//			IsFrontend: 1,
+		//		}
+		//		err = trade2.Insert()
+		//		if err != nil {
+		//			logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
+		//		}
+		//		//更改会员余额
+		//		memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(config.RegisterSend)
+		//	}
+		//
+		//	//memberModel.TotalBalance = memberModel.TotalBalance.Add(config.RegisterSend)
+		//	memberModel.TotalIncome = memberModel.TotalIncome.Add(config.RegisterSend)
+		//	err = memberModel.Update("balance", "withdraw_balance", "total_income")
+		//	if err != nil {
+		//		logrus.Errorf("更改会员余额信息失败%v", err)
+		//	}
+		//}
 
 	default:
-		//解锁
-		redisLock.Unlock(lockKey)
 		return errors.New("购买类型不存在")
 	}
-	//解锁
-	redisLock.Unlock(lockKey)
 	return nil
 }
 
 // 代理返佣, 购买产品后,立即返佣
-func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder *model.OrderProduct) {
+func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int, productOrder *model.OrderProduct) {
 	//1级代理佣金计算  18=一级返佣 19=二级返佣 20=三级返佣
-	agent := model.MemberRelation{
-		UId:   productOrder.UId,
+	agent := model.MemberParents{
+		Uid:   productOrder.UId,
 		Level: level,
 	}
 	//当代理不存在时
@@ -892,7 +749,7 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 		//会员第一次下单, 直接上级发放红包
 		if !ordersModel.Get() {
-			income = income.Add(c.OneSendMoeny)
+			income = income.Add(c.OneSendMoney)
 		}
 		t = 18
 	} else if level == 2 {
@@ -903,7 +760,7 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		t = 20
 	}
 
-	memberModel := model.Member{Id: agent.Puid}
+	memberModel := model.Member{Id: agent.ParentId}
 	//获取代理当前余额
 	memberModel.Get()
 
@@ -911,7 +768,7 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 	isRetreatStatus := common.ParseRetreatStatus(c.RetreatStartDate)
 	if isRetreatStatus == true && level != 1 {
 		trade := model.Trade{
-			UId:        agent.Puid,
+			UId:        agent.ParentId,
 			TradeType:  t,
 			ItemId:     productOrder.UId,
 			Amount:     income,
@@ -943,7 +800,7 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 	} else {
 		trade := model.Trade{
-			UId:        agent.Puid,
+			UId:        agent.ParentId,
 			TradeType:  t,
 			ItemId:     productOrder.UId,
 			Amount:     income,
@@ -1008,7 +865,7 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 
 		trade2 := model.Trade{
-			UId:        agent.Puid,
+			UId:        agent.ParentId,
 			TradeType:  t2,
 			ItemId:     productOrder.UId,
 			Amount:     freeAmount,
@@ -1021,23 +878,23 @@ func (this *ProductBuy) ProxyRebate(c *model.SetBase, level int64, productOrder 
 		}
 		err := trade2.Insert()
 		if err != nil {
-			logrus.Errorf("%v级释放可用余额失败  代理UId %v err= &v", level, agent.Puid, err)
+			logrus.Errorf("%v级释放可用余额失败  代理UId %v err= &v", level, agent.ParentId, err)
 		}
 
 		memberModel.Balance = memberModel.Balance.Sub(freeAmount)
 		memberModel.WithdrawBalance = memberModel.WithdrawBalance.Add(freeAmount)
 		err = memberModel.Update("balance", "withdraw_balance")
 		if err != nil {
-			logrus.Errorf("%v级释放可用余额失败 代理UId %v 收益 %v  err= &v", level, agent.Puid, freeAmount, err)
+			logrus.Errorf("%v级释放可用余额失败 代理UId %v 收益 %v  err= &v", level, agent.ParentId, freeAmount, err)
 		}
 	}
 }
 
-type BuyProducList struct {
+type BuyProductList struct {
 	request.ProductBuyList
 }
 
-func (this BuyProducList) List(member *model.Member) *response.BuyListResp {
+func (this BuyProductList) List(member *model.Member) *response.BuyListResp {
 	if this.Page == 0 {
 		this.Page = 1
 	}
@@ -1083,13 +940,13 @@ type BuyGuquanList struct {
 
 func (this *BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 	var res response.BuyGuquanResp
-	m := model.OrderGuquan{UId: member.Id}
+	m := model.OrderEquity{UId: member.Id}
 	money := m.Sum()
-	guquan := model.Guquan{}
+	guquan := model.Equity{}
 	guquan.Get(true)
 
 	now := time.Now().Unix()
-	if guquan.ReturnTime >= now {
+	if guquan.RecoverTime >= now {
 		res.Status = "完成"
 	}
 	if guquan.OpenTime >= now {
@@ -1102,8 +959,8 @@ func (this *BuyGuquanList) List(member *model.Member) *response.BuyGuquanResp {
 	res.Num = money
 	res.Price = guquan.Price
 	res.CreateTime = m.CreateTime
-	weiMoney := money.Mul(decimal.NewFromInt(1).Sub(m.Rate)).Add(guquan.ReturnRate)
-	huiMoney := money.Mul(m.Rate).Mul(guquan.ReturnLuckyRate)
+	weiMoney := money.Mul(decimal.NewFromInt(1).Sub(m.Rate)).Add(guquan.MissRate)
+	huiMoney := money.Mul(m.Rate).Mul(guquan.SellRate)
 	res.TotalPrice = weiMoney.Add(huiMoney)
 	return &res
 
@@ -1124,11 +981,11 @@ func (this *BuyGuquanPageList) PageList(member *model.Member) *response.BuyGuqua
 	}
 
 	//获取列表
-	orderModel := model.OrderGuquan{UId: member.Id}
+	orderModel := model.OrderEquity{UId: member.Id}
 	list, page := orderModel.PageList("uid=?", []interface{}{member.Id}, this.Page, this.PageSize)
 
 	//获取股权信息
-	guquan := model.Guquan{}
+	guquan := model.Equity{}
 	guquan.Get(true)
 
 	//now := time.Now().Unix()
@@ -1172,7 +1029,7 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 		return nil
 	}
 	//获取股权信息
-	guquan := model.Guquan{}
+	guquan := model.Equity{}
 	guquan.Get(true)
 
 	//now := time.Now().Unix()
@@ -1181,7 +1038,7 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	//}
 
 	//获取订单信息
-	orderModel := model.OrderGuquan{Id: this.Id, UId: member.Id}
+	orderModel := model.OrderEquity{Id: this.Id, UId: member.Id}
 	if !orderModel.Get() {
 		return nil
 	}
@@ -1192,8 +1049,8 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 
 	//合同起始时
 	startDate := time.Unix(int64(guquan.OpenTime), 0).Format("2006年01月02日")
-	endDate := time.Unix(int64(guquan.ReturnTime), 0).Format("2006年01月02日")
-	days := int(guquan.ReturnTime-guquan.OpenTime) / 86400
+	endDate := time.Unix(int64(guquan.RecoverTime), 0).Format("2006年01月02日")
+	days := int(guquan.RecoverTime-guquan.OpenTime) / 86400
 	createDate := time.Unix(int64(orderModel.CreateTime), 0).Format("2006年01月02日")
 	//
 	////中签回购金额

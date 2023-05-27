@@ -16,34 +16,33 @@ type ProductCategory struct {
 	Product []Product `json:"product"`
 }
 type Product struct {
-	Id            int             `json:"id"`              //产品Id
-	Name          string          `json:"name"`            //产品名字
-	Category      int             `json:"category"`        //分类Id
-	CategoryName  string          `json:"category_name"`   //分类名
-	Status        int             `json:"status"`          //是否开启，1为开启，0为关闭
-	Tag           int             `json:"tag"`             //1=热
-	TimeLimit     int             `json:"time_limit"`      //投资期限 （天）
-	IsRecommend   int             `json:"is_recommend"`    //是否推荐到首页 1是 2否
-	Dayincome     decimal.Decimal `json:"day_income"`      //每日收益
-	Price         decimal.Decimal `json:"price"`           //价格  (最低买多少)
-	TotalPrice    decimal.Decimal `json:"total_price"`     //项目规模
-	OtherPrice    decimal.Decimal `json:"OtherPrice"`      //可投余额
-	MoreBuy       decimal.Decimal `json:"more_buy"`        //最多可以买多少份
-	Desc          string          `json:"desc"`            //描述
-	IsFinish      int             `json:"is_finish"`       //1=进行中  2=已投满
-	IsManjian     int             `json:"is_manjian"`      //1=有满送活动  2=无满送活动
-	BuyTimeLimit  int             `json:"buy_time_limit"`  //产品限时多少天
-	Progress      decimal.Decimal `json:"progress"`        //进度百分比
-	Type          int             `json:"type"`            //1=到期返本金 2=延迟反本金
-	DelayTime     int             `json:"delay_time"`      //延迟多少天
-	CreateTime    int64           `json:"create_time"`     //创建时间
-	ManSongActive []ManSongActive `json:"man_song_active"` //满送活动
-	GiftName      string          `json:"gift_name"`       //赠品产品名字
+	Id       int    `json:"id"`
+	Name     string `json:"name"`     //产品名称
+	Category int    `json:"category"` //分类id
+	//CategoryName string          `json:"category_name"`
+	Type       int             `json:"type"`        //1=到期返本金 2=延迟反本金
+	Price      decimal.Decimal `json:"price"`       //价格
+	Img        string          `json:"img"`         //图片
+	Interval   int             `json:"interval"`    //投资期限 （天）
+	IncomeRate decimal.Decimal `json:"income_rate"` //每日收益率
+	LimitBuy   int             `json:"limit_buy"`   //限购数量
+	Total      decimal.Decimal `json:"total"`       //项目规模
+	Current    decimal.Decimal `json:"current"`     //当前规模
+	Desc       string          `json:"desc"`        //描述
+	DelayTime  int             `json:"delay_time"`  //延迟多少天
+	//GiftId                int             `json:"gift_id"`                 //赠送产品ID
+	//WithdrawThresholdRate decimal.Decimal `json:"withdraw_threshold_rate"` //提现额度比例
+	IsHot        int `json:"is_hot"`         //是否热门
+	IsFinished   int `json:"is_finished"`    //是否投满
+	IsCouponGift int `json:"is_coupon_gift"` //是否赠送优惠券
+	//Sort                  int             `json:"sort"`                    //排序值
+	Status int `json:"status"` //是否开启，1为开启，2为关闭
+	//CreateTime            int64           `json:"create_time"`             //创建时间
 }
 type ManSongActive struct {
 	Amount decimal.Decimal `json:"amount"` //满多少钱
 	Price  decimal.Decimal `json:"price"`  //送多少钱的优惠券
-	Id     int64           `json:"id"`     //优惠券Id
+	Id     int             `json:"id"`     //优惠券Id
 }
 
 type ProductOptionResponse struct {
@@ -81,21 +80,21 @@ type ProductCategoryItem struct {
 	Name string `json:"name"`
 }
 
-type GuquanListResp struct {
-	Id              int64           `json:"id"`
-	TotalGuquan     decimal.Decimal `json:"total_guquan"`      //总股权数
-	OtherGuquan     decimal.Decimal `json:"other_guquan"`      //剩余权数
-	ReleaseRate     decimal.Decimal `json:"release_rate"`      //释放百分比
-	Price           decimal.Decimal `json:"price"`             //价格
-	LimitBuy        int64           `json:"limit_buy"`         //最低买多少股
-	LuckyRate       decimal.Decimal `json:"lucky_rate"`        //中签率
-	ReturnRate      decimal.Decimal `json:"return_rate"`       //未中签送的 百分比
-	ReturnLuckyRate decimal.Decimal `json:"return_lucky_rate"` //中签回购  百分比
-	PreStartTime    int64           `json:"pre_start_time"`    //预售开始时间
-	PreEndTime      int64           `json:"pre_end_time"`      //预售结束时间
-	OpenTime        int64           `json:"open_time"`         //发行时间
-	ReturnTime      int64           `json:"return_time"`       //回收时间
-	Status          int64           `json:"status"`            //1 = 开启 2 =关闭
+type EquityListResp struct {
+	Id           int64           `json:"id"`
+	Total        int64           `json:"total"`          //总股权数
+	Current      int64           `json:"current"`        //当前权数
+	ReleaseRate  decimal.Decimal `json:"release_rate"`   //释放百分比
+	Price        decimal.Decimal `json:"price"`          //价格
+	MinBuy       int64           `json:"min_buy"`        //最低买多少股
+	HitRate      decimal.Decimal `json:"hit_rate"`       //中签率
+	MissRate     decimal.Decimal `json:"miss_rate"`      //未中签送的 百分比
+	SellRate     decimal.Decimal `json:"sell_rate"`      //中签回购  百分比
+	PreStartTime int64           `json:"pre_start_time"` //预售开始时间
+	PreEndTime   int64           `json:"pre_end_time"`   //预售结束时间
+	OpenTime     int64           `json:"open_time"`      //发行时间
+	RecoverTime  int64           `json:"recover_time"`   //回收时间
+	Status       int64           `json:"status"`         //1 = 开启 2 =关闭
 }
 
 type BuyList struct {

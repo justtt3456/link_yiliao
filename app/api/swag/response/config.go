@@ -41,7 +41,7 @@ type Funds struct {
 	WithdrawMinAmount   decimal.Decimal `json:"withdraw_min_amount"`   //提现最小金额
 	WithdrawMaxAmount   decimal.Decimal `json:"withdraw_max_amount"`   //提现最大金额
 	WithdrawFee         decimal.Decimal `json:"withdraw_fee"`          //提现手续费
-	ProductFee          int             `json:"product_fee"`           //购买产品手续费
+	ProductFee          decimal.Decimal `json:"product_fee"`           //购买产品手续费
 	ProductQuickAmount  string          `json:"product_quick_amount"`  //购买产品快捷金额
 	KfRecharge          int             `json:"kf_recharge"`           //客服充值(联系客服)
 }

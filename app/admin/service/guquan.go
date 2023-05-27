@@ -14,7 +14,7 @@ type GuquanList struct {
 
 func (this *GuquanList) List() *response.GuquanResp {
 
-	m := model.Guquan{}
+	m := model.Equity{}
 	if !m.Get(false) {
 		return nil
 	}
@@ -32,7 +32,7 @@ func (this *GuquanList) List() *response.GuquanResp {
 		PreStartTime: m.PreStartTime,
 		PreEndTime:   m.PreEndTime,
 		OpenTime:     m.OpenTime,
-		ReturnTime:   m.ReturnTime,
+		RecoverTime:  m.RecoverTime,
 		Status:       m.Status,
 	}
 
@@ -48,7 +48,7 @@ func (this *GuquanUpdate) Update() error {
 		return errors.New("Id不能为空")
 	}
 
-	m := model.Guquan{Id: this.Id}
+	m := model.Equity{Id: this.Id}
 
 	if !m.Get(false) {
 		//m.TotalGuquan = this.TotalGuquan
@@ -61,7 +61,7 @@ func (this *GuquanUpdate) Update() error {
 		m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 		m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 		m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)
-		m.ReturnTime = common.DateTimeToNewYorkUnix(this.ReturnTime)
+		m.RecoverTime = common.DateTimeToNewYorkUnix(this.ReturnTime)
 		m.Status = this.Status
 		return m.Insert()
 	}
@@ -75,7 +75,7 @@ func (this *GuquanUpdate) Update() error {
 	m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 	m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 	m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)
-	m.ReturnTime = common.DateTimeToNewYorkUnix(this.ReturnTime)
+	m.RecoverTime = common.DateTimeToNewYorkUnix(this.ReturnTime)
 	m.Status = this.Status
 	return m.Update("total_guquan", "other_guquan", "release_rate", "price", "limit_buy", "lucky_rate", "return_rate", "return_lucky_rate", "pre_start_time", "pre_end_time", "open_time", "return_time", "status")
 }

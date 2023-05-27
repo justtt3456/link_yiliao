@@ -11,7 +11,8 @@ type NewsController struct {
 
 // Summary 资讯列表
 // Tags 资讯
-// Param object query request.Pagination false "查询参数"
+// @Param token header string false "用户令牌"
+// Param object query request.NewsList false "查询参数"
 // Success 200 {object} response.NewsResponse
 // Router /news/page_list [get]
 func (this NewsController) PageList(c *gin.Context) {
@@ -26,8 +27,6 @@ func (this NewsController) PageList(c *gin.Context) {
 
 // Summary 添加资讯
 // Tags 资讯
-// Accept application/json
-// Produce application/json
 // Param token header string false "用户令牌"
 // Param object body request.NewsCreate false "查询参数"
 // Success 200 {object} response.Response
@@ -49,8 +48,6 @@ func (this NewsController) Create(c *gin.Context) {
 
 // Summary 修改资讯
 // Tags 资讯
-// Accept application/json
-// Produce application/json
 // Param token header string false "用户令牌"
 // Param object body request.NewsUpdate false "查询参数"
 // Success 200 {object} response.Response
@@ -72,8 +69,6 @@ func (this NewsController) Update(c *gin.Context) {
 
 // Summary 修改资讯状态
 // Tags 资讯
-// Accept application/json
-// Produce application/json
 // Param token header string false "用户令牌"
 // Param object body request.NewsUpdateStatus false "查询参数"
 // Success 200 {object} response.Response
@@ -95,8 +90,6 @@ func (this NewsController) UpdateStatus(c *gin.Context) {
 
 // Summary 删除资讯
 // Tags 资讯
-// Accept application/json
-// Produce application/json
 // Param token header string false "用户令牌"
 // Param object body request.NewsRemove false "查询参数"
 // Success 200 {object} response.Response

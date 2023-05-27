@@ -13,7 +13,7 @@ type InvestOrder struct {
 	UId            int             `gorm:"column:uid"`                        //关联用户id
 	Type           int             `gorm:"column:type"`                       //转入转出类型 1转入 2转出
 	Amount         decimal.Decimal `gorm:"column:amount"`                     //转入转出金额
-	Rate           int             `gorm:"column:rate"`                       //收益比例
+	Rate           decimal.Decimal `gorm:"column:rate"`                       //收益比例
 	CreateTime     int64           `gorm:"column:create_time;autoCreateTime"` //投入时间
 	UnfreezeTime   int64           `gorm:"column:unfreeze_time"`              //冻结结束时间
 	IncomeTime     int64           `gorm:"column:income_time"`                //可以发放奖励的首次时间

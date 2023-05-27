@@ -5,7 +5,6 @@ import (
 	"china-russia/global"
 	"china-russia/model"
 	"strconv"
-	"time"
 )
 
 type Invest struct {
@@ -43,33 +42,33 @@ func (this Invest) Do() {
 
 // 发放余额宝奖励
 func (this Invest) sendIncome(member model.Member) {
-	in := model.InvestOrder{}
-	inWhere := "uid = ? and type = ? and unfreeze_status = ? and income_time <= ?"
-	inArgs := []interface{}{member.Id, 1, 2, time.Now().Unix()}
-	amount := in.Sum(inWhere, inArgs, "amount")
-	invest := model.Invest{}
-	invest.Get()
-	income := (member.InvestAmount + amount) * int64(invest.Ratio) / int64(model.UNITY) / 100
-	member.InvestAmount += income
-	member.InvestIncome += income
-	member.TotalBalance += income
-	member.Income += income
-	member.Update("invest_amount", "invest_income", "total_balance", "income")
-	investBalance := member.InvestAmount + member.InvestFreeze
-	r := model.InvestLog{
-		UId:     member.Id,
-		Income:  income,
-		Balance: investBalance,
-	}
-	r.Insert()
-	trade := model.Trade{
-		UId:       member.Id,
-		TradeType: 13,
-		ItemId:    r.Id,
-		Amount:    income,
-		Before:    investBalance - income,
-		After:     investBalance,
-		Desc:      "余额宝收益",
-	}
-	trade.Insert()
+	//in := model.InvestOrder{}
+	//inWhere := "uid = ? and type = ? and unfreeze_status = ? and income_time <= ?"
+	//inArgs := []interface{}{member.Id, 1, 2, time.Now().Unix()}
+	//amount := in.Sum(inWhere, inArgs, "amount")
+	//invest := model.Invest{}
+	//invest.Get()
+	//income := (member.InvestAmount + amount) * int64(invest.Ratio) / int64(model.UNITY) / 100
+	//member.InvestAmount += income
+	//member.InvestIncome += income
+	//member.TotalBalance += income
+	//member.Income += income
+	//member.Update("invest_amount", "invest_income", "total_balance", "income")
+	//investBalance := member.InvestAmount + member.InvestFreeze
+	//r := model.InvestLog{
+	//	UId:     member.Id,
+	//	Income:  income,
+	//	Balance: investBalance,
+	//}
+	//r.Insert()
+	//trade := model.Trade{
+	//	UId:       member.Id,
+	//	TradeType: 13,
+	//	ItemId:    r.Id,
+	//	Amount:    income,
+	//	Before:    investBalance - income,
+	//	After:     investBalance,
+	//	Desc:      "余额宝收益",
+	//}
+	//trade.Insert()
 }

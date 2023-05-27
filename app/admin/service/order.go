@@ -72,7 +72,7 @@ func (this OrderListService) GuQuanPageList() *response.BuyGuquanResp {
 	if this.PageSize > common.MaxPageSize || this.PageSize < common.MinPageSize {
 		this.PageSize = common.DefaultPageSize
 	}
-	m := model.OrderGuquan{}
+	m := model.OrderEquity{}
 	where, args := this.getWhere1()
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	items := make([]response.BuyGuquan, 0)
@@ -125,7 +125,7 @@ func (this OrderUpdate) Update() error {
 	//if this.Rate < 0 || this.Rate > 1 {
 	//	return errors.New("参数错误")
 	//}
-	order := model.OrderGuquan{
+	order := model.OrderEquity{
 		Id: this.Id,
 	}
 

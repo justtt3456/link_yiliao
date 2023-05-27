@@ -6,19 +6,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type FullDelivery struct {
-	Id       int64           `gorm:"column:id;primary_key"` //
+type CouponActivity struct {
+	Id       int             `gorm:"column:id;primary_key"` //
 	Amount   decimal.Decimal `gorm:"column:amount"`         //满多少
-	CouponId int64           `gorm:"column:coupon_id"`      //送什么优惠券
+	CouponId int             `gorm:"column:coupon_id"`      //送什么优惠券
 	Coupon   Coupon          `gorm:"foreignKey:CouponId"`   //
 }
 
 // TableName sets the insert table name for this struct type
-func (c *FullDelivery) TableName() string {
-	return "c_full_delivery"
+func (c *CouponActivity) TableName() string {
+	return "c_coupon_activity"
 }
 
-func (this *FullDelivery) Insert() error {
+func (this *CouponActivity) Insert() error {
 	res := global.DB.Create(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
@@ -27,7 +27,7 @@ func (this *FullDelivery) Insert() error {
 	return nil
 }
 
-func (this *FullDelivery) Get() bool {
+func (this *CouponActivity) Get() bool {
 	//取数据库
 	res := global.DB.Joins("Coupon").Where(this).First(this)
 	if res.Error != nil {
@@ -36,7 +36,7 @@ func (this *FullDelivery) Get() bool {
 	}
 	return true
 }
-func (this *FullDelivery) Find(amount decimal.Decimal) bool {
+func (this *CouponActivity) Find(amount decimal.Decimal) bool {
 	//取数据库
 	res := global.DB.Model(this).Joins("Coupon").Where("amout <= ?", amount).Order("amout desc").First(this)
 	if res.Error != nil {
@@ -45,7 +45,7 @@ func (this *FullDelivery) Find(amount decimal.Decimal) bool {
 	}
 	return true
 }
-func (this *FullDelivery) Update(col string, cols ...interface{}) error {
+func (this *CouponActivity) Update(col string, cols ...interface{}) error {
 	res := global.DB.Select(col, cols...).Updates(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
@@ -54,8 +54,8 @@ func (this *FullDelivery) Update(col string, cols ...interface{}) error {
 	return nil
 }
 
-func (this *FullDelivery) List() []FullDelivery {
-	res := make([]FullDelivery, 0)
+func (this *CouponActivity) List() []CouponActivity {
+	res := make([]CouponActivity, 0)
 	tx := global.DB.Model(this).Joins("Coupon").Where(this).Find(&res)
 	if tx.Error != nil {
 		return nil
@@ -63,7 +63,7 @@ func (this *FullDelivery) List() []FullDelivery {
 	return res
 }
 
-func (this *FullDelivery) Del() error {
+func (this *CouponActivity) Del() error {
 	res := global.DB.Delete(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)

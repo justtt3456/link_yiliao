@@ -60,7 +60,7 @@ type MemberTeamReq struct {
 
 type SendCouponReq struct {
 	Ids      string `json:"ids"`       //用户Id  用,隔开
-	CouponId int64  `json:"coupon_id"` //券的Id
+	CouponId int    `json:"coupon_id"` //券的Id
 }
 
 type GetCodeReq struct {

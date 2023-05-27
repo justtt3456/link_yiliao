@@ -207,6 +207,14 @@ func Run() {
 	ga.POST("active/delActive", active.DelActive)
 	address := fmt.Sprintf(":%d", global.CONFIG.System.AdminAddr)
 
+	//新闻
+	news := v1.NewsController{}
+	ga.GET("news/page_list", news.PageList)
+	ga.POST("news/create", news.Create)
+	ga.POST("news/update", news.Update)
+	ga.POST("news/update_status", news.UpdateStatus)
+	ga.POST("news/remove", news.Remove)
+
 	ga.GET("config/lang/list", config.LangList)
 	r.Run(address)
 }

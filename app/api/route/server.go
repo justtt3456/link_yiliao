@@ -1,7 +1,7 @@
 package route
 
 import (
-	//_ "china-russia/app/api/docs"
+	_ "china-russia/app/api/docs"
 	"china-russia/app/api/middleware"
 	"china-russia/global"
 	"fmt"

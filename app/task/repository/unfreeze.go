@@ -27,7 +27,7 @@ func (this Unfreeze) unfreeze(order model.InvestOrder) {
 	}
 	order.UnfreezeStatus = 1
 	order.Update("unfreeze_status")
-	member.InvestAmount += order.Amount
-	member.InvestFreeze -= order.Amount
+	member.InvestAmount = member.InvestAmount.Add(order.Amount)
+	member.InvestFreeze = member.InvestFreeze.Sub(order.Amount)
 	member.Update("invest_amount", "invest_freeze")
 }

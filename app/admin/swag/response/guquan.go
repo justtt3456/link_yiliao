@@ -15,6 +15,6 @@ type GuquanResp struct {
 	PreStartTime    int64           `json:"pre_start_time"`    //预售开始时间
 	PreEndTime      int64           `json:"pre_end_time"`      //预售结束时间
 	OpenTime        int64           `json:"open_time"`         //发行时间
-	ReturnTime      int64           `json:"return_time"`       //回收时间
+	RecoverTime     int64           `json:"recover_time"`      //回收时间
 	Status          int64           `json:"status"`            //1 = 开启 2 =关闭
 }

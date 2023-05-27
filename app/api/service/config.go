@@ -84,8 +84,8 @@ func (this Config) Get() response.Config {
 		}
 		res.Lang = langSlice
 	}
-	guquan := model.Guquan{}
-	if guquan.Get(true) {
+	equity := model.OrderEquity{}
+	if equity.Get() {
 		res.IsOpen = true
 	}
 	return res

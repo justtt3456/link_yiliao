@@ -28,21 +28,21 @@ func (this MemberController) Info(c *gin.Context) {
 // @Param		object	body		request.MemberInfo	false	"查询参数"
 // @Success	200		{object}	response.Response
 // @Router		/member/update [post]
-func (this MemberController) UpdateInfo(c *gin.Context) {
-	s := service.Member{}
-	if err := c.ShouldBindJSON(&s); err != nil {
-		this.Json(c, 10001, err.Error(), nil)
-		return
-	}
-	member := this.MemberInfo(c)
-	err := s.UpdateInfo(member)
-	if err != nil {
-		this.Json(c, 10001, err.Error(), nil)
-		return
-	}
-	this.Json(c, 0, "ok", nil)
-	return
-}
+//func (this MemberController) UpdateInfo(c *gin.Context) {
+//	s := service.Member{}
+//	if err := c.ShouldBindJSON(&s); err != nil {
+//		this.Json(c, 10001, err.Error(), nil)
+//		return
+//	}
+//	member := this.MemberInfo(c)
+//	err := s.UpdateInfo(member)
+//	if err != nil {
+//		this.Json(c, 10001, err.Error(), nil)
+//		return
+//	}
+//	this.Json(c, 0, "ok", nil)
+//	return
+//}
 
 // @Summary	修改登录密码
 // @Tags		用户

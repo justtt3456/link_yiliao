@@ -35,7 +35,6 @@ func (this NewsList) PageList() response.NewsData {
 			Intro:      v.Intro,
 			Cover:      v.Cover,
 			Status:     v.Status,
-			Lang:       v.Lang,
 		}
 		res = append(res, i)
 	}
@@ -45,9 +44,6 @@ func (this NewsList) getWhere() (string, []interface{}) {
 	where := map[string]interface{}{}
 	if this.Status > 0 {
 		where["status"] = this.Status
-	}
-	if this.Lang != "" {
-		where["lang"] = this.Lang
 	}
 	build, vals, err := common.WhereBuild(where)
 	if err != nil {
@@ -61,9 +57,6 @@ type NewsCreate struct {
 }
 
 func (this NewsCreate) Create() error {
-	if this.Lang == "" {
-		return errors.New("语言不能为空")
-	}
 	if this.Title == "" {
 		return errors.New("标题不能为空")
 	}
@@ -83,7 +76,6 @@ func (this NewsCreate) Create() error {
 		Sort:    this.Sort,
 		Intro:   this.Intro,
 		Cover:   this.Cover,
-		Lang:    this.Lang,
 	}
 	return m.Insert()
 }
@@ -95,9 +87,6 @@ type NewsUpdate struct {
 func (this NewsUpdate) Update() error {
 	if this.Id == 0 {
 		return errors.New("参数错误")
-	}
-	if this.Lang == "" {
-		return errors.New("语言不能为空")
 	}
 	if this.Title == "" {
 		return errors.New("标题不能为空")
@@ -117,14 +106,13 @@ func (this NewsUpdate) Update() error {
 	if !m.Get() {
 		return errors.New("资讯不存在")
 	}
-	m.Lang = this.Lang
 	m.Title = this.Title
 	m.Intro = this.Intro
 	m.Cover = this.Cover
 	m.Content = this.Content
 	m.Sort = this.Sort
 	m.Status = this.Status
-	return m.Update("lang", "title", "sort", "lang", "intro", "content", "cover")
+	return m.Update("title", "sort", "intro", "content", "cover")
 }
 
 type NewsUpdateStatus struct {

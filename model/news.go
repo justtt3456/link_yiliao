@@ -15,7 +15,6 @@ type News struct {
 	Sort       int    `gorm:"column:sort"`                       //
 	Intro      string `gorm:"column:intro"`                      //
 	Cover      string `gorm:"column:cover"`                      //封面图
-	Lang       string `gorm:"column:lang"`                       //
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //
 }

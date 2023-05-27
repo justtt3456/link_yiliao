@@ -3,7 +3,6 @@ package service
 import (
 	"china-russia/app/api/swag/request"
 	"china-russia/app/api/swag/response"
-	"china-russia/global"
 	"china-russia/model"
 )
 
@@ -19,8 +18,8 @@ func (this News) PageList() response.NewsData {
 		this.PageSize = response.DefaultPageSize
 	}
 	m := model.News{}
-	where := "lang = ?"
-	args := []interface{}{global.Language}
+	where := ""
+	args := []interface{}{}
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.News, 0)
 	for _, v := range list {

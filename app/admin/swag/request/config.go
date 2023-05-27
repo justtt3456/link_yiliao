@@ -29,7 +29,7 @@ type ConfigFundsUpdate struct {
 	RechargeEndTime     string          `json:"recharge_end_time"`     //充值结束时间
 	RechargeMinAmount   decimal.Decimal `json:"recharge_min_amount"`   //充值最小金额
 	RechargeMaxAmount   decimal.Decimal `json:"recharge_max_amount"`   //充值最大金额
-	RechargeFee         int             `json:"recharge_fee"`          //充值手续费(百分比)
+	RechargeFee         decimal.Decimal `json:"recharge_fee"`          //充值手续费(百分比)
 	RechargeQuickAmount string          `json:"recharge_quick_amount"` //快捷充值金额
 	WithdrawStartTime   string          `json:"withdraw_start_time"`   //提现开始时间
 	WithdrawEndTime     string          `json:"withdraw_end_time"`     //提现结束时间
@@ -37,9 +37,9 @@ type ConfigFundsUpdate struct {
 	PasswordFreeze      int             `json:"password_freeze"`       //提现密码错误冻结次数
 	WithdrawMinAmount   decimal.Decimal `json:"withdraw_min_amount"`   //提现最小金额
 	WithdrawMaxAmount   decimal.Decimal `json:"withdraw_max_amount"`   //提现最大金额
-	WithdrawFee         int             `json:"withdraw_fee"`          //提现手续费
+	WithdrawFee         decimal.Decimal `json:"withdraw_fee"`          //提现手续费
 	WithdrawCount       int             `json:"withdraw_count"`        //每日提现次数
-	ProductFee          int             `json:"product_fee"`           //购买产品手续费
+	ProductFee          decimal.Decimal `json:"product_fee"`           //购买产品手续费
 	ProductQuickAmount  string          `json:"product_quick_amount"`  //购买产品快捷金额
 	DayTurnMoneyNum     int64           `json:"day_turn_money_num"`    //每日 可用和可提互转次数
 }

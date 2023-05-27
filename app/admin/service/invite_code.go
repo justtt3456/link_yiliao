@@ -26,13 +26,13 @@ func (this InviteCodeList) PageList() response.InviteCodeData {
 	res := make([]response.InviteCodeInfo, 0)
 	for _, v := range list {
 		i := response.InviteCodeInfo{
-			Id:         v.Id,
-			UId:        v.UId,
-			Username:   v.Username,
-			AgentId:    v.AgentId,
-			AgentName:  v.AgentName,
-			Code:       v.Code,
-			RegCount:   v.RegCount,
+			Id:        v.Id,
+			UId:       v.UId,
+			Username:  v.Username,
+			AgentId:   v.AgentId,
+			AgentName: v.AgentName,
+			Code:      v.Code,
+			//RegCount:   v.RegCount,
 			CreateTime: v.CreateTime,
 			UpdateTime: v.UpdateTime,
 		}

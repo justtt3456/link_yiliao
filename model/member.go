@@ -11,45 +11,42 @@ import (
 )
 
 type Member struct {
-	Id               int             `gorm:"column:id"`
-	Username         string          `gorm:"column:username"`          //手机号
-	Password         string          `gorm:"column:password"`          //密码，sha1加密
-	Salt             string          `gorm:"column:salt"`              //盐
-	WithdrawPassword string          `gorm:"column:withdraw_password"` //提现密码
-	WithdrawSalt     string          `gorm:"column:withdraw_salt"`
-	Balance          decimal.Decimal `gorm:"column:balance"`            //可用余额
-	WithdrawBalance  decimal.Decimal `gorm:"column:withdraw_balance"`   //可提现余额
-	IsReal           int             `gorm:"column:is_real"`            //是否实名 1审核中 2通过 3驳回
-	RealName         string          `gorm:"column:real_name"`          //真实姓名
-	InvestFreeze     decimal.Decimal `gorm:"column:invest_freeze"`      //余额宝冻结金额
-	InvestAmount     decimal.Decimal `gorm:"column:invest_amount"`      //余额宝有效金额
-	InvestIncome     decimal.Decimal `gorm:"column:invest_income"`      //余额宝总收益
-	Avatar           string          `gorm:"column:avatar"`             //头像
-	Status           int             `gorm:"column:status"`             //帐号启用状态，1启用2禁用
-	FundsStatus      int             `gorm:"column:funds_status"`       //资金冻结状态
-	Level            int             `gorm:"column:level"`              //等级
-	Score            int             `gorm:"column:score"`              //信誉分
-	LastLoginTime    int64           `gorm:"column:last_login_time"`    //最后登录时间
-	LastLoginIp      string          `gorm:"column:last_login_ip"`      //最后登录ip
-	RegTime          int64           `gorm:"column:reg_time"`           //注册时间
-	RegisterIp       string          `gorm:"column:register_ip"`        //注册ip
-	Token            string          `gorm:"column:token"`              //token盐
-	Nickname         string          `gorm:"column:nickname"`           //昵称
-	Mobile           string          `gorm:"column:mobile"`             //手机号
-	Email            string          `gorm:"column:email"`              //邮箱
-	Qq               string          `gorm:"column:qq"`                 //qq
-	Wechat           string          `gorm:"column:wechat"`             //微信
-	DisableLoginTime int64           `gorm:"column:disable_login_time"` //禁止登录时间
-	DisableBetTime   int64           `gorm:"column:disable_bet_time"`   //禁止投注时间
-	WithdrawAmount   int64           `gorm:"column:withdraw_amount"`    //提现流水
-	Description      string          `gorm:"column:description"`        //用户备注
-	Code             string          `gorm:"column:code"`               //邀请码
-	IsBuy            int             `gorm:"column:is_buy"`             //1=有效 2=无效
-	IsOneShiming     int             `gorm:"column:is_one_shiming"`     //1=是 2=不是
-	TotalIncome      decimal.Decimal `gorm:"column:total_income"`       //总收益
-	Guquan           decimal.Decimal `gorm:"column:guquan"`             //股权
-	PreIncome        decimal.Decimal `gorm:"column:pre_income"`         //待收益
-	ProductIncome    decimal.Decimal `gorm:"column:product_income"`     //产品收益
+	Id                int             `gorm:"column:id"`
+	Username          string          `gorm:"column:username"`          //手机号
+	Password          string          `gorm:"column:password"`          //密码，sha1加密
+	Salt              string          `gorm:"column:salt"`              //盐
+	WithdrawPassword  string          `gorm:"column:withdraw_password"` //提现密码
+	WithdrawSalt      string          `gorm:"column:withdraw_salt"`
+	AgentId           int             `gorm:"column:agent_id"`           //代理id
+	Balance           decimal.Decimal `gorm:"column:balance"`            //可用余额
+	WithdrawBalance   decimal.Decimal `gorm:"column:withdraw_balance"`   //可提现余额
+	IsReal            int             `gorm:"column:is_real"`            //是否实名 1审核中 2通过 3驳回
+	RealName          string          `gorm:"column:real_name"`          //真实姓名
+	InvestFreeze      decimal.Decimal `gorm:"column:invest_freeze"`      //余额宝冻结金额
+	InvestAmount      decimal.Decimal `gorm:"column:invest_amount"`      //余额宝有效金额
+	InvestIncome      decimal.Decimal `gorm:"column:invest_income"`      //余额宝总收益
+	Avatar            string          `gorm:"column:avatar"`             //头像
+	Status            int             `gorm:"column:status"`             //帐号启用状态，1启用2禁用
+	FundsStatus       int             `gorm:"column:funds_status"`       //资金冻结状态
+	Level             int             `gorm:"column:level"`              //等级
+	Score             int             `gorm:"column:score"`              //信誉分
+	LastLoginTime     int64           `gorm:"column:last_login_time"`    //最后登录时间
+	LastLoginIp       string          `gorm:"column:last_login_ip"`      //最后登录ip
+	RegTime           int64           `gorm:"column:reg_time"`           //注册时间
+	RegisterIp        string          `gorm:"column:register_ip"`        //注册ip
+	Token             string          `gorm:"column:token"`              //token盐
+	DisableLoginTime  int64           `gorm:"column:disable_login_time"` //禁止登录时间
+	DisableBetTime    int64           `gorm:"column:disable_bet_time"`   //禁止投注时间
+	WithdrawAmount    int64           `gorm:"column:withdraw_amount"`    //提现流水
+	Description       string          `gorm:"column:description"`        //用户备注
+	IsBuy             int             `gorm:"column:is_buy"`             //1=有效 2=无效
+	TotalIncome       decimal.Decimal `gorm:"column:total_income"`       //总收益
+	Equity            int             `gorm:"column:equity"`             //股权
+	EquityScore       int             `gorm:"column:equity_score"`       //股权分
+	PreIncome         decimal.Decimal `gorm:"column:pre_income"`         //待收益
+	PreCapital        decimal.Decimal `gorm:"column:pre_capital"`        //待收本金
+	TotalRebate       decimal.Decimal `gorm:"column:total_rebate"`       //总返佣
+	WithdrawThreshold decimal.Decimal `gorm:"column:withdraw_threshold"` //提现额度
 }
 
 // TableName sets the insert table name for this struct type
@@ -94,12 +91,16 @@ func (this *Member) Info() *response.Member {
 		hasWithdrawPassword = 1
 	}
 	var mobile string
-	if len(this.Mobile) >= 8 {
-		mobile = this.Mobile[:4] + "****" + this.Mobile[len(this.Mobile)-4:]
+	if len(this.Username) >= 8 {
+		mobile = this.Username[:3] + "****" + this.Username[len(this.Username)-4:]
 	}
+	invite := InviteCode{
+		UId: this.Id,
+	}
+	invite.Get()
 	//coupon := MemberCoupon{Uid: int64(this.Id), IsUse: 1}
 	//list := coupon.List()
-	var coupons []response.Coupon
+	//var coupons []response.Coupon
 	//if len(list) > 0 {
 	//	for i := range list {
 	//		coupons = append(coupons, response.Coupon{
@@ -109,32 +110,19 @@ func (this *Member) Info() *response.Member {
 	//		})
 	//	}
 	//}
-	where := "uid = ? or uid = ? and status = ? and is_read = ?"
-	args := []interface{}{this.Id, -1, StatusOk, 1}
-	msg := Message{}
-
-	//金额分析(精确小数点后两位小数)
-	//incomeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", decimal.Decimal(this.Income)), 64)
-	//willIncomeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", decimal.Decimal(this.WillIncome)), 64)
-	//
-	//balanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", decimal.Decimal(this.Balance)), 64)
-	//useBalanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", math.Floor(decimal.Decimal(this.WithdrawBalance))), 64)
-	//totalBalanceAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", decimal.Decimal(this.TotalBalance)), 64)
-	//
-	//investFreezeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", decimal.Decimal(this.InvestFreeze)), 64)
-	//investAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", decimal.Decimal(this.InvestAmount)), 64)
-	//investIncomeAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", decimal.Decimal(this.InvestIncome)), 64)
-
+	//where := "uid = ? or uid = ? and status = ? and is_read = ?"
+	//args := []interface{}{this.Id, -1, StatusOk, 1}
+	//msg := Message{}
 	return &response.Member{
-		Id:       this.Id,
-		Username: this.Username,
-		//Balance:             balanceAmount,
-		//UseBalance:          useBalanceAmount,
-		IsReal:   this.IsReal,
-		RealName: this.RealName,
-		//InvestFreeze:        investFreezeAmount,
-		//InvestAmount:        investAmount,
-		//InvestIncome:        investIncomeAmount,
+		Id:                  this.Id,
+		Username:            mobile,
+		Balance:             this.Balance,
+		WithdrawBalance:     this.WithdrawBalance,
+		IsReal:              this.IsReal,
+		RealName:            this.RealName,
+		InvestFreeze:        this.InvestFreeze,
+		InvestAmount:        this.InvestAmount,
+		InvestIncome:        this.InvestIncome,
 		Avatar:              this.Avatar,
 		Status:              this.Status,
 		FundsStatus:         this.FundsStatus,
@@ -146,18 +134,13 @@ func (this *Member) Info() *response.Member {
 		RegisterIP:          this.RegisterIp,
 		Token:               token,
 		HasWithdrawPassword: hasWithdrawPassword,
-		Nickname:            this.Nickname,
-		Mobile:              mobile,
-		Email:               this.Email,
-		Qq:                  this.Qq,
-		Wechat:              this.Wechat,
-		InviteCode:          this.Code,
-		//TotalBalance:        totalBalanceAmount,
-		Coupon: coupons,
-		//Income:              incomeAmount,
+		InviteCode:          invite.Code,
+		//Coupon:              coupons,
+		Income: this.TotalIncome,
 		//Guquan:  this.Guquan,
-		Message: msg.Count(where, args),
-		//WillIncome:          willIncomeAmount,
+		//Message: msg.Count(where, args),
+		PreIncome:  this.PreIncome,
+		PreCapital: this.PreCapital,
 	}
 }
 

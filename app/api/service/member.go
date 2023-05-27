@@ -19,18 +19,18 @@ type Member struct {
 }
 
 func (this Member) UpdateInfo(member *model.Member) error {
-	if this.Nickname != "" {
-		member.Nickname = this.Nickname
-	}
-	if this.Email != "" {
-		member.Email = this.Email
-	}
-	if this.Qq != "" {
-		member.Qq = this.Qq
-	}
-	if this.Wechat != "" {
-		member.Wechat = this.Wechat
-	}
+	//if this.Nickname != "" {
+	//	member.Nickname = this.Nickname
+	//}
+	//if this.Email != "" {
+	//	member.Email = this.Email
+	//}
+	//if this.Qq != "" {
+	//	member.Qq = this.Qq
+	//}
+	//if this.Wechat != "" {
+	//	member.Wechat = this.Wechat
+	//}
 	if this.Avatar != "" {
 		member.Avatar = this.Avatar
 	}
@@ -160,8 +160,8 @@ type MemberTeam struct {
 
 func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error) {
 	var res response.MyTeamList
-	m := model.MemberRelation{}
-	where := "puid = ?"
+	m := model.MemberParents{}
+	where := "parent_id = ?"
 	args := []interface{}{member.Id}
 	if this.PageSize == 0 {
 		this.PageSize = 10

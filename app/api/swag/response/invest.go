@@ -19,12 +19,12 @@ type InvestMember struct {
 	YesterdayIncome decimal.Decimal `json:"yesterday_income"` //昨日收益
 }
 type InvestInfo struct {
-	Name           string `json:"name"`            //余额宝名称
-	Ratio          int    `json:"ratio"`           //利率 年化收益百分比
-	FreezeDay      int    `json:"freeze_day"`      //冻结天数
-	IncomeInterval int    `json:"income_interval"` //收益发放间隔天数
-	Status         int    `json:"status"`          //余额宝开关，1开启，2关闭
-	Description    string `json:"description"`     //余额宝说明
+	Name           string          `json:"name"`            //余额宝名称
+	Ratio          decimal.Decimal `json:"ratio"`           //利率 年化收益百分比
+	FreezeDay      int             `json:"freeze_day"`      //冻结天数
+	IncomeInterval int             `json:"income_interval"` //收益发放间隔天数
+	Status         int             `json:"status"`          //余额宝开关，1开启，2关闭
+	Description    string          `json:"description"`     //余额宝说明
 }
 type InvestIncomeResponse struct {
 	Code int              `json:"code"`

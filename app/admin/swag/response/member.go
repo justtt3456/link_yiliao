@@ -45,11 +45,6 @@ type MemberInfo struct {
 	LastLoginIP        string          `json:"last_login_ip"`        //最后登录ip
 	RegTime            int64           `json:"reg_time"`             //注册时间
 	RegisterIP         string          `json:"register_ip"`          //注册ip
-	Nickname           string          `json:"nickname"`             //昵称
-	Mobile             string          `json:"mobile"`               //手机号
-	Email              string          `json:"email"`                //邮箱
-	Qq                 string          `json:"qq"`                   //qq
-	Wechat             string          `json:"wechat"`               //微信
 	DisableLoginTime   int64           `json:"disable_login_time"`   //禁止登录时间
 	DisableBetTime     int64           `json:"disable_bet_time"`     //禁止投注时间
 	Code               string          `json:"code"`                 //邀请码

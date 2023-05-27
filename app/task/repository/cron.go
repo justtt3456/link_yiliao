@@ -12,7 +12,7 @@ var SelfCron *Crontab
 // Crontab crontab manager
 type Crontab struct {
 	inner *cron.Cron
-	ids   map[string]cron.EntryId
+	ids   map[string]cron.EntryID
 	mutex sync.Mutex
 }
 
@@ -46,7 +46,7 @@ func NewCrontab() *Crontab {
 		cron.Hour | cron.Dom | cron.Month | cron.DowOptional | cron.Descriptor)
 	return &Crontab{
 		inner: cron.New(cron.WithParser(secondParser), cron.WithChain()),
-		ids:   make(map[string]cron.EntryId),
+		ids:   make(map[string]cron.EntryID),
 	}
 }
 
@@ -57,7 +57,7 @@ func (c *Crontab) Ids() []string {
 	validIds := make([]string, 0, len(c.ids))
 	invalidIds := make([]string, 0)
 	for sid, eid := range c.ids {
-		if e := c.inner.Entry(eid); e.Id != eid {
+		if e := c.inner.Entry(eid); e.ID != eid {
 			invalidIds = append(invalidIds, sid)
 			continue
 		}

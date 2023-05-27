@@ -69,6 +69,13 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if this.Username == "" {
 		return nil, errors.New(lang.Lang("Username cannot be empty"))
 	}
+	//添加Redis乐观锁
+	lockKey := fmt.Sprintf("member_register:%s", this.Username)
+	redisLock := common.RedisLock{RedisClient: global.REDIS}
+	if !redisLock.Lock(lockKey) {
+		return nil, errors.New(lang.Lang("During data processing, Please try again later"))
+	}
+	defer redisLock.Unlock(lockKey)
 	if !common.IsMobile(this.Username, global.Language) {
 		return nil, errors.New("手机格式不正确")
 	}
@@ -78,97 +85,82 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if this.RePassword != this.Password {
 		return nil, errors.New(lang.Lang("The two passwords are inconsistent"))
 	}
-	if this.WithdrawPassword == "" {
-		return nil, errors.New(lang.Lang("Withdraw password cannot be empty"))
-	}
+	//if this.WithdrawPassword == "" {
+	//	return nil, errors.New(lang.Lang("Withdraw password cannot be empty"))
+	//}
 	if this.InviteCode == "" {
 		return nil, errors.New(lang.Lang("Invitation code cannot be empty"))
 	}
 	//验证码
-	key := fmt.Sprintf("reg_%v", this.Username)
-	if this.Code != global.REDIS.Get(key).Val() {
-		return nil, errors.New(lang.Lang("Verification code error"))
-	}
+	//if !common.CaptchaVerify(c, this.Code) {
+	//	return nil, errors.New("验证码错误")
+	//}
 	//检查邀请码
-	puser := model.Member{
+	invite := model.InviteCode{
 		Code: this.InviteCode,
 	}
-	if !puser.Get() {
+	if !invite.Get() {
 		return nil, errors.New(lang.Lang("Wrong invitation code"))
 	}
-
-	//添加Redis乐观锁
-	lockKey := fmt.Sprintf("redisLock:api:memberRegister:memberNamee_%s", this.Username)
-	redisLock := common.RedisLock{RedisClient: global.REDIS}
-	lockResult := redisLock.Lock(lockKey)
-	if !lockResult {
-		return nil, errors.New(lang.Lang("During data processing, Please try again later"))
-	}
-
 	//是否存在用户
 	memberModel := model.Member{
 		Username: this.Username,
 	}
 	if memberModel.Get() {
-		//解锁
-		redisLock.Unlock(lockKey)
 		return nil, errors.New(lang.Lang("Username already exists"))
 	}
-
-	code := InviteCode()
 	salt := common.RandStringRunes(6)
-	withdrawSalt := common.RandStringRunes(6)
 	//入库
 	member := model.Member{
-		Username:         this.Username,
-		Salt:             salt,
-		Password:         common.Md5String(this.Password + salt),
-		WithdrawSalt:     withdrawSalt,
-		WithdrawPassword: common.Md5String(this.WithdrawPassword + withdrawSalt),
-		Token:            common.RandStringRunes(32),
-		RegisterIp:       c.ClientIP(),
-		LastLoginIp:      c.ClientIP(),
-		LastLoginTime:    time.Now().Unix(),
-		Code:             code,
-		IsBuy:            2,
-		IsOneShiming:     1,
+		Username:      this.Username,
+		Salt:          salt,
+		Password:      common.Md5String(this.Password + salt),
+		Token:         common.RandStringRunes(32),
+		RegisterIp:    c.ClientIP(),
+		LastLoginIp:   c.ClientIP(),
+		LastLoginTime: time.Now().Unix(),
+		Status:        model.StatusOk,
+		IsBuy:         2,
 	}
 	err := member.Insert()
 	if err != nil {
-		//解锁
-		redisLock.Unlock(lockKey)
 		return nil, err
 	}
-
-	//绑定父级关系
-	relation := make([]model.MemberRelation, 0)
-	relation = append(relation, model.MemberRelation{
-		UId:   member.Id,
-		Puid:  member.Id,
-		Level: 0,
-	})
-	//查询祖先
-	prelation := model.MemberRelation{UId: puser.Id}
-	pres, err := prelation.GetByUid()
+	inviteCode := model.InviteCode{}
+	inviteCode.Code = inviteCode.InviteCode()
+	inviteCode.UId = member.Id
+	inviteCode.Username = member.Username
+	inviteCode.AgentId = invite.AgentId
+	inviteCode.AgentName = invite.AgentName
+	inviteCode.Insert()
+	//三级代理
+	current := model.MemberParents{
+		Uid:      member.Id,
+		ParentId: invite.UId,
+		Level:    1,
+	}
+	current.Insert()
+	parent := model.MemberParents{Uid: invite.UId}
+	pres, err := parent.GetByUid()
 	if err != nil {
 		logrus.Errorf("绑定关系查询失败%v", err)
 	}
-	if len(pres) > 0 {
-		for i := range pres {
-			relation = append(relation, model.MemberRelation{
-				UId:   member.Id,
-				Puid:  pres[i].Puid,
-				Level: pres[i].Level + 1,
-			})
+	parents := make([]model.MemberParents, 0)
+	for _, v := range pres {
+		//只做三级
+		if v.Level >= 3 {
+			break
 		}
+		parents = append(parents, model.MemberParents{
+			Uid:      member.Id,
+			ParentId: v.ParentId,
+			Level:    v.Level + 1,
+		})
 	}
-	err = prelation.InsertAll(relation)
+	err = parent.InsertAll(parents)
 	if err != nil {
 		logrus.Errorf("绑定关系插入失败%v", err)
 	}
-
-	//解锁
-	redisLock.Unlock(lockKey)
 
 	go memberLoginLog(member, c.ClientIP())
 	return member.Info(), nil
@@ -182,15 +174,4 @@ func memberLoginLog(member model.Member, ip string) {
 		LoginTime: time.Now().Unix(),
 	}
 	m.Insert()
-}
-
-// 获取邀请码
-func InviteCode() string {
-	randCode := common.RandIntRunes(6)
-	memberModel := model.Member{Code: randCode}
-	//当邀请码重复时
-	if !memberModel.Get() {
-		return randCode
-	}
-	return InviteCode()
 }

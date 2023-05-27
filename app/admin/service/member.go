@@ -32,7 +32,7 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
 	res := make([]response.MemberInfo, 0)
 	for _, v := range list {
-		p := model.MemberRelation{UId: v.Id, Level: 1}
+		p := model.MemberParents{Uid: v.Id, Level: 1}
 		p.Get2()
 		i := response.MemberInfo{
 			Id:       v.Id,
@@ -54,17 +54,12 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 			LastLoginIP:      v.LastLoginIp,
 			RegTime:          v.RegTime,
 			RegisterIP:       v.RegisterIp,
-			Nickname:         v.Nickname,
-			Mobile:           v.Mobile,
-			Email:            v.Email,
-			Qq:               v.Qq,
-			Wechat:           v.Wechat,
 			DisableLoginTime: v.DisableLoginTime,
 			DisableBetTime:   v.DisableBetTime,
 			IsBuy:            v.IsBuy,
-			Code:             v.Code,
-			TopId:            p.Puid,
-			TopName:          p.Member2.Username,
+			//Code:             v.Code,
+			//TopId:            p.Puid,
+			//TopName:          p.Member2.Username,
 		}
 		res = append(res, i)
 	}
@@ -366,8 +361,8 @@ func (this MemberVerifiedUpdate) Update() error {
 
 	member.IsReal = this.Status
 	member.RealName = m.RealName
-	member.Mobile = m.Mobile
-	return member.Update("is_real", "real_name", "mobile", "income", "balance", "withdraw_balance")
+
+	return member.Update("is_real", "real_name", "income", "balance", "withdraw_balance")
 }
 
 type MemberVerifiedRemove struct {
@@ -402,14 +397,14 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	if this.Page == 0 {
 		this.Page = 1
 	}
-	m := model.MemberRelation{}
+	m := model.MemberParents{}
 	var where string
 	var args []interface{}
 	if this.Level != nil {
-		where = "puid = ? and level = ?"
+		where = "parent_id = ? and level = ?"
 		args = []interface{}{this.UserId, this.Level}
 	} else {
-		where = "puid = ?"
+		where = "parent_id = ?"
 		args = []interface{}{this.UserId}
 	}
 
@@ -418,8 +413,8 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 		return res
 	}
 	//总投资，团队总可用 可提，团队总收益
-	child := model.MemberRelation{}
-	where1 := "puid = ?"
+	child := model.MemberParents{}
+	where1 := "parent_id = ?"
 	args2 := []interface{}{this.UserId}
 	users, _ := child.GetByPuidAll(where1, args2)
 	//总投资
@@ -495,8 +490,8 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
 	for i := range list {
-		p := model.MemberRelation{UId: list[i].Member.Id, Level: 1}
-		p.Get2()
+		p := model.MemberParents{Uid: list[i].Member.Id, Level: 1}
+		p.Get()
 		//获取用户投资金额
 		//orderModel := model.OrderProduct{}
 		//payMondyAmount := orderModel.Sum("uid = ?", []interface{}{list[i].Member.Id}, "pay_money")
@@ -521,17 +516,12 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 			LastLoginIP:      list[i].Member.LastLoginIp,
 			RegTime:          list[i].Member.RegTime,
 			RegisterIP:       list[i].Member.RegisterIp,
-			Nickname:         list[i].Member.Nickname,
-			Mobile:           list[i].Member.Mobile,
-			Email:            list[i].Member.Email,
-			Qq:               list[i].Member.Qq,
-			Wechat:           list[i].Member.Wechat,
 			DisableLoginTime: list[i].Member.DisableLoginTime,
 			DisableBetTime:   list[i].Member.DisableBetTime,
-			Code:             list[i].Member.Code,
-			IsBuy:            list[i].Member.IsBuy,
-			TopId:            p.Puid,
-			TopName:          p.Member2.Username,
+			//Code:             list[i].Member.Code,
+			IsBuy: list[i].Member.IsBuy,
+			//TopId:            p.Puid,
+			//TopName:          p.Member2.Username,
 			//ProductOrderAmount: float64(payMondyAmount) ,
 		})
 	}
