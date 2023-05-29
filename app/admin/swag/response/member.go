@@ -25,9 +25,8 @@ type MemberListData struct {
 type MemberInfo struct {
 	Id                 int             `json:"id"`                   //
 	Username           string          `json:"username"`             //手机号
-	TotalBalance       decimal.Decimal `json:"total_balance"`        //余额
 	Balance            decimal.Decimal `json:"balance"`              //可用余额
-	UseBalance         decimal.Decimal `json:"withdraw_balance"`     //可提余额
+	WithdrawBalance    decimal.Decimal `json:"withdraw_balance"`     //可提余额
 	Freeze             decimal.Decimal `json:"freeze"`               //冻结金额
 	ParentId           int             `json:"parent_id"`            //推荐人id
 	AgentId            int             `json:"agent_id"`             //代理id

@@ -5,3 +5,7 @@ upload
 reverse.go
 config.yaml
 log
+admin
+agent
+api
+task

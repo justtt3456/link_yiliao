@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"china-russia/model"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
@@ -70,8 +71,8 @@ func (this BudiPay) OrderSn(m map[string]interface{}) string {
 func (this BudiPay) TradeSn(m map[string]interface{}) string {
 	return ""
 }
-func (this BudiPay) RealMoney(m map[string]interface{}) int64 {
-	return 0
+func (this BudiPay) RealMoney(m map[string]interface{}) decimal.Decimal {
+	return decimal.Zero
 }
 func (this BudiPay) PayTime(m map[string]interface{}) int64 {
 	return time.Now().Unix()

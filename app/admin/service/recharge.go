@@ -153,8 +153,8 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount decimal.Dec
 	}
 	//上分
 	member.Balance = member.Balance.Add(amount)
-	//member.TotalBalance = member.TotalBalance.Add(amount)
-	return member.Update("balance")
+	member.TotalRecharge = member.TotalRecharge.Add(amount)
+	return member.Update("balance", "total_recharge")
 }
 
 func (RechargeHandle) TopupUseBalance(member model.Member, item int, amount decimal.Decimal, tradeType int, isfront int) error {

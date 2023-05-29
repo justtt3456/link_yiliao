@@ -6,6 +6,7 @@ import (
 	"china-russia/common"
 	"china-russia/model"
 	"errors"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -15,78 +16,185 @@ type Manual struct {
 	request.ManualRequest
 }
 
-func (this Manual) Recharge(admin model.Admin, t int, isfront int) error {
+//func (this Manual) Recharge() error {
+//	s := strings.Split(this.UIds, ",")
+//	for _, v := range s {
+//		id, _ := strconv.Atoi(v)
+//		if id == 0 {
+//			return errors.New("用户错误")
+//		}
+//		member := model.Member{Id: id}
+//		if !member.Get() {
+//			return errors.New("用户不存在")
+//		}
+//
+//		h := RechargeHandle{}
+//		err := h.Recharge(member, 0, this.Amount, 2, 14, isfront)
+//		if err != nil {
+//			return err
+//		}
+//	}
+//
+//	return nil
+//}
+
+// 余额操作
+func (this Manual) Balance() error {
 	s := strings.Split(this.UIds, ",")
 	for _, v := range s {
 		id, _ := strconv.Atoi(v)
 		if id == 0 {
 			return errors.New("用户错误")
 		}
-		//if this.Amount == 0 {
-		//	return errors.New("金额错误")
-		//}
 		member := model.Member{Id: id}
 		if !member.Get() {
 			return errors.New("用户不存在")
 		}
-
-		h := RechargeHandle{}
-		err := h.Recharge(member, 0, this.Amount, 2, 14, isfront)
+		var tradeType int
+		var balance decimal.Decimal
+		var desc string
+		switch this.Handle {
+		case 1:
+			tradeType = 14
+			balance = member.Balance
+			desc = "他人向您转账"
+			member.Balance = member.Balance.Add(this.Amount)
+		case 2:
+			tradeType = 15
+			balance = member.Balance.Sub(decimal.NewFromInt(-1))
+			desc = "可用余额减少"
+			member.Balance = member.Balance.Sub(this.Amount)
+		case 3:
+			tradeType = 16
+			balance = member.WithdrawBalance
+			desc = "充值"
+			member.WithdrawBalance = member.WithdrawBalance.Add(this.Amount)
+		case 4:
+			tradeType = 17
+			balance = member.WithdrawBalance.Sub(decimal.NewFromInt(-1))
+			desc = "提现"
+			member.WithdrawBalance = member.WithdrawBalance.Sub(this.Amount)
+		}
+		trade := model.Trade{
+			UId:        member.Id,
+			TradeType:  tradeType,
+			Amount:     this.Amount,
+			Before:     balance,
+			After:      balance.Add(this.Amount),
+			IsFrontend: this.IsFrontend,
+			Desc:       desc,
+		}
+		err := trade.Insert()
+		if err != nil {
+			logrus.Error(err)
+			return err
+		}
+		if this.IsRecharge == 1 {
+			member.TotalRecharge = member.TotalRecharge.Add(this.Amount)
+		}
+		err = member.Update("balance", "withdraw_balance", "total_recharge")
 		if err != nil {
 			return err
 		}
-	}
 
+	}
 	return nil
 }
 
-func (this Manual) Withdraw(admin model.Admin, isfront int) error {
+// 股权操作
+func (this Manual) Equity() error {
 	s := strings.Split(this.UIds, ",")
 	for _, v := range s {
 		id, _ := strconv.Atoi(v)
 		if id == 0 {
 			return errors.New("用户错误")
 		}
-		//if this.Amount == 0 {
-		//	return errors.New("金额错误")
-		//}
-		user := model.Member{Id: id}
-		if !user.Get() {
+		member := model.Member{Id: id}
+		if !member.Get() {
 			return errors.New("用户不存在")
 		}
-		//if this.Handle == 2 && user.Balance < int64(this.Amount decimal.Decimal) {
-		//	return errors.New("用户可用余额不足")
-		//}
-		//if this.Handle == 3 && user.WithdrawBalance < int64(this.Amount decimal.Decimal) {
-		//	return errors.New("用户可提余额不足")
-		//}
-
-		//账单
+		var tradeType int
+		var equity int
+		var desc string
+		switch this.Handle {
+		case 5:
+			tradeType = 17
+			equity = member.EquityScore
+			desc = "增加股权"
+			member.EquityScore = int(decimal.NewFromInt(int64(member.EquityScore)).Add(this.Amount).IntPart())
+		case 6:
+			tradeType = 18
+			equity = member.EquityScore * -1
+			desc = "减少股权"
+			member.EquityScore = int(decimal.NewFromInt(int64(member.EquityScore)).Sub(this.Amount).IntPart())
+		}
 		trade := model.Trade{
-			UId:       user.Id,
-			TradeType: 15,
-			ItemId:    0,
-			//Amount:    int64(this.Amount),
-			IsFrontend: isfront,
+			UId:        member.Id,
+			TradeType:  tradeType,
+			Amount:     this.Amount,
+			Before:     decimal.NewFromInt(int64(equity)),
+			After:      decimal.NewFromInt(int64(equity)).Add(this.Amount),
+			IsFrontend: this.IsFrontend,
+			Desc:       desc,
 		}
-		if this.Handle == 2 {
-			trade.Before = user.Balance
-			//trade.After = user.Balance - int64(this.Amount decimal.Decimal)
-			trade.Desc = "系统回调"
-			//user.Balance -= int64(this.Amount)
-		} else {
-			trade.Before = user.WithdrawBalance
-			//trade.After = user.WithdrawBalance - int64(this.Amount)
-			trade.Desc = "自动回调可提现余额"
-			//user.WithdrawBalance -= int64(this.Amount)
+		err := trade.Insert()
+		if err != nil {
+			logrus.Error(err)
+			return err
 		}
-		//user.TotalBalance -= int64(this.Amount)
-		user.Update("balance", "withdraw_balance")
-		trade.Insert()
-	}
+		err = member.Update("equity_score")
+		if err != nil {
+			return err
+		}
 
+	}
 	return nil
 }
+
+//func (this Manual) Withdraw(admin model.Admin, isfront int) error {
+//	s := strings.Split(this.UIds, ",")
+//	for _, v := range s {
+//		id, _ := strconv.Atoi(v)
+//		if id == 0 {
+//			return errors.New("用户错误")
+//		}
+//		user := model.Member{Id: id}
+//		if !user.Get() {
+//			return errors.New("用户不存在")
+//		}
+//		//if this.Handle == 2 && user.Balance < int64(this.Amount decimal.Decimal) {
+//		//	return errors.New("用户可用余额不足")
+//		//}
+//		//if this.Handle == 3 && user.WithdrawBalance < int64(this.Amount decimal.Decimal) {
+//		//	return errors.New("用户可提余额不足")
+//		//}
+//
+//		//账单
+//		trade := model.Trade{
+//			UId:       user.Id,
+//			TradeType: 15,
+//			ItemId:    0,
+//			//Amount:    int64(this.Amount),
+//			IsFrontend: isfront,
+//		}
+//		if this.Handle == 2 {
+//			trade.Before = user.Balance
+//			//trade.After = user.Balance - int64(this.Amount decimal.Decimal)
+//			trade.Desc = "系统回调"
+//			//user.Balance -= int64(this.Amount)
+//		} else {
+//			trade.Before = user.WithdrawBalance
+//			//trade.After = user.WithdrawBalance - int64(this.Amount)
+//			trade.Desc = "自动回调可提现余额"
+//			//user.WithdrawBalance -= int64(this.Amount)
+//		}
+//		//user.TotalBalance -= int64(this.Amount)
+//		user.Update("balance", "withdraw_balance")
+//		trade.Insert()
+//	}
+//
+//	return nil
+//}
 
 func (this Manual) TopupUseBalance(admin model.Admin, t int, isfront int) error {
 	s := strings.Split(this.UIds, ",")

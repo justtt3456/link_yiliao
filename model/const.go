@@ -24,11 +24,4 @@ const (
 	TradeTypeFundsIn      = 10 //余额宝转入
 	TradeTypeFundsOut     = 11 //余额宝转出
 	TradeTypeFundsIncome  = 12 //余额宝收益
-	//后台手动操作类型
-	ManualTypeRecharge = 1 //上分
-	ManualTypeWithdraw = 2 //下分
-	ManualTypeFreeze   = 3 //冻结
-	ManualTypeUnfreeze = 4 //解冻
-	ManualTypeSend     = 5 //汇金赠送
-	ManualTypeFuli     = 6 //会员福利
 )

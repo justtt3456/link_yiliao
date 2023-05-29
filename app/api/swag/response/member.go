@@ -8,9 +8,9 @@ type MemberResponse struct {
 	Data Member `json:"data"`
 }
 type Member struct {
-	Id                  int             `json:"id"`                    //
-	Username            string          `json:"username"`              //手机号
-	TotalBalance        decimal.Decimal `json:"total_balance"`         //可用余额
+	Id       int    `json:"id"`       //
+	Username string `json:"username"` //手机号
+	//TotalBalance        decimal.Decimal `json:"total_balance"`         //可用余额
 	Balance             decimal.Decimal `json:"balance"`               //可用余额
 	WithdrawBalance     decimal.Decimal `json:"withdraw_balance"`      //可提现余额
 	WithdrawThreshold   decimal.Decimal `json:"withdraw_threshold"`    //可提现额度
@@ -31,17 +31,17 @@ type Member struct {
 	RegisterIP          string          `json:"register_ip"`           //注册ip
 	Token               string          `json:"token"`                 //token盐
 	InviteCode          string          `json:"invite_code"`           //邀请码
-	//Coupon              []Coupon        `json:"coupon"`                //用户有的优惠券
-	Income decimal.Decimal `json:"income"` //总收益
+	Coupon              []Coupon        `json:"coupon"`                //用户有的优惠券
+	//Income decimal.Decimal `json:"income"` //总收益
 	//Guquan              int64           `json:"guquan"`                //股权
-	//Message    int64           `json:"message"`     //站内信总条数
+	Message    int64           `json:"message"`     //站内信总条数
 	PreIncome  decimal.Decimal `json:"pre_income"`  //待收益
 	PreCapital decimal.Decimal `json:"pre_capital"` //待收本金
 }
 
 type Coupon struct {
-	UseId int64           `json:"use_id"` //使用优惠券传的id
-	Id    int64           `json:"id"`     //优惠券Id
+	UseId int             `json:"use_id"` //使用优惠券传的id
+	Id    int             `json:"id"`     //优惠券Id
 	Price decimal.Decimal `json:"price"`  //优惠券面额
 }
 
@@ -55,7 +55,10 @@ type MyTeam struct {
 }
 
 type MyTeamList struct {
-	List        []MyTeam        `json:"list"`
-	TotalIncome decimal.Decimal `json:"total_income"`
-	Page        Page            `json:"page"`
+	List           []MyTeam        `json:"list"`
+	RegisterMember int             `json:"register_member"` //注册人数
+	BuyMember      int64           `json:"buy_member"`      //激活人数
+	TotalRecharge  decimal.Decimal `json:"total_recharge"`  //总计充值
+	TotalRebate    decimal.Decimal `json:"total_rebate"`    //总返佣
+	Page           Page            `json:"page"`
 }

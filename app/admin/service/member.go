@@ -34,17 +34,18 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 	for _, v := range list {
 		p := model.MemberParents{Uid: v.Id, Level: 1}
 		p.Get2()
+		invite := model.InviteCode{UId: v.Id}
+		invite.Get()
 		i := response.MemberInfo{
-			Id:       v.Id,
-			Username: v.Username,
-			//Balance:          float64(v.Balance) ,
-			//UseBalance:       float64(v.WithdrawBalance) ,
-			//TotalBalance:     float64(v.TotalBalance) ,
-			IsReal:   v.IsReal,
-			RealName: v.RealName,
-			//InvestFreeze:     float64(v.InvestFreeze) ,
-			//InvestAmount:     float64(v.InvestAmount) ,
-			//InvestIncome:     float64(v.InvestIncome) ,
+			Id:               v.Id,
+			Username:         v.Username,
+			Balance:          v.Balance,
+			WithdrawBalance:  v.WithdrawBalance,
+			IsReal:           v.IsReal,
+			RealName:         v.RealName,
+			InvestFreeze:     v.InvestFreeze,
+			InvestAmount:     v.InvestAmount,
+			InvestIncome:     v.InvestIncome,
 			Avatar:           v.Avatar,
 			Status:           v.Status,
 			FundsStatus:      v.FundsStatus,
@@ -57,9 +58,9 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 			DisableLoginTime: v.DisableLoginTime,
 			DisableBetTime:   v.DisableBetTime,
 			IsBuy:            v.IsBuy,
-			//Code:             v.Code,
-			//TopId:            p.Puid,
-			//TopName:          p.Member2.Username,
+			Code:             invite.Code,
+			TopId:            p.ParentId,
+			TopName:          p.Parent.Username,
 		}
 		res = append(res, i)
 	}
@@ -549,7 +550,7 @@ func (this SendCoupon) Send() error {
 	for _, v := range s {
 		id, _ := strconv.Atoi(v)
 		memberCoupon := model.MemberCoupon{
-			Uid:      int64(id),
+			Uid:      id,
 			CouponId: this.CouponId,
 			IsUse:    1,
 		}

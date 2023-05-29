@@ -6,8 +6,8 @@ import (
 )
 
 type MemberCoupon struct {
-	Id       int64  `gorm:"column:id;primary_key"` //
-	Uid      int64  `gorm:"column:uid"`            //用户id
+	Id       int    `gorm:"column:id;primary_key"` //
+	Uid      int    `gorm:"column:uid"`            //用户id
 	CouponId int    `gorm:"column:coupon_id"`      //优惠券id
 	IsUse    int    `gorm:"column:is_use"`         //1=未使用 2=已使用
 	Coupon   Coupon `gorm:"foreignKey:CouponId"`   //

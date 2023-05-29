@@ -95,7 +95,7 @@ func (this ProductCreate) Create() error {
 	if this.IncomeRate.LessThanOrEqual(decimal.Zero) {
 		return errors.New("收益率不能为空")
 	}
-	if this.Price.LessThanOrEqual(this.Price) {
+	if this.Price.LessThanOrEqual(decimal.Zero) {
 		return errors.New("价格不能为空")
 	}
 	if this.Total.LessThanOrEqual(decimal.Zero) {
@@ -191,7 +191,7 @@ func (this ProductUpdate) Update() error {
 	if this.IncomeRate.LessThanOrEqual(decimal.Zero) {
 		return errors.New("收益率不能为空")
 	}
-	if this.Price.LessThanOrEqual(this.Price) {
+	if this.Price.LessThanOrEqual(decimal.Zero) {
 		return errors.New("价格不能为空")
 	}
 	if this.Total.LessThanOrEqual(decimal.Zero) {

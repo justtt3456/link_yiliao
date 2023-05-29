@@ -40,12 +40,13 @@ type Member struct {
 	WithdrawAmount    int64           `gorm:"column:withdraw_amount"`    //提现流水
 	Description       string          `gorm:"column:description"`        //用户备注
 	IsBuy             int             `gorm:"column:is_buy"`             //1=有效 2=无效
-	TotalIncome       decimal.Decimal `gorm:"column:total_income"`       //总收益
 	Equity            int             `gorm:"column:equity"`             //股权
 	EquityScore       int             `gorm:"column:equity_score"`       //股权分
 	PreIncome         decimal.Decimal `gorm:"column:pre_income"`         //待收益
 	PreCapital        decimal.Decimal `gorm:"column:pre_capital"`        //待收本金
 	TotalRebate       decimal.Decimal `gorm:"column:total_rebate"`       //总返佣
+	TotalRecharge     decimal.Decimal `gorm:"column:total_recharge"`     //总充值
+	TotalIncome       decimal.Decimal `gorm:"column:total_income"`       //总收益
 	WithdrawThreshold decimal.Decimal `gorm:"column:withdraw_threshold"` //提现额度
 }
 
@@ -98,21 +99,21 @@ func (this *Member) Info() *response.Member {
 		UId: this.Id,
 	}
 	invite.Get()
-	//coupon := MemberCoupon{Uid: int64(this.Id), IsUse: 1}
-	//list := coupon.List()
-	//var coupons []response.Coupon
-	//if len(list) > 0 {
-	//	for i := range list {
-	//		coupons = append(coupons, response.Coupon{
-	//			UseId: list[i].Id,
-	//			Id:    list[i].Coupon.Id,
-	//			Price: decimal.Decimal(list[i].Coupon.Price),
-	//		})
-	//	}
-	//}
-	//where := "uid = ? or uid = ? and status = ? and is_read = ?"
-	//args := []interface{}{this.Id, -1, StatusOk, 1}
-	//msg := Message{}
+	coupon := MemberCoupon{Uid: this.Id, IsUse: 1}
+	list := coupon.List()
+	var coupons []response.Coupon
+	if len(list) > 0 {
+		for _, v := range list {
+			coupons = append(coupons, response.Coupon{
+				UseId: v.Id,
+				Id:    v.Coupon.Id,
+				Price: v.Coupon.Price,
+			})
+		}
+	}
+	where := "uid = ? and is_read = ?"
+	args := []interface{}{this.Id, StatusClose}
+	msg := MemberMessage{}
 	return &response.Member{
 		Id:                  this.Id,
 		Username:            mobile,
@@ -135,10 +136,10 @@ func (this *Member) Info() *response.Member {
 		Token:               token,
 		HasWithdrawPassword: hasWithdrawPassword,
 		InviteCode:          invite.Code,
-		//Coupon:              coupons,
-		Income: this.TotalIncome,
+		Coupon:              coupons,
+		//Income: this.TotalIncome,
 		//Guquan:  this.Guquan,
-		//Message: msg.Count(where, args),
+		Message:    msg.Count(where, args),
 		PreIncome:  this.PreIncome,
 		PreCapital: this.PreCapital,
 	}

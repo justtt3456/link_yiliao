@@ -10,9 +10,6 @@ type MemberParents struct {
 	Uid            int            `gorm:"column:uid" db:"uid" json:"uid" form:"uid"`                         //查询祖先
 	ParentId       int            `gorm:"column:parent_id" db:"parent_id" json:"parent_id" form:"parent_id"` //查询后代
 	Level          int            `gorm:"column:level" db:"level" json:"level" form:"level"`
-	IsBuy          int8           `gorm:"column:is_buy" db:"is_buy" json:"is_buy" form:"is_buy"`         //是否已购
-	Recharge       float64        `gorm:"column:recharge" db:"recharge" json:"recharge" form:"recharge"` //充值金额
-	Rebate         float64        `gorm:"column:rebate" db:"rebate" json:"rebate" form:"rebate"`         //返佣金额
 	Member         Member         `gorm:"foreignKey:uid"`
 	Parent         Member         `gorm:"foreignKey:parent_id"`
 	MemberVerified MemberVerified `gorm:"foreignKey:Uid;references:UId"`
@@ -34,7 +31,7 @@ func (this *MemberParents) Get() bool {
 
 func (this *MemberParents) Get2() bool {
 	//取数据库
-	res := global.DB.Model(this).Joins("Member2").Where(this).First(this)
+	res := global.DB.Model(this).Joins("Parent").Where(this).First(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return false

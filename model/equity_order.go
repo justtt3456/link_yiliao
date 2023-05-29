@@ -22,7 +22,7 @@ type OrderEquity struct {
 
 // TableName sets the insert table name for this struct type
 func (o OrderEquity) TableName() string {
-	return "c_guquan_order"
+	return "c_equity_order"
 }
 
 func (o *OrderEquity) Insert() error {

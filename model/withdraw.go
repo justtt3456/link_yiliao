@@ -5,6 +5,7 @@ import (
 	"china-russia/global"
 	"encoding/json"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"log"
 	"time"
 
@@ -12,33 +13,33 @@ import (
 )
 
 type Withdraw struct {
-	Id             int            `gorm:"column:id;primary_key"`             //
-	UId            int            `gorm:"column:uid"`                        //关联用户id
-	WithdrawType   int            `gorm:"column:withdraw_type"`              //提现类型1=银行卡
-	BankName       string         `gorm:"column:bank_name"`                  //关联银行名称
-	BankCode       string         `gorm:"column:bank_code"`                  //关联银行名称
-	BranchBank     string         `gorm:"column:branch_bank"`                //开户行
-	RealName       string         `gorm:"column:real_name"`                  //开户人
-	CardNumber     string         `gorm:"column:card_number"`                //卡号
-	BankPhone      string         `gorm:"column:bank_phone"`                 //预留手机号码
-	Amount         int64          `gorm:"column:amount"`                     //实际到账金额
-	Fee            int64          `gorm:"column:fee"`                        //手续费
-	TotalAmount    int64          `gorm:"column:total_amount"`               //提现总额
-	UsdtAmount     int64          `gorm:"column:usdt_amount"`                //提现总额
-	Description    string         `gorm:"column:description"`                //审核备注
-	Operator1      int            `gorm:"column:operator"`                   //操作管理员
-	ViewStatus     int            `gorm:"column:view_status"`                //已读状态，0=未读，1=已读
-	Status         int            `gorm:"column:status"`                     //提现状态，0为未审核，1为已审核，2为已拒绝
-	SuccessTime    int64          `gorm:"column:success_time"`               //成功时间
-	OrderSn        string         `gorm:"column:order_sn"`                   //订单号
-	PaymentId      int            `gorm:"column:payment_id"`                 //三方支付id
-	TradeSn        string         `gorm:"column:trade_sn"`                   //三方订单号
-	CreateTime     int64          `gorm:"column:create_time;autoCreateTime"` //
-	UpdateTime     int64          `gorm:"column:update_time;autoUpdateTime"` //
-	Member         Member         `gorm:"foreignKey:UId"`
-	Admin          Admin          `gorm:"foreignKey:Operator1"`
-	Payment        Payment        `gorm:"foreignKey:PaymentId"`
-	WithdrawMethod WithdrawMethod `gorm:"foreignKey:WithdrawType"`
+	Id             int             `gorm:"column:id;primary_key"`             //
+	UId            int             `gorm:"column:uid"`                        //关联用户id
+	WithdrawType   int             `gorm:"column:withdraw_type"`              //提现类型1=银行卡
+	BankName       string          `gorm:"column:bank_name"`                  //关联银行名称
+	BankCode       string          `gorm:"column:bank_code"`                  //关联银行名称
+	BranchBank     string          `gorm:"column:branch_bank"`                //开户行
+	RealName       string          `gorm:"column:real_name"`                  //开户人
+	CardNumber     string          `gorm:"column:card_number"`                //卡号
+	BankPhone      string          `gorm:"column:bank_phone"`                 //预留手机号码
+	Amount         decimal.Decimal `gorm:"column:amount"`                     //实际到账金额
+	Fee            decimal.Decimal `gorm:"column:fee"`                        //手续费
+	TotalAmount    decimal.Decimal `gorm:"column:total_amount"`               //提现总额
+	UsdtAmount     decimal.Decimal `gorm:"column:usdt_amount"`                //提现总额
+	Description    string          `gorm:"column:description"`                //审核备注
+	Operator1      int             `gorm:"column:operator"`                   //操作管理员
+	ViewStatus     int             `gorm:"column:view_status"`                //已读状态，0=未读，1=已读
+	Status         int             `gorm:"column:status"`                     //提现状态，0为未审核，1为已审核，2为已拒绝
+	SuccessTime    int64           `gorm:"column:success_time"`               //成功时间
+	OrderSn        string          `gorm:"column:order_sn"`                   //订单号
+	PaymentId      int             `gorm:"column:payment_id"`                 //三方支付id
+	TradeSn        string          `gorm:"column:trade_sn"`                   //三方订单号
+	CreateTime     int64           `gorm:"column:create_time;autoCreateTime"` //
+	UpdateTime     int64           `gorm:"column:update_time;autoUpdateTime"` //
+	Member         Member          `gorm:"foreignKey:UId"`
+	Admin          Admin           `gorm:"foreignKey:Operator1"`
+	Payment        Payment         `gorm:"foreignKey:PaymentId"`
+	WithdrawMethod WithdrawMethod  `gorm:"foreignKey:WithdrawType"`
 }
 
 // TableName sets the insert table name for this struct type

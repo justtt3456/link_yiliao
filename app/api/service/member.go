@@ -169,35 +169,49 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 	if this.Page == 0 {
 		this.Page = 1
 	}
+	memberModel := model.Member{}
+	//注册人数
+	var total []int
+	err := global.DB.Model(m).Select("id").Where("parent_id = ?", member.Id).Find(&total).Error
+	if err != nil {
+		return nil, err
+	}
+	//激活人数
+	var buyMember int64
+	err = global.DB.Model(memberModel).Where("is_buy = ? and id in (?)", 1, total).Count(&buyMember).Error
+	if err != nil {
+		return nil, err
+	}
+	//充值金额
+	var totalRecharge decimal.Decimal
+	err = global.DB.Model(memberModel).Select("COALESCE(sum(total_recharge),0)").Where("id in (?)", total).Scan(&totalRecharge).Error
+	if err != nil {
+		return nil, err
+	}
+	//总返佣
+	var totalRebate decimal.Decimal
+	err = global.DB.Model(memberModel).Select("COALESCE(sum(total_rebate),0)").Where("id in (?)", total).Scan(&totalRebate).Error
+	if err != nil {
+		return nil, err
+	}
 	list, page := m.GetChildListByParentId(where, args, this.Page, this.PageSize)
 	if len(list) == 0 {
 		return nil, errors.New("无数据")
 	}
-	where2 := "trade_type in (?) and uid = ?"
-	args2 := []interface{}{[]int{18, 19, 20}, member.Id}
-	trade := model.Trade{}
-	income2 := trade.Sum(where2, args2, "amount")
-	res.TotalIncome = income2
 	res.Page = FormatPage(page)
-	for i := range list {
-		where1 := "trade_type in (?) and uid = ?"
-		args1 := []interface{}{[]int{18, 19, 20}, member.Id}
-		if list[i].Member.Id != member.Id {
-			where1 += " and item_id = ?"
-			args1 = append(args1, list[i].Member.Id)
-		}
-		trade := model.Trade{}
-		income := trade.Sum(where1, args1, "amount")
-
+	for _, v := range list {
 		res.List = append(res.List, response.MyTeam{
-			Id:       list[i].Member.Id,
-			Username: this.parseMobileNumber(list[i].Member.Username),
-			Level:    int(list[i].Level),
-			RegTime:  list[i].Member.RegTime,
-			Income:   income,
-			RealName: list[i].Member.RealName,
+			Id:       v.Member.Id,
+			Username: this.parseMobileNumber(v.Member.Username),
+			Level:    v.Level,
+			RegTime:  v.Member.RegTime,
+			RealName: v.Member.RealName,
 		})
 	}
+	res.RegisterMember = len(total)
+	res.BuyMember = buyMember
+	res.TotalRecharge = totalRecharge
+	res.TotalRebate = totalRebate
 	return &res, nil
 }
 

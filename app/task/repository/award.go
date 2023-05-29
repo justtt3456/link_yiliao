@@ -414,7 +414,7 @@ func (this *Award) TeamIncome() {
 		for _, proxyId := range proxyIds {
 			//获取下线会员总人数
 			teams := model.MemberParents{}
-			where := "c_member_relation.puid = ? and c_member_relation.level > 0 and Member.is_buy = 1"
+			where := "c_member_parents.parent_id = ? and c_member_parents.level > 0 and Member.is_buy = 1"
 			args := []interface{}{proxyId}
 			users, count := teams.GetByPuidAll(where, args)
 

@@ -19,6 +19,5 @@ func main() {
 	//dao连接
 	global.DB = dao.Gorm()
 	global.REDIS = dao.Redis()
-
 	ticker.Run()
 }

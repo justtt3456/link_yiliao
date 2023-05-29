@@ -29,7 +29,7 @@ type PayInterface interface {
 	//获取三方订单号
 	TradeSn(map[string]interface{}) string
 	//获取实际金额
-	RealMoney(map[string]interface{}) int64
+	RealMoney(map[string]interface{}) decimal.Decimal
 	//获取支付时间
 	PayTime(map[string]interface{}) int64
 }
