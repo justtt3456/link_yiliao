@@ -35,7 +35,6 @@ type Recharge struct {
 	Payment        Payment         `gorm:"foreignKey:PaymentId"`
 	Admin          Admin           `gorm:"foreignKey:Id"`
 	MemberVerified MemberVerified  `gorm:"foreignKey:UId;references:UId"`
-	ImageUrl       string          `gorm:"column:img_url"` //凭证图片网址
 }
 
 // TableName sets the insert table name for this struct type
@@ -109,8 +108,8 @@ func (r *Recharge) Count(where string, args []interface{}) int64 {
 	}
 	return int64(total)
 }
-func (r *Recharge) Sum(where string, args []interface{}, field string) int64 {
-	var total int64
+func (r *Recharge) Sum(where string, args []interface{}, field string) float64 {
+	var total float64
 	tx := global.DB.Model(r).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)

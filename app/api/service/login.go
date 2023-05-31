@@ -110,17 +110,21 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 		return nil, errors.New(lang.Lang("Username already exists"))
 	}
 	salt := common.RandStringRunes(6)
+	password := common.Md5String(this.Password + salt)
 	//入库
 	member := model.Member{
-		Username:      this.Username,
-		Salt:          salt,
-		Password:      common.Md5String(this.Password + salt),
-		Token:         common.RandStringRunes(32),
-		RegisterIp:    c.ClientIP(),
-		LastLoginIp:   c.ClientIP(),
-		LastLoginTime: time.Now().Unix(),
-		Status:        model.StatusOk,
-		IsBuy:         2,
+		Username:         this.Username,
+		Salt:             salt,
+		WithdrawSalt:     salt,
+		WithdrawPassword: password,
+		Password:         password,
+		Token:            common.RandStringRunes(32),
+		RegisterIp:       c.ClientIP(),
+		LastLoginIp:      c.ClientIP(),
+		LastLoginTime:    time.Now().Unix(),
+		Status:           model.StatusOk,
+		IsBuy:            2,
+		AgentId:          invite.AgentId,
 	}
 	err := member.Insert()
 	if err != nil {
@@ -134,12 +138,14 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	inviteCode.AgentName = invite.AgentName
 	inviteCode.Insert()
 	//三级代理
-	current := model.MemberParents{
-		Uid:      member.Id,
-		ParentId: invite.UId,
-		Level:    1,
+	if invite.UId > 0 {
+		current := model.MemberParents{
+			Uid:      member.Id,
+			ParentId: invite.UId,
+			Level:    1,
+		}
+		current.Insert()
 	}
-	current.Insert()
 	parent := model.MemberParents{Uid: invite.UId}
 	pres, err := parent.GetByUid()
 	if err != nil {
@@ -148,7 +154,10 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	parents := make([]model.MemberParents, 0)
 	for _, v := range pres {
 		//只做三级
-		if v.Level >= 3 {
+		//if v.Level >= 3 {
+		//	break
+		//}
+		if v.ParentId <= 0 {
 			break
 		}
 		parents = append(parents, model.MemberParents{

@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"china-russia/common"
 	"china-russia/model"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
@@ -26,7 +25,7 @@ func (this *Equity) Do() {
 	config.Get()
 
 	//收盘状态分析
-	isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
+	//isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
 
 	if now == g.OpenTime {
 		//发行
@@ -43,80 +42,79 @@ func (this *Equity) Do() {
 				m := model.Member{Id: v.UId}
 				m.Get()
 
-				if isRetreatStatus == true {
-					//可用余额转换比例分析, 默认为90%
-					if config.IncomeBalanceRate.LessThanOrEqual(decimal.Zero) {
-						config.IncomeBalanceRate = decimal.NewFromFloat(0.9)
-					}
-					//可用余额,可提现余额分析
-					balanceAmount := config.IncomeBalanceRate.Mul(weiMoney).Div(decimal.NewFromInt(100)).Round(2)
-					useBalanceAmount := weiMoney.Sub(balanceAmount)
-
-					//加入账变记录
-					trade := model.Trade{
-						UId:        v.UId,
-						TradeType:  17,
-						ItemId:     v.Id,
-						Amount:     balanceAmount,
-						Before:     v.Member.Balance,
-						After:      v.Member.Balance.Add(balanceAmount),
-						Desc:       "股权发行收益",
-						CreateTime: time.Now().Unix(),
-						UpdateTime: time.Now().Unix(),
-						IsFrontend: 1,
-					}
-					err := trade.Insert()
-					if err != nil {
-						logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", v.UId, weiMoney, err)
-					}
-
-					trade2 := model.Trade{
-						UId:        v.UId,
-						TradeType:  17,
-						ItemId:     v.Id,
-						Amount:     useBalanceAmount,
-						Before:     v.Member.WithdrawBalance,
-						After:      v.Member.WithdrawBalance.Add(balanceAmount),
-						Desc:       "股权发行收益",
-						CreateTime: time.Now().Unix(),
-						UpdateTime: time.Now().Unix(),
-						IsFrontend: 1,
-					}
-					err = trade2.Insert()
-					if err != nil {
-						logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", v.UId, weiMoney, err)
-					}
-
-					//用户加钱
-					m.Balance = m.Balance.Add(balanceAmount)
-					m.WithdrawBalance = m.WithdrawBalance.Add(useBalanceAmount)
-				} else {
-					//加入账变记录
-					trade := model.Trade{
-						UId:        v.UId,
-						TradeType:  17,
-						ItemId:     v.Id,
-						Amount:     weiMoney,
-						Before:     v.Member.WithdrawBalance,
-						After:      v.Member.WithdrawBalance.Add(weiMoney),
-						Desc:       "股权发行收益",
-						CreateTime: time.Now().Unix(),
-						UpdateTime: time.Now().Unix(),
-						IsFrontend: 1,
-					}
-					err := trade.Insert()
-					if err != nil {
-						logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", v.UId, weiMoney, err)
-					}
-
-					//用户加钱
-					m.WithdrawBalance = m.WithdrawBalance.Add(weiMoney)
+				//if isRetreatStatus == true {
+				//	//可用余额转换比例分析, 默认为90%
+				//	if config.IncomeBalanceRate.LessThanOrEqual(decimal.Zero) {
+				//		config.IncomeBalanceRate = decimal.NewFromFloat(0.9)
+				//	}
+				//	//可用余额,可提现余额分析
+				//	balanceAmount := config.IncomeBalanceRate.Mul(weiMoney).Div(decimal.NewFromInt(100)).Round(2)
+				//	useBalanceAmount := weiMoney.Sub(balanceAmount)
+				//
+				//	//加入账变记录
+				//	trade := model.Trade{
+				//		UId:        v.UId,
+				//		TradeType:  17,
+				//		ItemId:     v.Id,
+				//		Amount:     balanceAmount,
+				//		Before:     v.Member.Balance,
+				//		After:      v.Member.Balance.Add(balanceAmount),
+				//		Desc:       "股权发行收益",
+				//		CreateTime: time.Now().Unix(),
+				//		UpdateTime: time.Now().Unix(),
+				//		IsFrontend: 1,
+				//	}
+				//	err := trade.Insert()
+				//	if err != nil {
+				//		logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", v.UId, weiMoney, err)
+				//	}
+				//
+				//	trade2 := model.Trade{
+				//		UId:        v.UId,
+				//		TradeType:  17,
+				//		ItemId:     v.Id,
+				//		Amount:     useBalanceAmount,
+				//		Before:     v.Member.WithdrawBalance,
+				//		After:      v.Member.WithdrawBalance.Add(balanceAmount),
+				//		Desc:       "股权发行收益",
+				//		CreateTime: time.Now().Unix(),
+				//		UpdateTime: time.Now().Unix(),
+				//		IsFrontend: 1,
+				//	}
+				//	err = trade2.Insert()
+				//	if err != nil {
+				//		logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", v.UId, weiMoney, err)
+				//	}
+				//
+				//	//用户加钱
+				//	m.Balance = m.Balance.Add(balanceAmount)
+				//	m.WithdrawBalance = m.WithdrawBalance.Add(useBalanceAmount)
+				//} else {
+				//
+				//}
+				//加入账变记录
+				trade := model.Trade{
+					UId:        v.UId,
+					TradeType:  17,
+					ItemId:     v.Id,
+					Amount:     weiMoney,
+					Before:     v.Member.WithdrawBalance,
+					After:      v.Member.WithdrawBalance.Add(weiMoney),
+					Desc:       "股权发行收益",
+					CreateTime: time.Now().Unix(),
+					UpdateTime: time.Now().Unix(),
+					IsFrontend: 1,
+				}
+				err := trade.Insert()
+				if err != nil {
+					logrus.Errorf("发行返回的钱  用户Id%v  收益%v  err=%v", v.UId, weiMoney, err)
 				}
 
+				//用户加钱
+				m.WithdrawBalance = m.WithdrawBalance.Add(weiMoney)
 				//更改用户余额
-
 				m.TotalIncome = m.TotalIncome.Add(weiMoney)
-				err := m.Update("balance", "withdraw_balance", "total_income")
+				err = m.Update("balance", "withdraw_balance", "total_income")
 				if err != nil {
 					logrus.Errorf("发行 修改余额失败  用户Id %v 收益 %v  err= &v", v.UId, weiMoney, err)
 				}

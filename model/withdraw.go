@@ -117,8 +117,8 @@ func (this *Withdraw) Count(where string, args []interface{}) int64 {
 	}
 	return int64(total)
 }
-func (this *Withdraw) Sum(where string, args []interface{}, field string) int64 {
-	var total int64
+func (this *Withdraw) Sum(where string, args []interface{}, field string) float64 {
+	var total float64
 	tx := global.DB.Model(this).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
 	//COALESCE(SUM(column),0)
 	if tx.Error != nil {

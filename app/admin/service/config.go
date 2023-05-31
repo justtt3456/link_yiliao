@@ -15,24 +15,24 @@ func (this ConfigBase) Get() (*response.ConfigBase, error) {
 		return nil, errors.New("参数错误")
 	}
 	return &response.ConfigBase{
-		Id:      base.Id,
-		AppName: base.AppName,
-		AppLogo: base.AppLogo,
-		//VerifiedSend:      float64(base.VerifiedSend) ,
-		//RegisterSend:      float64(base.RegisterSend) ,
-		//OneSend:           float64(base.OneSend) ,
-		//TwoSend:           float64(base.TwoSend) ,
-		//ThreeSend:         float64(base.ThreeSend) ,
-		//OneSendMoeny:      float64(base.OneSendMoeny) ,
-		SendDesc:     base.SendDesc,
-		RegisterDesc: base.RegisterDesc,
-		TeamDesc:     base.TeamDesc,
-		//GiftRate:          float64(base.GiftRate) ,
-		//RetreatStartDate:  base.RetreatStartDate,
-		//OneReleaseRate:    float64(base.OneReleaseRate) ,
-		//TwoReleaseRate:    float64(base.TwoReleaseRate) ,
-		//ThreeReleaseRate:  float64(base.ThreeReleaseRate) ,
-		//IncomeBalanceRate: float64(base.IncomeBalanceRate) ,
+		Id:                base.Id,
+		AppName:           base.AppName,
+		AppLogo:           base.AppLogo,
+		VerifiedSend:      base.VerifiedSend,
+		RegisterSend:      base.RegisterSend,
+		OneSend:           base.OneSend,
+		TwoSend:           base.TwoSend,
+		ThreeSend:         base.ThreeSend,
+		OneSendMoney:      base.OneSendMoney,
+		SendDesc:          base.SendDesc,
+		RegisterDesc:      base.RegisterDesc,
+		TeamDesc:          base.TeamDesc,
+		GiftRate:          base.GiftRate,
+		SignRewards:       base.SignRewards,
+		OneReleaseRate:    base.OneReleaseRate,
+		TwoReleaseRate:    base.TwoReleaseRate,
+		ThreeReleaseRate:  base.ThreeReleaseRate,
+		IncomeBalanceRate: base.IncomeBalanceRate,
 	}, nil
 }
 
@@ -45,23 +45,23 @@ func (this ConfigBaseUpdate) Update() error {
 	//添加
 	if !conf.Get() {
 		c := model.SetBase{
-			AppName: this.AppName,
-			AppLogo: this.AppLogo,
-			//VerifiedSend: int(this.VerifiedSend),
-			//RegisterSend:      int(this.RegisterSend),
-			//OneSend:           int(this.OneSend),
-			//TwoSend:           int(this.TwoSend),
-			//ThreeSend:         int(this.ThreeSend),
-			//SendDesc:          this.SendDesc,
-			//RegisterDesc:      this.RegisterDesc,
-			//TeamDesc:          this.TeamDesc,
-			//OneSendMoeny:      int64(this.OneSendMoeny),
-			//GiftRate:          int(this.GiftRate  decimal.Decimal),
-			RetreatStartDate: this.RetreatStartDate,
-			//OneReleaseRate:    int(this.OneReleaseRate),
-			//TwoReleaseRate:    int(this.TwoReleaseRate),
-			//ThreeReleaseRate:  int(this.ThreeReleaseRate),
-			//IncomeBalanceRate: int(this.IncomeBalanceRate),
+			AppName:           this.AppName,
+			AppLogo:           this.AppLogo,
+			VerifiedSend:      this.VerifiedSend,
+			RegisterSend:      this.RegisterSend,
+			OneSend:           this.OneSend,
+			TwoSend:           this.TwoSend,
+			ThreeSend:         this.ThreeSend,
+			SendDesc:          this.SendDesc,
+			RegisterDesc:      this.RegisterDesc,
+			TeamDesc:          this.TeamDesc,
+			OneSendMoney:      this.OneSendMoney,
+			GiftRate:          this.GiftRate,
+			SignRewards:       this.SignRewards,
+			OneReleaseRate:    this.OneReleaseRate,
+			TwoReleaseRate:    this.TwoReleaseRate,
+			ThreeReleaseRate:  this.ThreeReleaseRate,
+			IncomeBalanceRate: this.IncomeBalanceRate,
 		}
 		return c.Insert()
 	} else {
@@ -69,21 +69,21 @@ func (this ConfigBaseUpdate) Update() error {
 		conf.Id = this.Id
 		conf.AppName = this.AppName
 		conf.AppLogo = this.AppLogo
-		//conf.VerifiedSend = int(this.VerifiedSend)
-		//conf.RegisterSend = int(this.RegisterSend)
-		//conf.OneSend = int(this.OneSend)
-		//conf.TwoSend = int(this.TwoSend)
-		//conf.ThreeSend = int(this.ThreeSend)
-		//conf.OneSendMoeny = int64(this.OneSendMoeny)
-		//conf.SendDesc = this.SendDesc
-		//conf.RegisterDesc = this.RegisterDesc
-		//conf.TeamDesc = this.TeamDesc
-		//conf.GiftRate = int(this.GiftRate)
-		//conf.RetreatStartDate = this.RetreatStartDate
-		//conf.OneReleaseRate = int(this.OneReleaseRate)
-		//conf.TwoReleaseRate = int(this.TwoReleaseRate)
-		//conf.ThreeReleaseRate = int(this.ThreeReleaseRate)
-		//conf.IncomeBalanceRate = int(this.IncomeBalanceRate)
+		conf.VerifiedSend = this.VerifiedSend
+		conf.RegisterSend = this.RegisterSend
+		conf.OneSend = this.OneSend
+		conf.TwoSend = this.TwoSend
+		conf.ThreeSend = this.ThreeSend
+		conf.OneSendMoney = this.OneSendMoney
+		conf.SendDesc = this.SendDesc
+		conf.RegisterDesc = this.RegisterDesc
+		conf.TeamDesc = this.TeamDesc
+		conf.GiftRate = this.GiftRate
+		conf.SignRewards = this.SignRewards
+		conf.OneReleaseRate = this.OneReleaseRate
+		conf.TwoReleaseRate = this.TwoReleaseRate
+		conf.ThreeReleaseRate = this.ThreeReleaseRate
+		conf.IncomeBalanceRate = this.IncomeBalanceRate
 		return conf.Update()
 	}
 }
@@ -96,24 +96,24 @@ func (this ConfigFunds) Get() (*response.ConfigFunds, error) {
 		return nil, errors.New("参数错误")
 	}
 	return &response.ConfigFunds{
-		Id:                funds.Id,
-		RechargeStartTime: funds.RechargeStartTime,
-		RechargeEndTime:   funds.RechargeEndTime,
-		//RechargeMinAmount:   float64(funds.RechargeMinAmount) ,
-		//RechargeMaxAmount:   float64(funds.RechargeMaxAmount) ,
+		Id:                  funds.Id,
+		RechargeStartTime:   funds.RechargeStartTime,
+		RechargeEndTime:     funds.RechargeEndTime,
+		RechargeMinAmount:   funds.RechargeMinAmount,
+		RechargeMaxAmount:   funds.RechargeMaxAmount,
 		RechargeFee:         funds.RechargeFee,
 		RechargeQuickAmount: funds.RechargeQuickAmount,
 		WithdrawStartTime:   funds.WithdrawStartTime,
 		WithdrawEndTime:     funds.WithdrawEndTime,
 		MustPassword:        funds.MustPassword,
 		PasswordFreeze:      funds.PasswordFreeze,
-		//WithdrawMinAmount:   float64(funds.WithdrawMinAmount) ,
-		//WithdrawMaxAmount:   float64(funds.WithdrawMaxAmount) ,
-		//WithdrawFee:         float64(funds.WithdrawFee),
-		WithdrawCount:      funds.WithdrawCount,
-		ProductFee:         funds.ProductFee,
-		ProductQuickAmount: funds.ProductQuickAmount,
-		DayTurnMoneyNum:    funds.DayTurnMoneyNum,
+		WithdrawMinAmount:   funds.WithdrawMinAmount,
+		WithdrawMaxAmount:   funds.WithdrawMaxAmount,
+		WithdrawFee:         funds.WithdrawFee,
+		WithdrawCount:       funds.WithdrawCount,
+		ProductFee:          funds.ProductFee,
+		ProductQuickAmount:  funds.ProductQuickAmount,
+		DayTurnMoneyNum:     funds.DayTurnMoneyNum,
 	}, nil
 }
 
@@ -150,17 +150,17 @@ func (this ConfigFundsUpdate) Update() error {
 		conf.Id = this.Id
 		conf.RechargeStartTime = this.RechargeStartTime
 		conf.RechargeEndTime = this.RechargeEndTime
-		//conf.RechargeMinAmount = int64(this.RechargeMinAmount)
-		//conf.RechargeMaxAmount = int64(this.RechargeMaxAmount)
+		conf.RechargeMinAmount = this.RechargeMinAmount
+		conf.RechargeMaxAmount = this.RechargeMaxAmount
 		conf.RechargeFee = this.RechargeFee
 		conf.RechargeQuickAmount = this.RechargeQuickAmount
 		conf.WithdrawStartTime = this.WithdrawStartTime
 		conf.WithdrawEndTime = this.WithdrawEndTime
 		conf.MustPassword = this.MustPassword
 		conf.PasswordFreeze = this.PasswordFreeze
-		//conf.WithdrawMinAmount = int64(this.WithdrawMinAmount)
-		//conf.WithdrawMaxAmount = int64(this.WithdrawMaxAmount)
-		//conf.WithdrawFee = this.WithdrawFee
+		conf.WithdrawMinAmount = this.WithdrawMinAmount
+		conf.WithdrawMaxAmount = this.WithdrawMaxAmount
+		conf.WithdrawFee = this.WithdrawFee
 		conf.WithdrawCount = this.WithdrawCount
 		conf.ProductFee = this.ProductFee
 		conf.ProductQuickAmount = this.ProductQuickAmount

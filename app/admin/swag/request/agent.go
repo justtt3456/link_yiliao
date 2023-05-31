@@ -8,7 +8,7 @@ type AgentList struct {
 	Status   int    `form:"status"`
 }
 type AgentCreate struct {
-	Name      string `json:"name"` //
+	Account   string `json:"account"` //
 	Password  string `json:"password"`
 	ParentId  int    `json:"parent_id"`  //父级id 为0时则为组长
 	GroupName string `json:"group_name"` //小组名称

@@ -27,6 +27,7 @@ type MemberInfo struct {
 	Username           string          `json:"username"`             //手机号
 	Balance            decimal.Decimal `json:"balance"`              //可用余额
 	WithdrawBalance    decimal.Decimal `json:"withdraw_balance"`     //可提余额
+	WithdrawThreshold  decimal.Decimal `json:"withdraw_threshold"`   //可提现额度
 	Freeze             decimal.Decimal `json:"freeze"`               //冻结金额
 	ParentId           int             `json:"parent_id"`            //推荐人id
 	AgentId            int             `json:"agent_id"`             //代理id
@@ -51,6 +52,7 @@ type MemberInfo struct {
 	TopId              int             `json:"top_id"`               //上级Id
 	TopName            string          `json:"top_name"`             //上级名字
 	ProductOrderAmount decimal.Decimal `json:"product_order_amount"` //投注金额
+	AgentName          string          `json:"agent_name"`
 }
 
 type Bank struct {

@@ -13,13 +13,15 @@ type RechargeRequest struct {
 	Description string `json:"description"`                  //备注
 }
 type RechargeListRequest struct {
-	OrderSn   string `json:"order_sn"`
+	UId       int    `json:"uid" form:"uid"` //用户id
 	Username  string `json:"username"`
-	StartTime int    `json:"start_time"`
-	EndTime   int    `json:"end_time"`
+	OrderSn   string `json:"order_sn"`
+	StartTime string `json:"start_time"`
+	EndTime   string `json:"end_time"`
 	Status    int    `json:"status"`
 	Page      int    `json:"page"`
 	PageSize  int    `json:"page_size"`
+	AgentName string `json:"agent_name"`
 }
 type RechargeUpdateRequest struct {
 	Ids         string `json:"ids"`

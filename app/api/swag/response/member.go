@@ -16,6 +16,7 @@ type Member struct {
 	WithdrawThreshold   decimal.Decimal `json:"withdraw_threshold"`    //可提现额度
 	IsReal              int             `json:"is_real"`               //是否实名 0未实名 1审核中 2通过 3驳回
 	RealName            string          `json:"real_name"`             //真实姓名
+	IdNumber            string          `json:"id_number"`             //身份证号码
 	InvestFreeze        decimal.Decimal `json:"invest_freeze"`         //余额宝冻结金额
 	InvestAmount        decimal.Decimal `json:"invest_amount"`         //余额宝有效金额
 	InvestIncome        decimal.Decimal `json:"invest_income"`         //余额宝总收益
@@ -46,12 +47,13 @@ type Coupon struct {
 }
 
 type MyTeam struct {
-	Id       int             `json:"id"`        //
-	Username string          `json:"username"`  //用户名
-	Level    int             `json:"level"`     //层级
-	RegTime  int64           `json:"reg_time"`  //注册时间
-	Income   decimal.Decimal `json:"income"`    //收益
-	RealName string          `json:"real_name"` //实名姓名
+	Id             int             `json:"id"`              //
+	Username       string          `json:"username"`        //用户名
+	RechargeMember int             `json:"recharge_member"` //充值人数
+	BuyMember      int             `json:"buy_member"`      //激活人数
+	RegisterMember int             `json:"register_member"` //注册人数
+	BuyAmount      decimal.Decimal `json:"buy_amount"`      //投资金额
+	Level          int             `json:"level"`
 }
 
 type MyTeamList struct {

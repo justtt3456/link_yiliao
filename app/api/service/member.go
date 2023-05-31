@@ -172,7 +172,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 	memberModel := model.Member{}
 	//注册人数
 	var total []int
-	err := global.DB.Model(m).Select("id").Where("parent_id = ?", member.Id).Find(&total).Error
+	err := global.DB.Model(m).Select("uid").Where("parent_id = ?", member.Id).Find(&total).Error
 	if err != nil {
 		return nil, err
 	}
@@ -183,35 +183,49 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 		return nil, err
 	}
 	//充值金额
-	var totalRecharge decimal.Decimal
+	var totalRecharge float64
 	err = global.DB.Model(memberModel).Select("COALESCE(sum(total_recharge),0)").Where("id in (?)", total).Scan(&totalRecharge).Error
 	if err != nil {
 		return nil, err
 	}
 	//总返佣
-	var totalRebate decimal.Decimal
+	var totalRebate float64
 	err = global.DB.Model(memberModel).Select("COALESCE(sum(total_rebate),0)").Where("id in (?)", total).Scan(&totalRebate).Error
 	if err != nil {
 		return nil, err
 	}
 	list, page := m.GetChildListByParentId(where, args, this.Page, this.PageSize)
-	if len(list) == 0 {
-		return nil, errors.New("无数据")
-	}
 	res.Page = FormatPage(page)
+	res.List = make([]response.MyTeam, 0)
 	for _, v := range list {
+		ids := make([]int, 0)
+		global.DB.Model(model.MemberParents{}).Select("uid").Where("parent_id = ?", v.Uid).Scan(&ids)
+		var childRechargeMember int64
+		var childBuyMember int64
+		var childBuyAmount float64
+		if len(ids) > 0 {
+			//下级用户总充值人数
+			global.DB.Model(memberModel).Where("total_recharge > ? and id in (?)", 0, ids).Count(&childRechargeMember)
+			//下级用户总激活人数
+			global.DB.Model(memberModel).Where("is_buy = ? and id in (?)", model.StatusOk, ids).Count(&childBuyMember)
+			//下级用户总投资金额
+			global.DB.Model(memberModel).Select("COALESCE(sum(total_buy),0)").Where("id in (?)", ids).Scan(&childBuyAmount)
+		}
+
 		res.List = append(res.List, response.MyTeam{
-			Id:       v.Member.Id,
-			Username: this.parseMobileNumber(v.Member.Username),
-			Level:    v.Level,
-			RegTime:  v.Member.RegTime,
-			RealName: v.Member.RealName,
+			Id:             v.Member.Id,
+			Username:       this.parseMobileNumber(v.Member.Username),
+			RechargeMember: int(childRechargeMember),
+			BuyMember:      int(childBuyMember),
+			RegisterMember: len(ids),
+			BuyAmount:      decimal.NewFromFloat(childBuyAmount),
+			Level:          v.Level,
 		})
 	}
 	res.RegisterMember = len(total)
 	res.BuyMember = buyMember
-	res.TotalRecharge = totalRecharge
-	res.TotalRebate = totalRebate
+	res.TotalRecharge = decimal.NewFromFloat(totalRecharge)
+	res.TotalRebate = decimal.NewFromFloat(totalRebate)
 	return &res, nil
 }
 

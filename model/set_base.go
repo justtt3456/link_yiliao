@@ -20,12 +20,12 @@ type SetBase struct {
 	RegisterDesc      string          `gorm:"column:register_desc"`       //注册好礼描述
 	TeamDesc          string          `gorm:"column:team_desc"`           //团队奖励描述
 	GiftRate          decimal.Decimal `gorm:"column:gift_rate"`           //赠品赠送比例
-	RetreatStartDate  string          `gorm:"column:retreat_start_date"`  //开始收盘日期
 	EquityStartDate   string          `gorm:"column:equity_start_date"`   //股权分开始日期
 	OneReleaseRate    decimal.Decimal `gorm:"column:one_release_rate"`    //一级代理释放比例
 	TwoReleaseRate    decimal.Decimal `gorm:"column:two_release_rate"`    //二级代理释放比例
 	ThreeReleaseRate  decimal.Decimal `gorm:"column:three_release_rate"`  //三级代理释放比例
 	IncomeBalanceRate decimal.Decimal `gorm:"column:income_balance_rate"` //收益转可用余额比例
+	SignRewards       decimal.Decimal `gorm:"column:sign_rewards"`        //签到奖励
 }
 
 // TableName sets the insert table name for this struct type

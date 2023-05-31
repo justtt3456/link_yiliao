@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"china-russia/common"
 	"china-russia/global"
 	"china-russia/model"
 	"fmt"
@@ -61,28 +60,31 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 			logrus.Errorf("购买产品减去可投余额失败%v", err)
 		}
 		//账变记录
-		err = this.createTrade(member, order, amount.Sub(mc.Coupon.Price))
+		err = this.createTrade(member, order, amount)
 		if err != nil {
 			return err
 		}
 		//扣减可用余额 记录已购状态
 		member.Balance = member.Balance.Sub(amount.Sub(mc.Coupon.Price))
+		member.TotalBuy = member.TotalBuy.Add(amount)
 		member.IsBuy = 1
-		//优惠券使用
-		err = this.useCoupon(member, mc)
-		if err != nil {
-			return err
+		if mc.Id > 0 {
+			//优惠券使用
+			err = this.useCoupon(member, mc)
+			if err != nil {
+				return err
+			}
 		}
 		//首次购买赠送
 		if isFirst {
-			err = this.firstBuy(member, order.Id, amount)
+			err = this.firstBuy(member, order.Id)
 			if err != nil {
 				return err
 			}
 		}
 		//记录用户待收益利息及本金
-		member.PreIncome = member.PreIncome.Add(product.IncomeRate.Mul(decimal.NewFromInt(int64(product.Interval))))
-		member.PreCapital = member.PreCapital.Add(product.Price)
+		member.PreIncome = member.PreIncome.Add(amount.Add(mc.Coupon.Price).Mul(product.IncomeRate).Mul(decimal.NewFromInt(int64(product.Interval))).Div(decimal.NewFromInt(100).Round(2)))
+		member.PreCapital = member.PreCapital.Add(amount.Add(mc.Coupon.Price))
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
 		}
@@ -103,7 +105,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 					UpdateTime: time.Now().Unix(),
 					IsFrontend: 1,
 				}
-				err = this.tx.Create(trade).Error
+				err = this.tx.Create(&trade).Error
 				if err != nil {
 					logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
 					return err
@@ -113,7 +115,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 					CouponId: activity.Coupon.Id,
 					IsUse:    1,
 				}
-				err = this.tx.Create(couponIns).Error
+				err = this.tx.Create(&couponIns).Error
 				if err != nil {
 					logrus.Errorf("赠赠送优惠券记录失败%v %v", err, member.Id)
 					return err
@@ -145,11 +147,15 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 				return err
 			}
 		}
-		err = this.tx.Select("balance", "withdraw_balance", "is_buy", "pre_income", "pre_capital").Updates(member).Error
+		//用户可提额度增加
+		member.WithdrawThreshold = member.WithdrawThreshold.Add(product.WithdrawThresholdRate.Mul(amount).Div(decimal.NewFromInt(100)).Round(2))
+		err = this.tx.Select("balance", "withdraw_balance", "is_buy", "pre_income", "pre_capital", "withdraw_threshold", "total_buy").Updates(member).Error
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
 			return err
 		}
+	case 2: //股权
+
 	}
 	return nil
 }
@@ -158,15 +164,15 @@ func (this productBuyLogic) createOrder(member *model.Member, product model.Prod
 	inc := &model.OrderProduct{
 		UId:          member.Id,
 		Pid:          product.Id,
-		PayMoney:     amount.Sub(amount),
+		PayMoney:     amount,
 		IsReturnTop:  1,
-		AfterBalance: member.Balance.Sub(amount.Sub(amount)),
+		AfterBalance: member.Balance.Sub(amount),
 		CreateTime:   time.Now().Unix(),
 		UpdateTime:   time.Now().Unix(),
 		IncomeRate:   product.IncomeRate,
 		EndTime:      time.Now().Unix() + int64(product.Interval*86400),
 	}
-	err := this.tx.Create(inc).Error
+	err := this.tx.Create(&inc).Error
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +192,7 @@ func (this productBuyLogic) createTrade(member *model.Member, order *model.Order
 		UpdateTime: time.Now().Unix(),
 		IsFrontend: 1,
 	}
-	err := this.tx.Create(trade).Error
+	err := this.tx.Create(&trade).Error
 	if err != nil {
 		logrus.Errorf("购买产品加入账变记录失败%v", err)
 		return err
@@ -207,7 +213,7 @@ func (this productBuyLogic) useCoupon(member *model.Member, mc model.MemberCoupo
 		UpdateTime: time.Now().Unix(),
 		IsFrontend: 1,
 	}
-	err := this.tx.Create(trade).Error
+	err := this.tx.Create(&trade).Error
 	if err != nil {
 		logrus.Errorf("使用优惠券记录 加入账变记录失败%v", err)
 		return err
@@ -221,27 +227,27 @@ func (this productBuyLogic) useCoupon(member *model.Member, mc model.MemberCoupo
 	}
 	return nil
 }
-func (this productBuyLogic) firstBuy(member *model.Member, orderId int, amount decimal.Decimal) error {
+func (this productBuyLogic) firstBuy(member *model.Member, orderId int) error {
 	//赠送礼金 加入账变记录
 	trade := model.Trade{
 		UId:        member.Id,
 		TradeType:  7,
 		ItemId:     orderId,
-		Amount:     amount,
+		Amount:     this.config.RegisterSend,
 		Before:     member.WithdrawBalance,
-		After:      member.WithdrawBalance.Add(amount),
+		After:      member.WithdrawBalance.Add(this.config.RegisterSend),
 		Desc:       "第一次购买赠送礼金",
 		CreateTime: time.Now().Unix(),
 		UpdateTime: time.Now().Unix(),
 		IsFrontend: 1,
 	}
-	err := this.tx.Create(trade).Error
+	err := this.tx.Create(&trade).Error
 	if err != nil {
 		logrus.Errorf("赠送礼金 加入账变记录失败%v", err)
 		return err
 	}
 	//赠送礼金
-	member.WithdrawBalance = member.WithdrawBalance.Add(amount)
+	member.WithdrawBalance = member.WithdrawBalance.Add(this.config.RegisterSend)
 	return nil
 }
 func (this *productBuyLogic) proxyRebate(level int, productOrder *model.OrderProduct) error {
@@ -283,104 +289,32 @@ func (this *productBuyLogic) proxyRebate(level int, productOrder *model.OrderPro
 	if !parent.Get() {
 		return nil
 	}
-	//收盘状态分析
-	isRetreatStatus := common.ParseRetreatStatus(this.config.RetreatStartDate)
-	if isRetreatStatus == true {
-		trade := model.Trade{
-			UId:        parent.Id,
-			TradeType:  t,
-			ItemId:     productOrder.UId,
-			Amount:     income,
-			Before:     parent.Balance,
-			After:      parent.Balance.Add(income),
-			Desc:       fmt.Sprintf("%v级返佣", level),
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		err := this.tx.Create(trade).Error
-		if err != nil {
-			logrus.Errorf("%v级返佣收益存入账单失败  用户Id %v err= &v", level, productOrder.UId, err)
-			return err
-		}
-		parent.Balance = parent.Balance.Add(income)
-	} else {
-		trade := model.Trade{
-			UId:        parent.Id,
-			TradeType:  t,
-			ItemId:     productOrder.UId,
-			Amount:     income,
-			Before:     parent.WithdrawBalance,
-			After:      parent.WithdrawBalance.Add(income),
-			Desc:       fmt.Sprintf("%v级返佣", level),
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		err := this.tx.Create(trade).Error
-		if err != nil {
-			logrus.Errorf("%v级返佣收益存入账单失败  用户Id %v err= &v", level, productOrder.UId, err)
-			return err
-		}
-		parent.WithdrawBalance = parent.WithdrawBalance.Add(income)
+
+	trade := model.Trade{
+		UId:        parent.Id,
+		TradeType:  t,
+		ItemId:     productOrder.UId,
+		Amount:     income,
+		Before:     parent.WithdrawBalance,
+		After:      parent.WithdrawBalance.Add(income),
+		Desc:       fmt.Sprintf("%v级返佣", level),
+		CreateTime: time.Now().Unix(),
+		UpdateTime: time.Now().Unix(),
+		IsFrontend: 1,
 	}
+	err = this.tx.Create(&trade).Error
+	if err != nil {
+		logrus.Errorf("%v级返佣收益存入账单失败  用户Id %v err= &v", level, productOrder.UId, err)
+		return err
+	}
+	parent.WithdrawBalance = parent.WithdrawBalance.Add(income)
+
 	//增加用户返佣金额
 	parent.TotalRebate = parent.TotalRebate.Add(income)
 	//增加用户可提现额度
 	parent.WithdrawThreshold = parent.WithdrawThreshold.Add(productOrder.PayMoney)
-	//释放一级,二级,三级代理的可用余额
-	if isRetreatStatus == true && decimal.Zero.LessThan(parent.Balance) {
-		var freeAmount decimal.Decimal
-		var t2 int
-		switch level {
-		case 1:
-			if this.config.OneReleaseRate.LessThanOrEqual(decimal.Zero) {
-				return nil
-				//c.OneReleaseRate = 1000
-			}
-			t2 = 25
-			freeAmount = this.config.OneReleaseRate.Mul(productOrder.PayMoney)
-		case 2:
-			if this.config.TwoReleaseRate.LessThanOrEqual(decimal.Zero) {
-				return nil
-				//c.TwoReleaseRate = 500
-			}
-			t2 = 26
-			freeAmount = this.config.TwoReleaseRate.Mul(productOrder.PayMoney)
-		case 3:
-			if this.config.ThreeReleaseRate.LessThanOrEqual(decimal.Zero) {
-				return nil
-				//c.ThreeReleaseRate = 200
-			}
-			t2 = 27
-			freeAmount = this.config.ThreeReleaseRate.Mul(productOrder.PayMoney)
-		}
-		//可用余额分析
-		if parent.Balance.LessThan(freeAmount) {
-			freeAmount = parent.Balance
-		}
 
-		trade := model.Trade{
-			UId:        parent.Id,
-			TradeType:  t2,
-			ItemId:     productOrder.UId,
-			Amount:     freeAmount,
-			Before:     parent.WithdrawBalance,
-			After:      parent.WithdrawBalance.Add(freeAmount),
-			Desc:       fmt.Sprintf("%v级释放可用余额", level),
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		err := this.tx.Create(trade).Error
-		if err != nil {
-			logrus.Errorf("%v级释放可用余额失败  代理UId %v err= &v", level, parent.Id, err)
-		}
-		//释放可用金额到可提现金额
-		parent.Balance = parent.Balance.Sub(freeAmount)
-		parent.WithdrawBalance = parent.WithdrawBalance.Add(freeAmount)
-	}
-	err = this.tx.Select("balance", "withdraw_threshold", "total_rebate", "withdraw_balance").Updates(parent).Error
+	err = this.tx.Select("withdraw_threshold", "total_rebate", "withdraw_balance").Updates(parent).Error
 	if err != nil {
 		logrus.Errorf("%v级返佣收益修改余额失败 用户Id %v 收益 %v  err= &v", level, productOrder.UId, income, err)
 		return err
@@ -413,7 +347,7 @@ func (this productBuyLogic) gift(member *model.Member, product model.Product) er
 		IncomeRate:   product.IncomeRate,
 		EndTime:      time.Now().Unix() + int64(product.Interval*86400),
 	}
-	err := this.tx.Create(orderModel).Error
+	err := this.tx.Create(&orderModel).Error
 	if err != nil {
 		return err
 	}
@@ -430,11 +364,11 @@ func (this productBuyLogic) gift(member *model.Member, product model.Product) er
 		UpdateTime: time.Now().Unix(),
 		IsFrontend: 1,
 	}
-	err = this.tx.Create(trade).Error
+	err = this.tx.Create(&trade).Error
 	if err != nil {
 		logrus.Errorf("赠送赠品加入账变记录失败%v", err)
 	}
 	//更改用户收益
-	member.PreIncome = member.PreIncome.Add(giftModel.IncomeRate.Mul(decimal.NewFromInt(int64(giftModel.Interval)))).Div(decimal.NewFromInt(100)).Round(2)
+	member.PreIncome = member.PreIncome.Add(giftModel.Price.Mul(giftModel.IncomeRate).Mul(decimal.NewFromInt(int64(giftModel.Interval))).Div(decimal.NewFromInt(100).Round(2)))
 	return nil
 }

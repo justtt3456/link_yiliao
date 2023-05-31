@@ -25,14 +25,14 @@ func (this TradeService) PageList() response.TradeData {
 	sli := make([]response.TradeInfo, 0)
 	for _, v := range list {
 		item := response.TradeInfo{
-			Tid:       v.Id,
-			Username:  v.Member.Username,
-			TradeType: v.TradeType,
-			//Amount:       float64(v.Amount),
-			//BeforeAmount: float64(v.Before),
-			//AfterAmount:  float64(v.After),
-			Desc:       v.Desc,
-			CreateTime: v.CreateTime,
+			Tid:          v.Id,
+			Username:     v.Member.Username,
+			TradeType:    v.TradeType,
+			Amount:       v.Amount,
+			BeforeAmount: v.Before,
+			AfterAmount:  v.After,
+			Desc:         v.Desc,
+			CreateTime:   v.CreateTime,
 		}
 		sli = append(sli, item)
 	}

@@ -45,8 +45,9 @@ type BuyList struct {
 }
 
 type BuyListResp struct {
-	List []BuyList `json:"list"`
-	Page Page      `json:"page"`
+	List        []BuyList       `json:"list"`
+	Page        Page            `json:"page"`
+	TotalAmount decimal.Decimal `json:"total_amount"`
 }
 
 type BuyGuquan struct {

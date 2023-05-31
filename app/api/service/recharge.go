@@ -74,7 +74,7 @@ func (this RechargeCreate) checkError() error {
 		//if !bank.Get() {
 		//	return errors.New(lang.Lang("Receiving account does not exist"))
 		//}
-		if this.ImageUrl == "" {
+		if this.Voucher == "" {
 			return errors.New(lang.Lang("credential image must be required!"))
 		}
 	case "paymentAlipay":
@@ -176,17 +176,16 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 }
 func (this RechargeCreate) create(member model.Member, to string, usdtAmount decimal.Decimal, payment int) (model.Recharge, error) {
 	recharge := model.Recharge{
-		OrderSn: common.OrderSn(),
-		UId:     member.Id,
-		Type:    this.Method,
-		//Amount:  int64(this.Amount),
+		OrderSn:    common.OrderSn(),
+		UId:        member.Id,
+		Type:       this.Method,
+		Amount:     this.Amount,
 		From:       this.From,
 		To:         to,
 		Voucher:    this.Voucher,
 		UsdtAmount: usdtAmount,
 		PaymentId:  payment,
 		Status:     model.StatusReview,
-		ImageUrl:   this.ImageUrl,
 	}
 	err := recharge.Insert()
 	return recharge, err

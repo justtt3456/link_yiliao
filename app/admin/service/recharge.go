@@ -4,60 +4,78 @@ import (
 	"china-russia/app/admin/swag/request"
 	"china-russia/app/admin/swag/response"
 	"china-russia/common"
+	"china-russia/global"
 	"china-russia/model"
 	"errors"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 )
 
 type RechargeService struct {
-	request.RechargeRequest
+	request.RechargeListRequest
 }
 
-func (this RechargeService) PageList() response.RechargeData {
+func (this RechargeService) PageList() *response.RechargeData {
 	if this.Page < 1 {
 		this.Page = 1
 	}
 	if this.PageSize > common.MaxPageSize || this.PageSize < common.MinPageSize {
 		this.PageSize = common.DefaultPageSize
 	}
-	where, args := this.getWhere()
-	m := model.Recharge{}
-	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
+	offset := this.PageSize * (this.Page - 1)
+	db := global.DB.Model(model.Recharge{})
+	db = this.getWhere(db)
+	var total int64
+	err := db.Joins("Member").Count(&total).Error
+	if err != nil {
+		return nil
+	}
+	page := common.Page{
+		Page: this.Page,
+	}
+	page.SetPage(this.PageSize, total)
+	list := make([]model.Recharge, 0)
+	err = db.Joins("Member").Order("id desc").Limit(this.PageSize).Offset(offset).Find(&list).Error
+	if err != nil {
+		return nil
+	}
 	sli := make([]response.RechargeInfo, 0)
+	var totalAmount decimal.Decimal
 	for _, v := range list {
 		item := response.RechargeInfo{
-			Id:      v.Id,
-			OrderSn: v.OrderSn,
-			UId:     v.UId,
-			Type:    v.Type,
-			//Amount:      float64(v.Amount),
-			//RealAmount:  float64(v.RealAmount),
-			From:      v.From,
-			To:        v.To,
-			Voucher:   v.Voucher,
-			PaymentId: v.PaymentId,
-			Status:    v.Status,
-			//UsdtAmount:  float64(v.UsdtAmount),
+			Id:          v.Id,
+			OrderSn:     v.OrderSn,
+			UId:         v.UId,
+			Type:        v.Type,
+			Amount:      v.Amount,
+			RealAmount:  v.RealAmount,
+			From:        v.From,
+			To:          v.To,
+			Voucher:     v.Voucher,
+			PaymentId:   v.PaymentId,
+			Status:      v.Status,
+			UsdtAmount:  v.UsdtAmount,
 			Operator:    v.Operator,
 			Description: v.Description,
 			UpdateTime:  v.UpdateTime,
 			CreateTime:  v.CreateTime,
 			Username:    v.Member.Username,
 			MethodName:  v.RechargeMethod.Name,
-			//PaymentName: v.Payment.PayName,
+			PaymentName: v.Payment.PayName,
 			SuccessTime: v.SuccessTime,
 			TradeSn:     v.TradeSn,
-			ImageUrl:    v.ImageUrl,
 			RealName:    v.MemberVerified.RealName,
 		}
 		sli = append(sli, item)
+		totalAmount = totalAmount.Add(v.Amount)
 	}
-	return response.RechargeData{
-		List: sli,
-		Page: FormatPage(page),
+	return &response.RechargeData{
+		List:        sli,
+		Page:        FormatPage(page),
+		TotalAmount: totalAmount,
 	}
 }
 
@@ -98,31 +116,33 @@ func (this RechargeUpdate) Update(admin model.Admin) error {
 	return nil
 }
 
-func (this RechargeService) getWhere() (string, []interface{}) {
-	where := map[string]interface{}{}
+func (this RechargeService) getWhere(db *gorm.DB) *gorm.DB {
+
 	if this.UId > 0 {
-		where[model.Recharge{}.TableName()+".uid"] = this.UId
+		db.Where(model.Recharge{}.TableName()+".uid = ?", this.UId)
 	}
 	if this.OrderSn != "" {
-		where[model.Recharge{}.TableName()+".order_sn"] = this.OrderSn
+		db.Where(model.Recharge{}.TableName()+".order_sn = ?", this.OrderSn)
 	}
 	if this.Username != "" {
-		where["Member.username"] = this.Username
+		db.Where(".Member.username = ?", this.Username)
 	}
 	if this.StartTime != "" {
-		where[model.Recharge{}.TableName()+".create_time >="] = common.DateToUnix(this.StartTime)
+		db.Where(model.Recharge{}.TableName()+".create_time >= ?", common.DateToUnix(this.StartTime))
 	}
 	if this.EndTime != "" {
-		where[model.Recharge{}.TableName()+".create_time <"] = common.DateToUnix(this.EndTime)
+		db.Where(model.Recharge{}.TableName()+".create_time < ?", common.DateToUnix(this.EndTime))
 	}
 	if this.Status > 0 {
-		where[model.Recharge{}.TableName()+".status"] = this.Status
+		db.Where(model.Recharge{}.TableName()+".status = ?", this.Status)
 	}
-	build, vals, err := common.WhereBuild(where)
-	if err != nil {
-		logrus.Error(err)
+	if this.Status > 0 {
+		agent := model.Agent{Account: this.AgentName}
+		if agent.Get() {
+			db.Where("Member.agent_id = ?", agent.Id)
+		}
 	}
-	return build, vals
+	return db
 }
 
 type RechargeHandle struct {

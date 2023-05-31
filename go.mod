@@ -1,6 +1,6 @@
 module china-russia
 
-go 1.20
+go 1.19
 
 require (
 	github.com/dchest/captcha v1.0.0

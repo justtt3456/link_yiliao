@@ -35,72 +35,24 @@ func (this SignController) Sign(c *gin.Context) {
 	config := model.SetBase{}
 	config.Get()
 
-	//收盘状态分析
-	isRetreatStatus := common.ParseRetreatStatus(config.RetreatStartDate)
-	if isRetreatStatus == true {
-		//if config.IncomeBalanceRate == 0 {
-		//	//默认为90%
-		//	config.IncomeBalanceRate = 9000
-		//}
-		//送奖励 1块钱,可用余额,可提现余额分析
-		//balanceAmount := int64(model.UNITY) * int64(config.IncomeBalanceRate) / int64(model.UNITY)
-		//useBalanceAmount := int64(model.UNITY) - balanceAmount
+	//签到奖励
+	member.WithdrawBalance = member.WithdrawBalance.Add(config.SignRewards)
+	member.Update("withdraw_balance")
 
-		//member.TotalBalance += balanceAmount
-		//member.Balance += balanceAmount
-		//member.WithdrawBalance += useBalanceAmount
-		member.Update("total_balance", "balance", "withdraw_balance")
-
-		//记录奖励
-		trade := model.Trade{
-			UId:       member.Id,
-			TradeType: 22,
-			ItemId:    0,
-			//Amount:     balanceAmount,
-			//Before:     member.Balance - balanceAmount,
-			After:      member.Balance,
-			Desc:       "签到奖励(可用余额)",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		trade.Insert()
-
-		trade = model.Trade{
-			UId:       member.Id,
-			TradeType: 22,
-			ItemId:    0,
-			//Amount:     useBalanceAmount,
-			//Before:     member.WithdrawBalance - useBalanceAmount,
-			After:      member.WithdrawBalance,
-			Desc:       "签到奖励(可提现余额)",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		trade.Insert()
-
-	} else {
-		//送奖励 1块钱
-		//member.TotalBalance += int64(model.UNITY)
-		//member.WithdrawBalance += int64(model.UNITY)
-		member.Update("total_balance", "withdraw_balance")
-
-		//记录奖励
-		trade := model.Trade{
-			UId:       member.Id,
-			TradeType: 22,
-			ItemId:    0,
-			//Amount:     int64(model.UNITY),
-			//Before:     member.WithdrawBalance - int64(model.UNITY),
-			After:      member.WithdrawBalance,
-			Desc:       "签到奖励",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-			IsFrontend: 1,
-		}
-		trade.Insert()
+	//记录奖励
+	trade := model.Trade{
+		UId:        member.Id,
+		TradeType:  22,
+		ItemId:     0,
+		Amount:     config.SignRewards,
+		Before:     member.WithdrawBalance.Sub(config.SignRewards),
+		After:      member.WithdrawBalance,
+		Desc:       "签到奖励",
+		CreateTime: time.Now().Unix(),
+		UpdateTime: time.Now().Unix(),
+		IsFrontend: 1,
 	}
+	trade.Insert()
 
 	this.Json(c, 0, "签到成功", nil)
 	return

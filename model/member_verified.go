@@ -35,7 +35,7 @@ func (this *MemberVerified) Insert() error {
 }
 func (this *MemberVerified) Get() bool {
 	//取数据库
-	res := global.DB.Where(this).First(this)
+	res := global.DB.Where(this).Order("id desc").First(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return false

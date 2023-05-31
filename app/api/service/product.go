@@ -42,34 +42,36 @@ func (this ProductList) PageList() response.ProductListData {
 	}
 	for _, v := range list {
 		//获取赠品产品名称
-		//giftName := ""
-		//if v.GiftId > 0 {
-		//	giftModel := model.Product{
-		//		Id: v.GiftId,
-		//	}
-		//	if giftModel.Get() {
-		//		giftName = giftModel.Name
-		//	}
-		//}
+		giftName := ""
+		if v.GiftId > 0 {
+			giftModel := model.Product{
+				Id: v.GiftId,
+			}
+			if giftModel.Get() {
+				giftName = giftModel.Name
+			}
+		}
 
 		i := response.Product{
-			Id:           v.Id,
-			Name:         v.Name,
-			Category:     v.Category,
-			Type:         v.Type,
-			Price:        v.Price,
-			Img:          v.Img,
-			Interval:     v.Interval,
-			IncomeRate:   v.IncomeRate,
-			LimitBuy:     v.LimitBuy,
-			Total:        v.Total,
-			Current:      v.Current,
-			Desc:         v.Desc,
-			DelayTime:    v.DelayTime,
-			IsHot:        v.IsHot,
-			IsFinished:   v.IsFinished,
-			IsCouponGift: v.IsCouponGift,
-			Status:       v.Status,
+			Id:                    v.Id,
+			Name:                  v.Name,
+			Category:              v.Category,
+			Type:                  v.Type,
+			Price:                 v.Price,
+			Img:                   v.Img,
+			Interval:              v.Interval,
+			IncomeRate:            v.IncomeRate,
+			LimitBuy:              v.LimitBuy,
+			Total:                 v.Total,
+			Current:               v.Current,
+			Desc:                  v.Desc,
+			DelayTime:             v.DelayTime,
+			GiftName:              giftName,
+			WithdrawThresholdRate: v.WithdrawThresholdRate,
+			IsHot:                 v.IsHot,
+			IsFinished:            v.IsFinished,
+			IsCouponGift:          v.IsCouponGift,
+			Status:                v.Status,
 		}
 		res = append(res, i)
 	}
@@ -346,6 +348,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		if !memberCoupon.Get() {
 			return errors.New("没有找到可用的优惠券信息！")
 		}
+		amount = amount.Sub(memberCoupon.Coupon.Price)
 	}
 	//24小时内购买赠送可提现余额
 	var isFirst bool
@@ -379,10 +382,10 @@ func (this BuyProductList) List(member *model.Member) *response.BuyListResp {
 		return &res
 	}
 	items := make([]response.BuyList, 0)
-	for i := range list {
+	for _, v := range list {
 		//订单状态
 		orderStatus := 1
-		if list[i].IsReturnCapital == 1 {
+		if v.IsReturnCapital == 1 {
 			orderStatus = 2
 		}
 		product := model.Product{Id: m.Pid}
@@ -390,14 +393,14 @@ func (this BuyProductList) List(member *model.Member) *response.BuyListResp {
 			continue
 		}
 		//每日收益
-		income := list[i].PayMoney.Mul(list[i].IncomeRate)
+		income := v.PayMoney.Mul(v.IncomeRate).Div(decimal.NewFromInt(100)).Round(2)
 		items = append(items, response.BuyList{
-			Name:    list[i].Product.Name,
-			BuyTime: int(list[i].CreateTime),
-			Amount:  list[i].PayMoney,
+			Name:    v.Product.Name,
+			BuyTime: int(v.CreateTime),
+			Amount:  v.PayMoney,
 			Status:  orderStatus,
 			Income:  income,
-			EndTime: list[i].EndTime,
+			EndTime: v.EndTime,
 		})
 	}
 	res.List = items

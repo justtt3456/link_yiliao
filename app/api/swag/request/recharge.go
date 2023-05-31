@@ -9,7 +9,6 @@ type RechargeCreate struct {
 	To        int             `json:"to"`         //收款账号Id
 	Voucher   string          `json:"voucher"`    //凭证图
 	ChannelId int             `json:"channel_id"` //三方通道id
-	ImageUrl  string          `json:"img"`        //凭证图片网址
 }
 type RechargeList struct {
 	Status   int `form:"status"` //状态 1审核中 2通过 3驳回

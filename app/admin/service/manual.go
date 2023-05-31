@@ -243,7 +243,7 @@ func (this ManualList) PageList() response.ManualData {
 			Type:     v.Type,
 			//Amount:     float64(v.Amount / 100),
 			AdminName:  v.Admin.Username,
-			AgentName:  v.Agent.Name,
+			AgentName:  v.Agent.Account,
 			CreateTime: v.CreateTime,
 		}
 		sli = append(sli, item)

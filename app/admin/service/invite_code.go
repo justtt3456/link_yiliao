@@ -69,7 +69,7 @@ func (this InviteCodeCreate) Create() error {
 	}
 	m := model.InviteCode{
 		AgentId:   this.AgentId,
-		AgentName: agent.Name,
+		AgentName: agent.Account,
 		Code:      this.Code,
 	}
 	return m.Insert()

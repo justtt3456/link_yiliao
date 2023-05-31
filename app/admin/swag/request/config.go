@@ -14,9 +14,9 @@ type ConfigBaseUpdate struct {
 	SendDesc          string          `json:"send_desc"`           //奖励描述
 	RegisterDesc      string          `json:"register_desc"`       //注册好礼描述
 	TeamDesc          string          `json:"team_desc"`           //团队奖励描述
-	OneSendMoeny      decimal.Decimal `json:"one_send_moeny"`      //代理返佣基础值  （10）元
+	OneSendMoney      decimal.Decimal `json:"one_send_money"`      //代理返佣基础值  （10）元
 	GiftRate          decimal.Decimal `json:"gift_rate"`           //赠品赠送比例
-	RetreatStartDate  string          `json:"retreat_start_date"`  //开始收盘日期
+	SignRewards       decimal.Decimal `json:"sign_rewards"`        //签到奖励
 	OneReleaseRate    decimal.Decimal `json:"one_release_rate"`    //一级代理释放比
 	TwoReleaseRate    decimal.Decimal `json:"two_release_rate"`    //二级代理释放比
 	ThreeReleaseRate  decimal.Decimal `json:"three_release_rate"`  //三级代理释放比

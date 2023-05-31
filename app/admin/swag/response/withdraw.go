@@ -8,8 +8,9 @@ type WithdrawResponse struct {
 	Data WithdrawData `json:"data"`
 }
 type WithdrawData struct {
-	List []WithdrawInfo `json:"list"`
-	Page Page           `json:"page"`
+	List        []WithdrawInfo  `json:"list"`
+	Page        Page            `json:"page"`
+	TotalAmount decimal.Decimal `json:"total_amount"`
 }
 type WithdrawInfo struct {
 	Id               int             `json:"id"`            //

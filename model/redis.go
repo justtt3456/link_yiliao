@@ -100,5 +100,5 @@ func (Redis) Lock(key string) error {
 	}
 }
 func (Redis) Unlock(key string) {
-	global.REDIS.Del(key).Val()
+	global.REDIS.Del(key)
 }

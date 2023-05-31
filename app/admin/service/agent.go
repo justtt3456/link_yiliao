@@ -20,18 +20,18 @@ func (this AgentList) List() response.AgentData {
 	list := m.List(where, args)
 	res := make([]response.AgentInfo, 0)
 	for _, v := range list {
-		parent := model.Agent{
-			Id: v.ParentId,
-		}
-		if v.ParentId != 0 {
-			parent.Get()
-		}
+		//parent := model.Agent{
+		//	Id: v.ParentId,
+		//}
+		//if v.ParentId != 0 {
+		//	parent.Get()
+		//}
 		i := response.AgentInfo{
-			Id:         v.Id,
-			Name:       v.Name,
-			ParentId:   v.ParentId,
-			ParentName: parent.Name,
-			GroupName:  v.GroupName,
+			Id:   v.Id,
+			Name: v.Account,
+			//ParentId:   v.ParentId,
+			//ParentName: parent.Name,
+			//GroupName:  v.GroupName,
 			Status:     v.Status,
 			CreateTime: v.CreateTime,
 			UpdateTime: v.UpdateTime,
@@ -52,18 +52,18 @@ func (this AgentList) PageList() response.AgentData {
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.AgentInfo, 0)
 	for _, v := range list {
-		parent := model.Agent{
-			Id: v.ParentId,
-		}
-		if v.ParentId != 0 {
-			parent.Get()
-		}
+		//parent := model.Agent{
+		//	Id: v.ParentId,
+		//}
+		//if v.ParentId != 0 {
+		//	parent.Get()
+		//}
 		i := response.AgentInfo{
-			Id:         v.Id,
-			Name:       v.Name,
-			ParentId:   v.ParentId,
-			ParentName: parent.Name,
-			GroupName:  v.GroupName,
+			Id:   v.Id,
+			Name: v.Account,
+			//ParentId:   v.ParentId,
+			//ParentName: parent.Name,
+			//GroupName:  v.GroupName,
 			Status:     v.Status,
 			CreateTime: v.CreateTime,
 			UpdateTime: v.UpdateTime,
@@ -94,28 +94,28 @@ type AgentCreate struct {
 }
 
 func (this AgentCreate) Create() error {
-	if this.Name == "" {
+	if this.Account == "" {
 		return errors.New("代理账号不能为空")
 	}
 	if this.Password == "" {
 		return errors.New("代理密码不能为空")
 	}
-	groupName := this.GroupName
+	//groupName := this.GroupName
 	if this.ParentId > 0 {
 		parent := model.Agent{Id: this.ParentId}
 		if !parent.Get() {
 			return errors.New("上级代理不存在")
 		}
-		groupName = parent.GroupName
+		//groupName = parent.GroupName
 	}
 	salt := common.RandStringRunes(6)
 	m := model.Agent{
-		Name:      this.Name,
-		Password:  common.Md5String(this.Password + salt),
-		Salt:      salt,
-		ParentId:  this.ParentId,
-		GroupName: groupName,
-		Status:    this.Status,
+		Account:  this.Account,
+		Password: common.Md5String(this.Password + salt),
+		Salt:     salt,
+		//ParentId:  this.ParentId,
+		//GroupName: groupName,
+		Status: this.Status,
 	}
 	return m.Insert()
 }
@@ -134,24 +134,24 @@ func (this AgentUpdate) Update() error {
 	if !m.Get() {
 		return errors.New("代理不存在")
 	}
-	groupName := this.GroupName
-	if this.ParentId > 0 {
-		parent := model.Agent{Id: this.ParentId}
-		if !parent.Get() {
-			return errors.New("上级代理不存在")
-		}
-		groupName = parent.GroupName
-	}
-	m.ParentId = this.ParentId
-	m.GroupName = groupName
+	//groupName := this.GroupName
+	//if this.ParentId > 0 {
+	//	parent := model.Agent{Id: this.ParentId}
+	//	if !parent.Get() {
+	//		return errors.New("上级代理不存在")
+	//	}
+	//	groupName = parent.GroupName
+	//}
+	//m.ParentId = this.ParentId
+	//m.GroupName = groupName
 	m.Status = this.Status
 	if this.Password != "" {
 		salt := common.RandStringRunes(6)
 		m.Salt = salt
 		m.Password = common.Md5String(this.Password + salt)
-		return m.Update("parent_id", "group_name", "status", "salt", "password")
+		return m.Update("status", "salt", "password")
 	} else {
-		return m.Update("parent_id", "group_name", "status")
+		return m.Update("status")
 	}
 }
 

@@ -24,4 +24,5 @@ const (
 	TradeTypeFundsIn      = 10 //余额宝转入
 	TradeTypeFundsOut     = 11 //余额宝转出
 	TradeTypeFundsIncome  = 12 //余额宝收益
+	//TODO::账变类型
 )

@@ -8,8 +8,9 @@ type RechargeResponse struct {
 	Data RechargeData `json:"data"`
 }
 type RechargeData struct {
-	List []RechargeInfo `json:"list"`
-	Page Page           `json:"page"`
+	List        []RechargeInfo  `json:"list"`
+	Page        Page            `json:"page"`
+	TotalAmount decimal.Decimal `json:"total_amount"`
 }
 type RechargeInfo struct {
 	Id          int             `json:"id"`          //
@@ -33,6 +34,5 @@ type RechargeInfo struct {
 	PaymentName string          `json:"payment_name"`
 	SuccessTime int64           `json:"success_time"` //成功时间
 	TradeSn     string          `json:"trade_sn"`     //三方订单号
-	ImageUrl    string          `json:"img_url"`      //凭证图片网址
 	RealName    string          `json:"real_name"`    //注册姓名
 }

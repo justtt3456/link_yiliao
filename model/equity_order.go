@@ -99,14 +99,14 @@ func (this *OrderEquity) PageList(where string, args []interface{}, page, pageSi
 		Page: page,
 	}
 	var total int64
-	count := global.DB.Model(this).Joins("Member").Joins("Guquan").Where(where, args...).Count(&total)
+	count := global.DB.Model(this).Joins("Member").Joins("Equity").Where(where, args...).Count(&total)
 	if count.Error != nil {
 		logrus.Error(count.Error)
 		return res, pageUtil
 	}
 	if total > 0 {
 		offset := (page - 1) * pageSize
-		tx := global.DB.Model(this).Joins("Member").Joins("Guquan").Where(where, args...).Limit(pageSize).Offset(offset).Order(this.TableName() + ".id desc").Find(&res)
+		tx := global.DB.Model(this).Joins("Member").Joins("Equity").Where(where, args...).Limit(pageSize).Offset(offset).Order(this.TableName() + ".id desc").Find(&res)
 		if tx.Error != nil {
 			logrus.Error(tx.Error)
 			return res, pageUtil

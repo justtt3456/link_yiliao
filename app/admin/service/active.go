@@ -5,6 +5,8 @@ import (
 	"china-russia/app/admin/swag/response"
 	"china-russia/model"
 	"errors"
+	"fmt"
+	"github.com/shopspring/decimal"
 )
 
 type CouponList struct {
@@ -15,10 +17,10 @@ func (this *CouponList) CouponList() response.CouponResp {
 	res := make([]response.Coupon, 0)
 	m := model.Coupon{}
 	s := m.List()
-	for i := range s {
+	for _, v := range s {
 		res = append(res, response.Coupon{
-			Id: s[i].Id,
-			//Price: float64(s[i].Price) ,
+			Id:    v.Id,
+			Price: v.Price,
 		})
 	}
 	return response.CouponResp{List: res}
@@ -30,10 +32,10 @@ type CouponAdd struct {
 
 func (this *CouponAdd) Add() error {
 	m := model.Coupon{}
-	//if this.Price == 0 {
-	//	return errors.New("金额不能为0")
-	//}
-	//m.Price = int64(this.Price)
+	if this.Price.LessThanOrEqual(decimal.Zero) {
+		return errors.New("金额不能为0")
+	}
+	m.Price = this.Price
 	return m.Insert()
 }
 
@@ -45,12 +47,12 @@ func (this *ActiveList) PageList() response.ActiveResp {
 	res := make([]response.Active, 0)
 	m := model.CouponActivity{}
 	s := m.List()
-	for i := range s {
+	for _, v := range s {
 		res = append(res, response.Active{
-			Id: s[i].Id,
-			//Amout:    float64(s[i].Amout) ,
-			//Price:    float64(s[i].Coupon.Price) ,
-			CouponId: s[i].CouponId,
+			Id:       v.Id,
+			Amount:   v.Amount,
+			Price:    v.Coupon.Price,
+			CouponId: v.CouponId,
 		})
 	}
 	return response.ActiveResp{List: res}
@@ -69,12 +71,12 @@ func (this *ActiveAdd) Add() error {
 	if !c.Get() {
 		return errors.New("优惠券不存在")
 	}
-	//if this.Amout == 0 {
-	//	return errors.New("满多少不能为0")
-	//}
-	//m.Amout = int64(this.Amout)
+	if this.Amount.LessThanOrEqual(decimal.Zero) {
+		return errors.New("满多少不能为0")
+	}
+	m.Amount = this.Amount
 	m.CouponId = this.CouponId
-
+	fmt.Println(m)
 	return m.Insert()
 }
 

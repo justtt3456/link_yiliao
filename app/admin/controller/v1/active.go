@@ -73,7 +73,11 @@ func (this ActiveController) AddActive(c *gin.Context) {
 		this.Json(c, 10001, err.Error(), nil)
 		return
 	}
-	this.Json(c, 0, "ok", s.Add())
+	if err := s.Add(); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", nil)
 	return
 }
 

@@ -5,7 +5,6 @@ import (
 	"china-russia/global"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -13,11 +12,9 @@ import (
 
 type Agent struct {
 	Id         int    `gorm:"column:id;primary_key"`             //
-	Name       string `gorm:"column:name"`                       //
+	Account    string `gorm:"column:account"`                    //
 	Password   string `gorm:"column:password"`                   //
 	Salt       string `gorm:"column:salt"`                       //
-	ParentId   int    `gorm:"column:parent_id"`                  //父级id 为0时则为组长
-	GroupName  string `gorm:"column:group_name"`                 //小组名称
 	Token      string `gorm:"column:token"`                      //token盐
 	Status     int    `gorm:"column:status"`                     //帐号启用状态，1启用2禁用
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
@@ -75,17 +72,17 @@ func (a *Agent) Remove() error {
 }
 
 func (a *Agent) Get() bool {
-	if a.Id != 0 {
-		key := fmt.Sprintf(StringKeyAgent, a.Id)
-		//取redis
-		s := global.REDIS.Get(key).Val()
-		if s != "" {
-			err := json.Unmarshal([]byte(s), a)
-			if err == nil {
-				return true
-			}
-		}
-	}
+	//if a.Id != 0 {
+	//	key := fmt.Sprintf(StringKeyAgent, a.Id)
+	//	//取redis
+	//	s := global.REDIS.Get(key).Val()
+	//	if s != "" {
+	//		err := json.Unmarshal([]byte(s), a)
+	//		if err == nil {
+	//			return true
+	//		}
+	//	}
+	//}
 	//取数据库
 	res := global.DB.Where(a).First(a)
 	if res.Error != nil {
@@ -94,20 +91,18 @@ func (a *Agent) Get() bool {
 	}
 
 	//同步redis
-	bytes, err := json.Marshal(a)
-	if err != nil {
-		log.Println(err)
-	}
-	global.REDIS.Set(fmt.Sprintf(StringKeyAgent, a.Id), string(bytes), a.ExpireTime())
+	//bytes, err := json.Marshal(a)
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	//global.REDIS.Set(fmt.Sprintf(StringKeyAgent, a.Id), string(bytes), a.ExpireTime())
 	return true
 }
 
 func (a Agent) Info() *Agent {
 	return &Agent{
 		Id:         a.Id,
-		Name:       a.Name,
-		ParentId:   a.ParentId,
-		GroupName:  a.GroupName,
+		Account:    a.Account,
 		CreateTime: a.CreateTime,
 		UpdateTime: a.UpdateTime,
 	}

@@ -61,7 +61,7 @@ func Auth() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			global.REDIS.Set(key, value, time.Second*3)
+			global.REDIS.Set(key, value, time.Second*1)
 		}
 
 		c.Set("member", m)

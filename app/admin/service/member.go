@@ -9,6 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
+
 	//"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"strconv"
@@ -36,31 +38,35 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 		p.Get2()
 		invite := model.InviteCode{UId: v.Id}
 		invite.Get()
+		agent := model.Agent{Id: v.AgentId}
+		agent.Get()
 		i := response.MemberInfo{
-			Id:               v.Id,
-			Username:         v.Username,
-			Balance:          v.Balance,
-			WithdrawBalance:  v.WithdrawBalance,
-			IsReal:           v.IsReal,
-			RealName:         v.RealName,
-			InvestFreeze:     v.InvestFreeze,
-			InvestAmount:     v.InvestAmount,
-			InvestIncome:     v.InvestIncome,
-			Avatar:           v.Avatar,
-			Status:           v.Status,
-			FundsStatus:      v.FundsStatus,
-			Level:            v.Level,
-			Score:            v.Score,
-			LastLoginTime:    v.LastLoginTime,
-			LastLoginIP:      v.LastLoginIp,
-			RegTime:          v.RegTime,
-			RegisterIP:       v.RegisterIp,
-			DisableLoginTime: v.DisableLoginTime,
-			DisableBetTime:   v.DisableBetTime,
-			IsBuy:            v.IsBuy,
-			Code:             invite.Code,
-			TopId:            p.ParentId,
-			TopName:          p.Parent.Username,
+			Id:                v.Id,
+			Username:          v.Username,
+			Balance:           v.Balance,
+			WithdrawBalance:   v.WithdrawBalance,
+			IsReal:            v.IsReal,
+			RealName:          v.RealName,
+			InvestFreeze:      v.InvestFreeze,
+			InvestAmount:      v.InvestAmount,
+			InvestIncome:      v.InvestIncome,
+			Avatar:            v.Avatar,
+			Status:            v.Status,
+			FundsStatus:       v.FundsStatus,
+			Level:             v.Level,
+			Score:             v.Score,
+			LastLoginTime:     v.LastLoginTime,
+			LastLoginIP:       v.LastLoginIp,
+			RegTime:           v.RegTime,
+			RegisterIP:        v.RegisterIp,
+			DisableLoginTime:  v.DisableLoginTime,
+			DisableBetTime:    v.DisableBetTime,
+			IsBuy:             v.IsBuy,
+			Code:              invite.Code,
+			TopId:             p.ParentId,
+			TopName:           p.Parent.Username,
+			AgentName:         agent.Account,
+			WithdrawThreshold: v.WithdrawThreshold,
 		}
 		res = append(res, i)
 	}
@@ -268,102 +274,53 @@ type MemberVerifiedUpdate struct {
 }
 
 func (this MemberVerifiedUpdate) Update() error {
-	if this.Id == 0 {
+	if len(this.Ids) == 0 {
 		return errors.New("参数错误")
 	}
-	m := model.MemberVerified{Id: this.Id}
-	if !m.Get() {
-		return errors.New("记录不存在")
+	for _, v := range this.Ids {
+		m := model.MemberVerified{Id: v}
+		if !m.Get() {
+			return errors.New("记录不存在")
+		}
+		if this.Status != model.StatusAccept && this.Status != model.StatusRollback {
+			return errors.New("状态错误")
+		}
+		m.Status = this.Status
+		m.Update("status")
+		member := model.Member{Id: m.UId}
+		if !member.Get() {
+			return errors.New("用户不存在")
+		}
+		//获取基础配置表信息
+		c := model.SetBase{}
+		c.Get()
+		if this.Status == 2 {
+			member.IsReal = this.Status
+			member.RealName = m.RealName
+		}
+		if decimal.Zero.LessThan(c.VerifiedSend) {
+			//加入账变记录
+			trade := model.Trade{
+				UId:        member.Id,
+				TradeType:  8,
+				Amount:     c.VerifiedSend,
+				Before:     member.Balance,
+				After:      member.Balance.Add(c.VerifiedSend),
+				Desc:       "实名认证礼金",
+				CreateTime: time.Now().Unix(),
+				UpdateTime: time.Now().Unix(),
+				IsFrontend: 1,
+			}
+			trade.Insert()
+			//第一次实名通过的时候送奖金
+			member.Balance = member.Balance.Add(c.VerifiedSend)
+		}
+		err := member.Update("is_real", "real_name", "balance")
+		if err != nil {
+			return err
+		}
 	}
-	if this.Status != model.StatusAccept && this.Status != model.StatusRollback {
-		return errors.New("状态错误")
-	}
-	m.Status = this.Status
-	m.Update("status")
-	member := model.Member{Id: m.UId}
-	if !member.Get() {
-		return errors.New("用户不存在")
-	}
-
-	//获取基础配置表信息
-	c := model.SetBase{}
-	c.Get()
-
-	//if c.VerifiedSend > 0 && member.IsOneShiming == 1 && this.Status == 2 {
-	//	//收盘状态分析
-	//	isRetreatStatus := common.ParseRetreatStatus(c.RetreatStartDate)
-	//	if isRetreatStatus == true {
-	//		//可用余额转换比例分析, 默认为90%
-	//		if c.IncomeBalanceRate == 0 {
-	//			c.IncomeBalanceRate = 9000
-	//		}
-	//
-	//		//可用余额,可提现余额分析
-	//		balanceAmount := int64(c.IncomeBalanceRate) / int64(model.UNITY) * int64(c.VerifiedSend)
-	//		useBalanceAmount := int64(c.VerifiedSend) - balanceAmount
-	//
-	//		//第一次实名通过的时候送奖金
-	//		member.IsOneShiming = 2
-	//		member.Balance += balanceAmount
-	//		member.WithdrawBalance += useBalanceAmount
-	//		member.TotalBalance += int64(c.VerifiedSend)
-	//		member.Income += int64(c.VerifiedSend)
-	//
-	//		//加入账变记录
-	//		trade := model.Trade{
-	//			UId:        member.Id,
-	//			TradeType:  8,
-	//			Amount:     useBalanceAmount,
-	//			Before:     member.WithdrawBalance,
-	//			After:      member.WithdrawBalance + useBalanceAmount,
-	//			Desc:       "实名认证礼金",
-	//			CreateTime: time.Now().Unix(),
-	//			UpdateTime: time.Now().Unix(),
-	//			IsFrontend: 1,
-	//		}
-	//		trade.Insert()
-	//
-	//		trade = model.Trade{
-	//			UId:        member.Id,
-	//			TradeType:  8,
-	//			Amount:     balanceAmount,
-	//			Before:     member.Balance,
-	//			After:      member.Balance + balanceAmount,
-	//			Desc:       "实名认证礼金",
-	//			CreateTime: time.Now().Unix(),
-	//			UpdateTime: time.Now().Unix(),
-	//			IsFrontend: 1,
-	//		}
-	//		trade.Insert()
-	//
-	//	} else {
-	//		//加入账变记录
-	//		trade := model.Trade{
-	//			UId:        member.Id,
-	//			TradeType:  8,
-	//			Amount:     int64(c.VerifiedSend),
-	//			Before:     member.WithdrawBalance,
-	//			After:      member.WithdrawBalance + int64(c.VerifiedSend),
-	//			Desc:       "实名认证礼金",
-	//			CreateTime: time.Now().Unix(),
-	//			UpdateTime: time.Now().Unix(),
-	//			IsFrontend: 1,
-	//		}
-	//		trade.Insert()
-	//
-	//		//第一次实名通过的时候送奖金
-	//		member.IsOneShiming = 2
-	//		member.Balance += 0
-	//		member.WithdrawBalance += int64(c.VerifiedSend)
-	//		member.TotalBalance += int64(c.VerifiedSend)
-	//		member.Income += int64(c.VerifiedSend)
-	//	}
-	//}
-
-	member.IsReal = this.Status
-	member.RealName = m.RealName
-
-	return member.Update("is_real", "real_name", "income", "balance", "withdraw_balance")
+	return nil
 }
 
 type MemberVerifiedRemove struct {
@@ -401,7 +358,7 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	m := model.MemberParents{}
 	var where string
 	var args []interface{}
-	if this.Level != nil {
+	if this.Level > 0 {
 		where = "parent_id = ? and level = ?"
 		args = []interface{}{this.UserId, this.Level}
 	} else {
@@ -423,47 +380,40 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	for i := range users {
 		childIds = append(childIds, users[i].Member.Id)
 	}
-
-	//where3 := "uid in (?) "
-	//args3 := []interface{}{childIds}
-	//product := model.OrderProduct{}
-	//totalSumProduct := product.Sum(where3, args3, "pay_money")
-	//
-	//m1 := model.Member{}
-	//where4 := "id in (?)"
-	//args4 := []interface{}{childIds}
-	////总可用
-	//totalSumBalance := m1.Sum(where4, args4, "balance")
-	////总可提
-	//totalSumUseBalance := m1.Sum(where4, args4, "withdraw_balance")
-	////总总收益
-	//totalSumIncome := m1.Sum(where4, args4, "income")
-	//
-	////总充值
-	//rechargeModel := model.Recharge{}
-	//where5 := "uid in (?) and status = 2"
-	//args5 := []interface{}{childIds}
-	//totalRechargeAmount := rechargeModel.Sum(where5, args5, "amount")
-	//
-	////总提现
-	//withdrawModel := model.Withdraw{}
-	//where6 := "uid in (?) and status = 2"
-	//args6 := []interface{}{childIds}
-	//totalWithdrawAmount := withdrawModel.Sum(where6, args6, "total_amount")
-	//
-	//todayZeroTime := common.GetTodayZero()
-	////今日总充值
-	//rechargeModel2 := model.Recharge{}
-	//where7 := "update_time >= ? and uid in (?) and status = 2"
-	//args7 := []interface{}{todayZeroTime, childIds}
-	//todayRechargeAmount := rechargeModel2.Sum(where7, args7, "amount")
-	//
-	////今日总提现
-	//withdrawModel2 := model.Withdraw{}
-	//where8 := "update_time >= ? and uid in (?) and status = 2"
-	//args8 := []interface{}{todayZeroTime, childIds}
-	//todayWithdrawAmount := withdrawModel2.Sum(where8, args8, "total_amount")
-
+	where3 := "uid in (?) "
+	args3 := []interface{}{childIds}
+	product := model.OrderProduct{}
+	totalSumProduct := product.Sum(where3, args3, "pay_money")
+	m1 := model.Member{}
+	where4 := "id in (?)"
+	args4 := []interface{}{childIds}
+	//总可用
+	totalSumBalance := m1.Sum(where4, args4, "balance")
+	//总可提
+	totalSumUseBalance := m1.Sum(where4, args4, "withdraw_balance")
+	//总总收益
+	totalSumIncome := m1.Sum(where4, args4, "income")
+	//总充值
+	rechargeModel := model.Recharge{}
+	where5 := "uid in (?) and status = 2"
+	args5 := []interface{}{childIds}
+	totalRechargeAmount := rechargeModel.Sum(where5, args5, "amount")
+	//总提现
+	withdrawModel := model.Withdraw{}
+	where6 := "uid in (?) and status = 2"
+	args6 := []interface{}{childIds}
+	totalWithdrawAmount := withdrawModel.Sum(where6, args6, "total_amount")
+	todayZeroTime := common.GetTodayZero()
+	//今日总充值
+	rechargeModel2 := model.Recharge{}
+	where7 := "update_time >= ? and uid in (?) and status = 2"
+	args7 := []interface{}{todayZeroTime, childIds}
+	todayRechargeAmount := rechargeModel2.Sum(where7, args7, "amount")
+	//今日总提现
+	withdrawModel2 := model.Withdraw{}
+	where8 := "update_time >= ? and uid in (?) and status = 2"
+	args8 := []interface{}{todayZeroTime, childIds}
+	todayWithdrawAmount := withdrawModel2.Sum(where8, args8, "total_amount")
 	//充值总人数
 	rechargeModel3 := model.Recharge{}
 	where9 := "uid in (?) and status = 2"
@@ -471,59 +421,54 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	totalRechargeCount := rechargeModel3.GetMemberCount(where9, args9)
 
 	//今日充值人数
-	//rechargeModel4 := model.Recharge{}
-	//where10 := "update_time >= ? and uid in (?) and status = 2"
-	//args10 := []interface{}{todayZeroTime, childIds}
-	//todayRechargeCount := rechargeModel4.GetMemberCount(where10, args10)
+	rechargeModel4 := model.Recharge{}
+	where10 := "update_time >= ? and uid in (?) and status = 2"
+	args10 := []interface{}{todayZeroTime, childIds}
+	todayRechargeCount := rechargeModel4.GetMemberCount(where10, args10)
 
-	//res.TotalSumProduct = float64(totalSumProduct)
-	//res.TotalSumBalance = float64(totalSumBalance)
-	//res.TotalSumUseBalance = float64(totalSumUseBalance)
-	//res.TotalSumIncome = float64(totalSumIncome)
-	//res.TotalMemberCount = len(childIds)
-	//res.TotalRechargeAmount = float64(totalRechargeAmount)
-	//res.TotalWithdrawAmount = float64(totalWithdrawAmount)
-	//res.TodayRechargeAmount = float64(todayRechargeAmount)
-	//res.TodayWithdrawAmount = float64(todayWithdrawAmount)
+	res.TotalSumProduct = decimal.NewFromFloat(totalSumProduct)
+	res.TotalSumBalance = decimal.NewFromFloat(totalSumBalance)
+	res.TotalSumUseBalance = decimal.NewFromFloat(totalSumUseBalance)
+	res.TotalSumIncome = decimal.NewFromFloat(totalSumIncome)
+	res.TotalMemberCount = len(childIds)
+	res.TotalRechargeAmount = decimal.NewFromFloat(totalRechargeAmount)
+	res.TotalWithdrawAmount = decimal.NewFromFloat(totalWithdrawAmount)
+	res.TodayRechargeAmount = decimal.NewFromFloat(todayRechargeAmount)
+	res.TodayWithdrawAmount = decimal.NewFromFloat(todayWithdrawAmount)
 	res.TotalRechargeCount = totalRechargeCount
-	//res.TodayRechargeCount = todayRechargeCount
+	res.TodayRechargeCount = todayRechargeCount
 
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
-	for i := range list {
-		p := model.MemberParents{Uid: list[i].Member.Id, Level: 1}
+	for _, v := range list {
+		p := model.MemberParents{Uid: v.Member.Id, Level: 1}
 		p.Get()
-		//获取用户投资金额
-		//orderModel := model.OrderProduct{}
-		//payMondyAmount := orderModel.Sum("uid = ?", []interface{}{list[i].Member.Id}, "pay_money")
-
 		items = append(items, response.MemberInfo{
-			Id:       list[i].Member.Id,
-			Username: list[i].Member.Username,
-			//TotalBalance:       float64(list[i].Member.TotalBalance) ,
-			//Balance:            float64(list[i].Member.Balance) ,
-			//UseBalance:         float64(list[i].Member.WithdrawBalance) ,
-			IsReal:   list[i].Member.IsReal,
-			RealName: list[i].Member.RealName,
-			//InvestFreeze:       float64(list[i].Member.InvestFreeze) ,
-			//InvestAmount:       float64(list[i].Member.InvestAmount) ,
-			//InvestIncome:       float64(list[i].Member.InvestIncome) ,
-			Avatar:           list[i].Member.Avatar,
-			Status:           list[i].Member.Status,
-			FundsStatus:      list[i].Member.FundsStatus,
-			Level:            int(list[i].Level),
-			Score:            list[i].Member.Score,
-			LastLoginTime:    list[i].Member.LastLoginTime,
-			LastLoginIP:      list[i].Member.LastLoginIp,
-			RegTime:          list[i].Member.RegTime,
-			RegisterIP:       list[i].Member.RegisterIp,
-			DisableLoginTime: list[i].Member.DisableLoginTime,
-			DisableBetTime:   list[i].Member.DisableBetTime,
-			//Code:             list[i].Member.Code,
-			IsBuy: list[i].Member.IsBuy,
-			//TopId:            p.Puid,
-			//TopName:          p.Member2.Username,
-			//ProductOrderAmount: float64(payMondyAmount) ,
+			Id:               v.Member.Id,
+			Username:         v.Member.Username,
+			Balance:          v.Member.Balance,
+			WithdrawBalance:  v.Member.WithdrawBalance,
+			IsReal:           v.Member.IsReal,
+			RealName:         v.Member.RealName,
+			InvestFreeze:     v.Member.InvestFreeze,
+			InvestAmount:     v.Member.InvestAmount,
+			InvestIncome:     v.Member.InvestIncome,
+			Avatar:           v.Member.Avatar,
+			Status:           v.Member.Status,
+			FundsStatus:      v.Member.FundsStatus,
+			Level:            v.Level,
+			Score:            v.Member.Score,
+			LastLoginTime:    v.Member.LastLoginTime,
+			LastLoginIP:      v.Member.LastLoginIp,
+			RegTime:          v.Member.RegTime,
+			RegisterIP:       v.Member.RegisterIp,
+			DisableLoginTime: v.Member.DisableLoginTime,
+			DisableBetTime:   v.Member.DisableBetTime,
+			//Code:             v.Member.Code,
+			IsBuy:              v.Member.IsBuy,
+			TopId:              p.Parent.Id,
+			TopName:            p.Parent.Username,
+			ProductOrderAmount: v.Member.TotalBuy,
 		})
 	}
 	res.List = items

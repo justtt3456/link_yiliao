@@ -6,6 +6,7 @@ import (
 	"china-russia/common"
 	"china-russia/model"
 	"errors"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -29,22 +30,21 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 	m := model.Withdraw{}
 	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
 	res := make([]response.WithdrawInfo, 0)
+	var totalAmount decimal.Decimal
 	for _, v := range list {
-		//实际金额
-		//realAmount, _ := strconv.ParseFloat(fmt.Sprintf("%.1f", float64(v.Amount)/model.UNITY), 64)
 		i := response.WithdrawInfo{
-			Id:           v.Id,
-			UId:          v.UId,
-			WithdrawType: v.WithdrawType,
-			BankName:     v.BankName,
-			BranchBank:   v.BranchBank,
-			RealName:     v.RealName,
-			CardNumber:   v.CardNumber,
-			BankPhone:    v.BankPhone,
-			//Amount:           realAmount,
-			//Fee:              float64(v.Fee),
-			//TotalAmount:      float64(v.TotalAmount),
-			//UsdtAmount:       float64(v.UsdtAmount),
+			Id:               v.Id,
+			UId:              v.UId,
+			WithdrawType:     v.WithdrawType,
+			BankName:         v.BankName,
+			BranchBank:       v.BranchBank,
+			RealName:         v.RealName,
+			CardNumber:       v.CardNumber,
+			BankPhone:        v.BankPhone,
+			Amount:           v.Amount,
+			Fee:              v.Fee,
+			TotalAmount:      v.TotalAmount,
+			UsdtAmount:       v.UsdtAmount,
 			Description:      v.Description,
 			Operator:         v.Operator1,
 			ViewStatus:       v.ViewStatus,
@@ -61,10 +61,12 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 			RegisterRealName: v.Member.RealName,
 		}
 		res = append(res, i)
+		totalAmount = totalAmount.Add(v.TotalAmount)
 	}
 	return response.WithdrawData{
-		List: res,
-		Page: FormatPage(page),
+		List:        res,
+		Page:        FormatPage(page),
+		TotalAmount: totalAmount,
 	}
 }
 
@@ -95,17 +97,16 @@ func (this WithdrawUpdateService) Update() error {
 				UId:       m.UId,
 				TradeType: 4,
 				ItemId:    m.Id,
-				//Amount:    m.TotalAmount,
-				Before: user.Balance,
-				//After:     user.Balance + m.TotalAmount,
-				Desc: "提现驳回",
+				Amount:    m.TotalAmount,
+				Before:    user.Balance,
+				After:     user.WithdrawBalance.Add(m.TotalAmount),
+				Desc:      "提现驳回",
 			}
 			if err := trade.Insert(); err != nil {
 				return err
 			}
 			//回滚余额
-			//user.WithdrawBalance += m.TotalAmount
-			//user.TotalBalance += m.TotalAmount
+			user.WithdrawBalance = user.WithdrawBalance.Add(m.TotalAmount)
 			if err := user.Update("withdraw_balance"); err != nil {
 				return err
 			}

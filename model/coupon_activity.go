@@ -38,7 +38,7 @@ func (this *CouponActivity) Get() bool {
 }
 func (this *CouponActivity) Find(amount decimal.Decimal) bool {
 	//取数据库
-	res := global.DB.Model(this).Joins("Coupon").Where("amout <= ?", amount).Order("amout desc").First(this)
+	res := global.DB.Model(this).Joins("Coupon").Where("amount <= ?", amount).Order("amount desc").First(this)
 	if res.Error != nil {
 		logrus.Error(res.Error)
 		return false

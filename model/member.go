@@ -48,6 +48,7 @@ type Member struct {
 	TotalRecharge     decimal.Decimal `gorm:"column:total_recharge"`     //总充值
 	TotalIncome       decimal.Decimal `gorm:"column:total_income"`       //总收益
 	WithdrawThreshold decimal.Decimal `gorm:"column:withdraw_threshold"` //提现额度
+	TotalBuy          decimal.Decimal `gorm:"column:total_buy"`
 }
 
 // TableName sets the insert table name for this struct type
@@ -111,6 +112,9 @@ func (this *Member) Info() *response.Member {
 			})
 		}
 	}
+	//实名信息
+	mv := MemberVerified{UId: this.Id}
+	mv.Get()
 	where := "uid = ? and is_read = ?"
 	args := []interface{}{this.Id, StatusClose}
 	msg := MemberMessage{}
@@ -120,7 +124,8 @@ func (this *Member) Info() *response.Member {
 		Balance:             this.Balance,
 		WithdrawBalance:     this.WithdrawBalance,
 		IsReal:              this.IsReal,
-		RealName:            this.RealName,
+		RealName:            mv.RealName,
+		IdNumber:            mv.IdNumber,
 		InvestFreeze:        this.InvestFreeze,
 		InvestAmount:        this.InvestAmount,
 		InvestIncome:        this.InvestIncome,
@@ -139,9 +144,10 @@ func (this *Member) Info() *response.Member {
 		Coupon:              coupons,
 		//Income: this.TotalIncome,
 		//Guquan:  this.Guquan,
-		Message:    msg.Count(where, args),
-		PreIncome:  this.PreIncome,
-		PreCapital: this.PreCapital,
+		Message:           msg.Count(where, args),
+		PreIncome:         this.PreIncome,
+		PreCapital:        this.PreCapital,
+		WithdrawThreshold: this.WithdrawThreshold,
 	}
 }
 
@@ -194,8 +200,8 @@ func (this *Member) Count(where string, args []interface{}) int64 {
 	return t
 }
 
-func (this *Member) Sum(where string, args []interface{}, field string) int64 {
-	var total int64
+func (this *Member) Sum(where string, args []interface{}, field string) float64 {
+	var total float64
 	tx := global.DB.Model(this).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)

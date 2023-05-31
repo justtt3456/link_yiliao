@@ -44,18 +44,18 @@ type MemberVerifiedList struct {
 	PageSize int    `json:"page_size" form:"page_size"`
 }
 type MemberVerifiedUpdate struct {
-	Id     int `json:"id"`
-	Status int `json:"status" form:"status"` // 2通过 3驳回
+	Ids    []int `json:"ids"`
+	Status int   `json:"status" form:"status"` // 2通过 3驳回
 }
 type MemberVerifiedRemove struct {
 	Id int `json:"id"`
 }
 
 type MemberTeamReq struct {
-	Page     int  `json:"page" form:"page"`
-	PageSize int  `json:"page_size" form:"page_size"`
-	UserId   int  `json:"user_id"` //用户id
-	Level    *int `json:"level"`   //用户层级（手动输入即可  1代表1级）
+	Page     int `json:"page" form:"page"`
+	PageSize int `json:"page_size" form:"page_size"`
+	UserId   int `json:"user_id"` //用户id
+	Level    int `json:"level"`   //用户层级（手动输入即可  1代表1级）
 }
 
 type SendCouponReq struct {
