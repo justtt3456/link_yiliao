@@ -21,6 +21,7 @@ type MemberListData struct {
 	TodayWithdrawAmount decimal.Decimal `json:"today_withdraw_amount"` //今日团队总提现金额
 	TotalRechargeCount  int             `json:"total_recharge_count"`  //团队充值总人数
 	TodayRechargeCount  int             `json:"today_recharge_count"`  //今日团队充值总人数
+	MonthRechargeAmount decimal.Decimal `json:"month_recharge_amount"` //当月团队充值金额
 }
 type MemberInfo struct {
 	Id                 int             `json:"id"`                   //

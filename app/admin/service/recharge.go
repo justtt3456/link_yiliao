@@ -26,10 +26,12 @@ func (this RechargeService) PageList() *response.RechargeData {
 		this.PageSize = common.DefaultPageSize
 	}
 	offset := this.PageSize * (this.Page - 1)
-	db := global.DB.Model(model.Recharge{})
+	m := model.Recharge{}
+	db := global.DB.Model(m).Joins("Member").Joins("MemberVerified")
 	db = this.getWhere(db)
 	var total int64
-	err := db.Joins("Member").Count(&total).Error
+	db2 := db.Session(&gorm.Session{})
+	err := db2.Count(&total).Error
 	if err != nil {
 		return nil
 	}
@@ -38,13 +40,18 @@ func (this RechargeService) PageList() *response.RechargeData {
 	}
 	page.SetPage(this.PageSize, total)
 	list := make([]model.Recharge, 0)
-	err = db.Joins("Member").Order("id desc").Limit(this.PageSize).Offset(offset).Find(&list).Error
+	err = db.Order(m.TableName() + ".id desc").Limit(this.PageSize).Offset(offset).Find(&list).Error
 	if err != nil {
 		return nil
 	}
 	sli := make([]response.RechargeInfo, 0)
 	var totalAmount decimal.Decimal
 	for _, v := range list {
+		agent := model.Agent{}
+		if v.Member.AgentId > 0 {
+			agent.Id = v.Member.AgentId
+			agent.Get()
+		}
 		item := response.RechargeInfo{
 			Id:          v.Id,
 			OrderSn:     v.OrderSn,
@@ -68,6 +75,7 @@ func (this RechargeService) PageList() *response.RechargeData {
 			SuccessTime: v.SuccessTime,
 			TradeSn:     v.TradeSn,
 			RealName:    v.MemberVerified.RealName,
+			AgentName:   agent.Account,
 		}
 		sli = append(sli, item)
 		totalAmount = totalAmount.Add(v.Amount)
@@ -136,10 +144,12 @@ func (this RechargeService) getWhere(db *gorm.DB) *gorm.DB {
 	if this.Status > 0 {
 		db.Where(model.Recharge{}.TableName()+".status = ?", this.Status)
 	}
-	if this.Status > 0 {
+	if this.AgentName != "" {
 		agent := model.Agent{Account: this.AgentName}
 		if agent.Get() {
 			db.Where("Member.agent_id = ?", agent.Id)
+		} else {
+			db.Where("Member.agent_id = -1")
 		}
 	}
 	return db

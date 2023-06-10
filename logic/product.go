@@ -84,7 +84,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 		}
 		//记录用户待收益利息及本金
 		member.PreIncome = member.PreIncome.Add(amount.Add(mc.Coupon.Price).Mul(product.IncomeRate).Mul(decimal.NewFromInt(int64(product.Interval))).Div(decimal.NewFromInt(100).Round(2)))
-		member.PreCapital = member.PreCapital.Add(amount.Add(mc.Coupon.Price))
+		member.PreCapital = member.PreCapital.Add(amount)
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
 		}
@@ -344,8 +344,8 @@ func (this productBuyLogic) gift(member *model.Member, product model.Product) er
 		PayMoney:     giftModel.Price,
 		AfterBalance: member.Balance,
 		IsReturnTop:  1,
-		IncomeRate:   product.IncomeRate,
-		EndTime:      time.Now().Unix() + int64(product.Interval*86400),
+		IncomeRate:   giftModel.IncomeRate,
+		EndTime:      time.Now().Unix() + int64(giftModel.Interval*86400),
 	}
 	err := this.tx.Create(&orderModel).Error
 	if err != nil {

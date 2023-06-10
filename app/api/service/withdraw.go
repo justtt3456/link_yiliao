@@ -183,7 +183,7 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		OrderSn:      common.OrderSn(),
 	}
 
-	if err := tx.Create(order).Error; err != nil {
+	if err := tx.Create(&order).Error; err != nil {
 		//解锁
 		//redisLock.Unlock(lockKey)
 		return err
@@ -198,14 +198,15 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		After:     member.WithdrawBalance.Sub(this.TotalAmount),
 		Desc:      "提现申请",
 	}
-	if err := tx.Create(trade).Error; err != nil {
+	if err := tx.Create(&trade).Error; err != nil {
 		//解锁
 		//redisLock.Unlock(lockKey)
 		return err
 	}
 	//更改用户余额
 	member.WithdrawBalance = member.WithdrawBalance.Sub(this.TotalAmount)
-	return tx.Select("withdraw_balance").Updates(order).Error
+	member.WithdrawThreshold = member.WithdrawThreshold.Sub(this.TotalAmount)
+	return tx.Select("withdraw_balance", "withdraw_threshold").Updates(member).Error
 }
 
 type WithdrawMethod struct {

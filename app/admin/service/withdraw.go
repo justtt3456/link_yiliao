@@ -4,10 +4,11 @@ import (
 	"china-russia/app/admin/swag/request"
 	"china-russia/app/admin/swag/response"
 	"china-russia/common"
+	"china-russia/global"
 	"china-russia/model"
 	"errors"
 	"github.com/shopspring/decimal"
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 )
@@ -19,19 +20,39 @@ type WithdrawUpdateService struct {
 	request.WithdrawUpdateRequest
 }
 
-func (this WithdrawListService) PageList() response.WithdrawData {
+func (this WithdrawListService) PageList() *response.WithdrawData {
 	if this.Page < 1 {
 		this.Page = 1
 	}
 	if this.PageSize > common.MaxPageSize || this.PageSize < common.MinPageSize {
 		this.PageSize = common.DefaultPageSize
 	}
-	where, args := this.getWhere()
-	m := model.Withdraw{}
-	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
+	offset := this.PageSize * (this.Page - 1)
+	db := global.DB.Model(model.Withdraw{}).Joins("Member")
+	db = this.getWhere(db)
+	db2 := db.Session(&gorm.Session{})
+	var total int64
+	err := db2.Count(&total).Error
+	if err != nil {
+		return nil
+	}
+	page := common.Page{
+		Page: this.Page,
+	}
+	page.SetPage(this.PageSize, total)
+	list := make([]model.Withdraw, 0)
+	err = db.Order(model.Withdraw{}.TableName() + ".id desc").Limit(this.PageSize).Offset(offset).Find(&list).Error
+	if err != nil {
+		return nil
+	}
 	res := make([]response.WithdrawInfo, 0)
 	var totalAmount decimal.Decimal
 	for _, v := range list {
+		agent := model.Agent{}
+		if v.Member.AgentId > 0 {
+			agent.Id = v.Member.AgentId
+			agent.Get()
+		}
 		i := response.WithdrawInfo{
 			Id:               v.Id,
 			UId:              v.UId,
@@ -59,11 +80,12 @@ func (this WithdrawListService) PageList() response.WithdrawData {
 			Username:         v.Member.Username,
 			MethodName:       v.WithdrawMethod.Name,
 			RegisterRealName: v.Member.RealName,
+			AgentName:        agent.Account,
 		}
 		res = append(res, i)
 		totalAmount = totalAmount.Add(v.TotalAmount)
 	}
-	return response.WithdrawData{
+	return &response.WithdrawData{
 		List:        res,
 		Page:        FormatPage(page),
 		TotalAmount: totalAmount,
@@ -125,29 +147,32 @@ func (this WithdrawUpdateService) Update() error {
 	return nil
 }
 
-func (this WithdrawListService) getWhere() (string, []interface{}) {
-	where := map[string]interface{}{}
+func (this WithdrawListService) getWhere(db *gorm.DB) *gorm.DB {
 	if this.UId > 0 {
-		where[model.Withdraw{}.TableName()+".uid"] = this.UId
+		db.Where(model.Withdraw{}.TableName()+".uid = ?", this.UId)
 	}
 	if this.Username != "" {
-		where["Member.username"] = this.Username
+		db.Where("Member.username = ?", this.Username)
 	}
 
 	if this.StartTime != "" {
-		where[model.Withdraw{}.TableName()+".create_time >"] = common.DateToUnix(this.StartTime)
+		db.Where(model.Withdraw{}.TableName()+".create_time > ?", common.DateToUnix(this.StartTime))
 	}
 	if this.EndTime != "" {
-		where[model.Withdraw{}.TableName()+".create_time <"] = common.DateToUnix(this.EndTime)
+		db.Where(model.Withdraw{}.TableName()+".create_time < ?", common.DateToUnix(this.EndTime))
 	}
 	if this.Status > 0 {
-		where[model.Withdraw{}.TableName()+".status"] = this.Status
+		db.Where(model.Withdraw{}.TableName()+".status = ?", this.Status)
 	}
-	build, vals, err := common.WhereBuild(where)
-	if err != nil {
-		logrus.Error(err)
+	if this.AgentName != "" {
+		agent := model.Agent{Account: this.AgentName}
+		if agent.Get() {
+			db.Where("Member.agent_id = ?", agent.Id)
+		} else {
+			db.Where("Member.agent_id = -1")
+		}
 	}
-	return build, vals
+	return db
 }
 
 type WithdrawUpdateInfoService struct {

@@ -5,7 +5,8 @@ type WithdrawListRequest struct {
 	Username  string `json:"username" form:"username"`     //用户
 	StartTime string `json:"start_time" form:"start_time"` //开始时间
 	EndTime   string `json:"end_time" form:"end_time"`     //结束时间
-	Status    int    `json:"status" form:"status"`         //1为未审核，2为已审核，3为已拒绝
+	AgentName string `json:"agent_name" form:"agent_name"`
+	Status    int    `json:"status" form:"status"` //1为未审核，2为已审核，3为已拒绝
 	Page      int    `json:"page" form:"page"`
 	PageSize  int    `json:"page_size" form:"page_size"`
 }

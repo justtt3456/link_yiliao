@@ -11,12 +11,13 @@ type Member struct {
 	Id       int    `json:"id"`       //
 	Username string `json:"username"` //手机号
 	//TotalBalance        decimal.Decimal `json:"total_balance"`         //可用余额
-	Balance             decimal.Decimal `json:"balance"`               //可用余额
-	WithdrawBalance     decimal.Decimal `json:"withdraw_balance"`      //可提现余额
-	WithdrawThreshold   decimal.Decimal `json:"withdraw_threshold"`    //可提现额度
-	IsReal              int             `json:"is_real"`               //是否实名 0未实名 1审核中 2通过 3驳回
-	RealName            string          `json:"real_name"`             //真实姓名
-	IdNumber            string          `json:"id_number"`             //身份证号码
+	Balance             decimal.Decimal `json:"balance"`            //可用余额
+	WithdrawBalance     decimal.Decimal `json:"withdraw_balance"`   //可提现余额
+	WithdrawThreshold   decimal.Decimal `json:"withdraw_threshold"` //可提现额度
+	IsReal              int             `json:"is_real"`            //是否实名 0未实名 1审核中 2通过 3驳回
+	RealName            string          `json:"real_name"`          //真实姓名
+	IdNumber            string          `json:"id_number"`          //身份证号码
+	Mobile              string          `json:"mobile"`
 	InvestFreeze        decimal.Decimal `json:"invest_freeze"`         //余额宝冻结金额
 	InvestAmount        decimal.Decimal `json:"invest_amount"`         //余额宝有效金额
 	InvestIncome        decimal.Decimal `json:"invest_income"`         //余额宝总收益
@@ -53,6 +54,7 @@ type MyTeam struct {
 	BuyMember      int             `json:"buy_member"`      //激活人数
 	RegisterMember int             `json:"register_member"` //注册人数
 	BuyAmount      decimal.Decimal `json:"buy_amount"`      //投资金额
+	RebateAmount   decimal.Decimal `json:"rebate_amount"`   //返佣金额
 	Level          int             `json:"level"`
 }
 

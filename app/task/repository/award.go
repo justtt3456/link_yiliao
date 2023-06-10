@@ -27,7 +27,7 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 		//根据收益类型
 		switch v.Product.Type {
 		case 1, 5: //到期返本
-			income := v.PayMoney.Mul(v.IncomeRate)
+			income := v.PayMoney.Mul(v.IncomeRate).Div(decimal.NewFromInt(100)).Round(2)
 			//存入收益列表
 			trade := model.Trade{
 				UId:        v.UId,
@@ -42,31 +42,36 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 			err := trade.Insert()
 			if err != nil {
 				logrus.Errorf("存入账单失败  今日%v  用户Id %v err= %v", time.Now().Format("20060102"), v.UId, err)
+				continue
 			}
 			//更改用户可提现余额
 			member.WithdrawBalance = member.WithdrawBalance.Add(income)
 			//是否到期返回本金
-			if now >= v.EndTime {
-				//存入收益列表
-				trade := model.Trade{
-					UId:        v.UId,
-					TradeType:  24,
-					ItemId:     v.Id,
-					Amount:     v.PayMoney,
-					Before:     member.WithdrawBalance,
-					After:      member.WithdrawBalance.Add(v.PayMoney),
-					Desc:       "到期返回本金",
-					IsFrontend: 1,
+			if v.Product.Type == 1 {
+				if now >= v.EndTime {
+					//存入收益列表
+					trade := model.Trade{
+						UId:        v.UId,
+						TradeType:  24,
+						ItemId:     v.Id,
+						Amount:     v.PayMoney,
+						Before:     member.WithdrawBalance,
+						After:      member.WithdrawBalance.Add(v.PayMoney),
+						Desc:       "到期返回本金",
+						IsFrontend: 1,
+					}
+					_ = trade.Insert()
+					member.WithdrawBalance = member.WithdrawBalance.Add(v.PayMoney)
+					member.PreCapital = member.PreCapital.Sub(v.PayMoney)
+					v.IsReturnCapital = 1
+					v.Update("is_return_capital")
 				}
-				_ = trade.Insert()
-				member.WithdrawBalance = member.WithdrawBalance.Add(v.PayMoney)
-				v.IsReturnCapital = 1
-				v.Update("is_return_capital")
 			}
+			member.PreIncome = member.PreIncome.Sub(income)
 		case 2: //延期返本
 			if now < v.EndTime {
 				//计算收益
-				income := v.PayMoney.Mul(v.IncomeRate)
+				income := v.PayMoney.Mul(v.IncomeRate).Div(decimal.NewFromInt(100)).Round(2)
 				//存入收益列表
 				trade := model.Trade{
 					UId:        v.UId,
@@ -81,9 +86,11 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 				err := trade.Insert()
 				if err != nil {
 					logrus.Errorf("存入账单失败  今日%v  用户Id %v err= %v", time.Now().Format("20060102"), v.UId, err)
+					continue
 				}
 				//更改用户可提现余额
 				member.WithdrawBalance = member.WithdrawBalance.Add(income)
+				member.PreIncome = member.PreIncome.Sub(income)
 			}
 			if now >= v.EndTime+int64(v.Product.DelayTime)*86400 {
 				//可提现
@@ -99,12 +106,13 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 				}
 				_ = trade.Insert()
 				member.WithdrawBalance = member.WithdrawBalance.Add(v.PayMoney)
+				member.PreCapital = member.PreCapital.Sub(v.PayMoney)
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		case 3: //到期返本返息
 			if now >= v.EndTime {
-				income := v.PayMoney.Mul(v.Product.IncomeRate).Mul(decimal.NewFromInt(int64(v.Product.Interval))).Round(2)
+				income := v.PayMoney.Mul(v.Product.IncomeRate).Mul(decimal.NewFromInt(int64(v.Product.Interval))).Div(decimal.NewFromInt(100)).Round(2)
 				logrus.Infof("今日已经结算%v  用户Id %v 收益 %v", time.Now().Format("20060102"), v.UId, income)
 				//利息
 				trade := model.Trade{
@@ -133,11 +141,13 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 				}
 				_ = trade2.Insert()
 				member.WithdrawBalance = member.WithdrawBalance.Add(v.PayMoney)
+				member.PreCapital = member.PreCapital.Sub(v.PayMoney)
+				member.PreIncome = member.PreIncome.Sub(income)
 				v.IsReturnCapital = 1
 				v.Update("is_return_capital")
 			}
 		}
-		member.Update("withdraw_balance")
+		member.Update("withdraw_balance", "pre_income", "pre_capital")
 	}
 }
 

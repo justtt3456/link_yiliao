@@ -14,6 +14,7 @@ type OrderEquity struct {
 	PayMoney     decimal.Decimal `gorm:"column:pay_money"`                  //购买付款金额 =手数
 	AfterBalance decimal.Decimal `gorm:"column:after_balance"`              //购买后余额
 	Rate         decimal.Decimal `gorm:"column:rate"`                       //中签率
+	Status       int             `gorm:"column:status"`                     //状态
 	CreateTime   int64           `gorm:"column:create_time;autoCreateTime"` //创建时间
 	UpdateTime   int64           `gorm:"column:update_time;autoUpdateTime"` //系统开奖时间
 	Member       Member          `gorm:"foreignKey:UId;"`                   //BeLongsTo 关联用户 自身外键UId

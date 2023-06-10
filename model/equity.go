@@ -7,12 +7,12 @@ import (
 )
 
 type Equity struct {
-	Id           int64           `gorm:"column:id;primary_key"`    //
+	Id           int             `gorm:"column:id;primary_key"`    //
 	Total        int64           `gorm:"column:total"`             //总股权数
 	Current      int64           `gorm:"column:current"`           //当前数量
 	ReleaseRate  decimal.Decimal `gorm:"column:release_rate"`      //释放百分比
 	Price        decimal.Decimal `gorm:"column:price"`             //价格
-	MinBuy       int64           `gorm:"column:min_buy"`           //最低买多少股
+	MinBuy       int             `gorm:"column:min_buy"`           //最低买多少股
 	HitRate      decimal.Decimal `gorm:"column:hit_rate"`          //中签率
 	MissRate     decimal.Decimal `gorm:"column:miss_rate"`         //未中签送的 百分比
 	SellRate     decimal.Decimal `gorm:"column:return_lucky_rate"` //中签回购  百分比

@@ -359,7 +359,7 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	var where string
 	var args []interface{}
 	if this.Level > 0 {
-		where = "parent_id = ? and level = ?"
+		where = "parent_id = ? and c_member_parents.level = ?"
 		args = []interface{}{this.UserId, this.Level}
 	} else {
 		where = "parent_id = ?"
@@ -425,6 +425,13 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	where10 := "update_time >= ? and uid in (?) and status = 2"
 	args10 := []interface{}{todayZeroTime, childIds}
 	todayRechargeCount := rechargeModel4.GetMemberCount(where10, args10)
+	//当月充值金额
+	year, month, _ := time.Now().Date()
+	firstOfMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Now().Location())
+	rechargeModel5 := model.Recharge{}
+	where11 := "update_time >= ? and uid in (?) and status = 2"
+	args11 := []interface{}{firstOfMonth.Unix(), childIds}
+	monthRechargeAmount := rechargeModel5.Sum(where11, args11, "amount")
 
 	res.TotalSumProduct = decimal.NewFromFloat(totalSumProduct)
 	res.TotalSumBalance = decimal.NewFromFloat(totalSumBalance)
@@ -437,7 +444,7 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 	res.TodayWithdrawAmount = decimal.NewFromFloat(todayWithdrawAmount)
 	res.TotalRechargeCount = totalRechargeCount
 	res.TodayRechargeCount = todayRechargeCount
-
+	res.MonthRechargeAmount = decimal.NewFromFloat(monthRechargeAmount)
 	res.Page = FormatPage(page)
 	items := make([]response.MemberInfo, 0)
 	for _, v := range list {

@@ -3,7 +3,7 @@ package response
 import "github.com/shopspring/decimal"
 
 type GuquanResp struct {
-	Id              int64           `json:"id"`                //
+	Id              int             `json:"id"`                //
 	TotalGuquan     int64           `json:"total_guquan"`      //总股权数
 	OtherGuquan     int64           `json:"other_guquan"`      //剩余
 	ReleaseRate     decimal.Decimal `json:"release_rate"`      //释放百分比

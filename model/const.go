@@ -9,6 +9,7 @@ const (
 	StatusReview   = 1
 	StatusAccept   = 2
 	StatusRollback = 3
+	StatusDone     = 4
 	//账变类型
 	TradeTypeRecharge     = 1  //充值
 	TradeTypeWithdraw     = 2  //提现

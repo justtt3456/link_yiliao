@@ -35,4 +35,5 @@ type RechargeInfo struct {
 	SuccessTime int64           `json:"success_time"` //成功时间
 	TradeSn     string          `json:"trade_sn"`     //三方订单号
 	RealName    string          `json:"real_name"`    //注册姓名
+	AgentName   string          `json:"agent_name"`   //代理名称
 }

@@ -39,4 +39,5 @@ type WithdrawInfo struct {
 	UpdateTime       int64           `json:"update_time"`        //
 	Username         string          `json:"username"`           //用户名
 	RegisterRealName string          `json:"register_real_name"` //注册真实姓名
+	AgentName        string          `json:"agent_name"`
 }

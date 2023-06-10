@@ -37,7 +37,7 @@ func unfreeze() {
 
 func equity() {
 	i := repository.Equity{}
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Second * 64) //随机时间
 	for {
 		<-ticker.C
 		i.Do()

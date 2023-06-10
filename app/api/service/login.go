@@ -123,6 +123,7 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 		LastLoginIp:      c.ClientIP(),
 		LastLoginTime:    time.Now().Unix(),
 		Status:           model.StatusOk,
+		FundsStatus:      model.StatusOk,
 		IsBuy:            2,
 		AgentId:          invite.AgentId,
 	}

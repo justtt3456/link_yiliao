@@ -92,9 +92,9 @@ func (this *Member) Info() *response.Member {
 	if this.WithdrawPassword != "" {
 		hasWithdrawPassword = 1
 	}
-	var mobile string
+	var username string
 	if len(this.Username) >= 8 {
-		mobile = this.Username[:3] + "****" + this.Username[len(this.Username)-4:]
+		username = this.Username[:3] + "****" + this.Username[len(this.Username)-4:]
 	}
 	invite := InviteCode{
 		UId: this.Id,
@@ -113,19 +113,24 @@ func (this *Member) Info() *response.Member {
 		}
 	}
 	//实名信息
+	var mobile string
 	mv := MemberVerified{UId: this.Id}
 	mv.Get()
+	if len(mv.Mobile) >= 8 {
+		username = mv.Mobile[:3] + "****" + mv.Mobile[len(mv.Mobile)-4:]
+	}
 	where := "uid = ? and is_read = ?"
 	args := []interface{}{this.Id, StatusClose}
 	msg := MemberMessage{}
 	return &response.Member{
 		Id:                  this.Id,
-		Username:            mobile,
+		Username:            username,
 		Balance:             this.Balance,
 		WithdrawBalance:     this.WithdrawBalance,
 		IsReal:              this.IsReal,
 		RealName:            mv.RealName,
 		IdNumber:            mv.IdNumber,
+		Mobile:              mobile,
 		InvestFreeze:        this.InvestFreeze,
 		InvestAmount:        this.InvestAmount,
 		InvestIncome:        this.InvestIncome,
