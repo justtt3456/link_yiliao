@@ -15,6 +15,7 @@ import (
 type Withdraw struct {
 	Id             int             `gorm:"column:id;primary_key"`             //
 	UId            int             `gorm:"column:uid"`                        //关联用户id
+	AgentId        int             `gorm:"column:agent_id"`                   //代理id
 	WithdrawType   int             `gorm:"column:withdraw_type"`              //提现类型1=银行卡
 	BankName       string          `gorm:"column:bank_name"`                  //关联银行名称
 	BankCode       string          `gorm:"column:bank_code"`                  //关联银行名称

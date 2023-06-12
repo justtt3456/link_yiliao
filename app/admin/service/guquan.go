@@ -20,20 +20,19 @@ func (this *GuquanList) List() *response.GuquanResp {
 	}
 
 	return &response.GuquanResp{
-		Id: m.Id,
-		//TotalGuquan:     m.TotalGuquan,
-		//OtherGuquan:     m.OtherGuquan,
-		//ReleaseRate:     float64(m.ReleaseRate) ,
-		//Price:           float64(m.Price) ,
-		//LimitBuy:        m.LimitBuy,
-		//LuckyRate:       float64(m.LuckyRate) ,
-		//ReturnRate:      float64(m.ReturnRate) ,
-		//ReturnLuckyRate: float64(m.ReturnLuckyRate) ,
-		PreStartTime: m.PreStartTime,
-		PreEndTime:   m.PreEndTime,
-		OpenTime:     m.OpenTime,
-		RecoverTime:  m.RecoverTime,
-		Status:       m.Status,
+		Id:              m.Id,
+		TotalGuquan:     m.Total,
+		OtherGuquan:     m.Current,
+		Price:           m.Price,
+		LimitBuy:        m.MinBuy,
+		LuckyRate:       m.HitRate,
+		ReturnRate:      m.MissRate,
+		ReturnLuckyRate: m.SellRate,
+		PreStartTime:    m.PreStartTime,
+		PreEndTime:      m.PreEndTime,
+		OpenTime:        m.OpenTime,
+		ReturnTime:      m.RecoverTime,
+		Status:          m.Status,
 	}
 
 }
@@ -51,13 +50,12 @@ func (this *GuquanUpdate) Update() error {
 	m := model.Equity{Id: this.Id}
 
 	if !m.Get(false) {
-		//m.TotalGuquan = this.TotalGuquan
-		//m.OtherGuquan = this.OtherGuquan
-		//m.ReleaseRate = int(this.ReleaseRate)
-		//m.LimitBuy = this.LimitBuy
-		//m.LuckyRate = int(this.LuckyRate)
-		//m.ReturnRate = int(this.ReturnRate)
-		//m.ReturnLuckyRate = int(this.ReturnLuckyRate)
+		m.Total = this.TotalGuquan
+		m.Current = this.OtherGuquan
+		m.MinBuy = this.LimitBuy
+		m.HitRate = this.LuckyRate
+		m.MissRate = this.ReturnRate
+		m.SellRate = this.ReturnLuckyRate
 		m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 		m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 		m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)
@@ -65,17 +63,16 @@ func (this *GuquanUpdate) Update() error {
 		m.Status = this.Status
 		return m.Insert()
 	}
-	//m.TotalGuquan = this.TotalGuquan
-	//m.OtherGuquan = this.OtherGuquan
-	//m.ReleaseRate = int(this.ReleaseRate)
-	//m.LimitBuy = this.LimitBuy
-	//m.LuckyRate = int(this.LuckyRate)
-	//m.ReturnRate = int(this.ReturnRate)
-	//m.ReturnLuckyRate = int(this.ReturnLuckyRate)
+	m.Total = this.TotalGuquan
+	m.Current = this.OtherGuquan
+	m.MinBuy = this.LimitBuy
+	m.HitRate = this.LuckyRate
+	m.MissRate = this.ReturnRate
+	m.SellRate = this.ReturnLuckyRate
 	m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 	m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 	m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)
 	m.RecoverTime = common.DateTimeToNewYorkUnix(this.ReturnTime)
 	m.Status = this.Status
-	return m.Update("total_guquan", "other_guquan", "release_rate", "price", "limit_buy", "lucky_rate", "return_rate", "return_lucky_rate", "pre_start_time", "pre_end_time", "open_time", "return_time", "status")
+	return m.Update("total", "current", "price", "min_buy", "hit_rate", "miss_rate", "sell_rate", "pre_start_time", "pre_end_time", "open_time", "recover_time", "status")
 }

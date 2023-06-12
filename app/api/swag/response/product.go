@@ -84,9 +84,8 @@ type EquityListResp struct {
 	Id           int             `json:"id"`
 	Total        int64           `json:"total"`          //总股权数
 	Current      int64           `json:"current"`        //当前权数
-	ReleaseRate  decimal.Decimal `json:"release_rate"`   //释放百分比
 	Price        decimal.Decimal `json:"price"`          //价格
-	MinBuy       decimal.Decimal `json:"min_buy"`        //最低买多少股
+	MinBuy       int             `json:"min_buy"`        //最低买多少股
 	HitRate      decimal.Decimal `json:"hit_rate"`       //中签率
 	MissRate     decimal.Decimal `json:"miss_rate"`      //未中签送的 百分比
 	SellRate     decimal.Decimal `json:"sell_rate"`      //中签回购  百分比
@@ -130,7 +129,7 @@ type BuyGuquanList struct {
 	Price      decimal.Decimal `json:"price"`       //股权单价
 	CreateTime int64           `json:"create_time"` //获得时间
 	TotalPrice decimal.Decimal `json:"total_price"` //股权总价值
-	Status     string          `json:"status"`      //发行中  回购中  完成
+	Status     int             `json:"status"`      //发行中  回购中  完成
 }
 
 type StockCertificateResp struct {

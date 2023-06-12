@@ -215,6 +215,13 @@ func Run() {
 	ga.POST("news/update_status", news.UpdateStatus)
 	ga.POST("news/remove", news.Remove)
 
+	agent := v1.AgentController{}
+	ga.GET("agent/list", agent.List)
+	ga.GET("agent/page_list", agent.PageList)
+	ga.POST("agent/create", agent.Create)
+	ga.POST("agent/update", agent.Update)
+	ga.POST("agent/update_status", agent.UpdateStatus)
+
 	ga.GET("config/lang/list", config.LangList)
 	r.Run(address)
 }

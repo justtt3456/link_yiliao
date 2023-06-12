@@ -36,8 +36,9 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	r.GET("product/page_list", product.PageList)
 	//r.GET("product/recommend", product.Recommend)
 	//r.GET("product/getproduct", product.Getproduct)
-	//r.GET("product/guquan", product.Guquan)
+	r.GET("product/guquan", product.Guquan)
 	r.POST("product/buy", product.Buy)
+	r.POST("product/buy_equity", product.BuyEquity)
 	r.GET("product/buy_list", product.BuyList)
 	r.GET("product/buy_guquan_list", product.BuyGuquanList)
 	//获取股权证书内容

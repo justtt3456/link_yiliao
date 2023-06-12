@@ -84,16 +84,16 @@ func (this ProductController) PageList(c *gin.Context) {
 // @Param		object	query		request.Request	false	"查询参数"
 // @Success	200		{object}	response.GuquanListResp
 // @Router		/product/guquan [get]
-//func (this ProductController) Guquan(c *gin.Context) {
-//	s := service.GuQuanList{}
-//	err := c.ShouldBindQuery(&s)
-//	if err != nil {
-//		this.Json(c, 10001, err.Error(), nil)
-//		return
-//	}
-//	this.Json(c, 0, "ok", s.List())
-//	return
-//}
+func (this ProductController) Guquan(c *gin.Context) {
+	s := service.GuQuanList{}
+	err := c.ShouldBindQuery(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", s.List())
+	return
+}
 
 // @Summary	购买产品
 // @Tags		产品
@@ -103,6 +103,29 @@ func (this ProductController) PageList(c *gin.Context) {
 // @Router		/product/buy [post]
 func (this ProductController) Buy(c *gin.Context) {
 	s := service.ProductBuy{}
+	err := c.ShouldBindJSON(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	member := this.MemberInfo(c)
+	err = s.Buy(member)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", nil)
+	return
+}
+
+// @Summary	购买股权
+// @Tags		产品
+// @Param		token	header		string			false	"用户令牌"
+// @Param		object	body		request.EquityBuyRequest	false	"查询参数"
+// @Success	200		{object}	response.Response
+// @Router		/product/buy_equity [post]
+func (this ProductController) BuyEquity(c *gin.Context) {
+	s := service.EquityServiceBuy{}
 	err := c.ShouldBindJSON(&s)
 	if err != nil {
 		this.Json(c, 10001, err.Error(), nil)

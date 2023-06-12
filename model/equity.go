@@ -7,20 +7,19 @@ import (
 )
 
 type Equity struct {
-	Id           int             `gorm:"column:id;primary_key"`    //
-	Total        int64           `gorm:"column:total"`             //总股权数
-	Current      int64           `gorm:"column:current"`           //当前数量
-	ReleaseRate  decimal.Decimal `gorm:"column:release_rate"`      //释放百分比
-	Price        decimal.Decimal `gorm:"column:price"`             //价格
-	MinBuy       int             `gorm:"column:min_buy"`           //最低买多少股
-	HitRate      decimal.Decimal `gorm:"column:hit_rate"`          //中签率
-	MissRate     decimal.Decimal `gorm:"column:miss_rate"`         //未中签送的 百分比
-	SellRate     decimal.Decimal `gorm:"column:return_lucky_rate"` //中签回购  百分比
-	PreStartTime int64           `gorm:"column:pre_start_time"`    //预售开始时间
-	PreEndTime   int64           `gorm:"column:pre_end_time"`      //预售结束时间
-	OpenTime     int64           `gorm:"column:open_time"`         //发行时间
-	RecoverTime  int64           `gorm:"column:recover_time"`      //回收时间
-	Status       int64           `gorm:"column:status"`            //1 = 开启 2 =关闭
+	Id           int             `gorm:"column:id;primary_key"` //
+	Total        int64           `gorm:"column:total"`          //总股权数
+	Current      int64           `gorm:"column:current"`        //当前数量
+	Price        decimal.Decimal `gorm:"column:price"`          //价格
+	MinBuy       int             `gorm:"column:min_buy"`        //最低买多少股
+	HitRate      decimal.Decimal `gorm:"column:hit_rate"`       //中签率
+	MissRate     decimal.Decimal `gorm:"column:miss_rate"`      //未中签送的 百分比
+	SellRate     decimal.Decimal `gorm:"column:sell_rate"`      //中签回购  百分比
+	PreStartTime int64           `gorm:"column:pre_start_time"` //预售开始时间
+	PreEndTime   int64           `gorm:"column:pre_end_time"`   //预售结束时间
+	OpenTime     int64           `gorm:"column:open_time"`      //发行时间
+	RecoverTime  int64           `gorm:"column:recover_time"`   //回收时间
+	Status       int64           `gorm:"column:status"`         //1 = 开启 2 =关闭
 }
 
 func (g *Equity) TableName() string {
