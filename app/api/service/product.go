@@ -330,7 +330,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	}
 	//限购
 	order := model.OrderProduct{}
-	count := order.Count("uid = ?", []interface{}{member.Id})
+	count := order.Sum("uid = ? and pid = ?", []interface{}{member.Id, this.Id}, "quantity")
 	if int(count)+this.Quantity > product.LimitBuy {
 		return errors.New(fmt.Sprintf("限购%v份！", product.LimitBuy))
 	}
@@ -345,7 +345,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		if !memberCoupon.Get() {
 			return errors.New("没有找到可用的优惠券信息！")
 		}
-		amount = amount.Sub(memberCoupon.Coupon.Price)
+		//amount = amount.Sub(memberCoupon.Coupon.Price)
 	}
 	//24小时内购买赠送可提现余额
 	var isFirst bool
@@ -354,7 +354,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		isFirst = true
 	}
 	buyLogic := logic.NewProductBuyLogic()
-	err := buyLogic.ProductBuy(this.Cate, member, product, amount, memberCoupon, isFirst)
+	err := buyLogic.ProductBuy(this.Cate, member, product, amount, this.Quantity, memberCoupon, isFirst)
 	if err != nil {
 		return err
 	}
@@ -473,17 +473,17 @@ func (this *BuyGuquanPageList) PageList(member *model.Member) *response.BuyGuqua
 	for _, v := range list {
 		i := response.BuyGuquanList{
 			Id:         v.Id,
-			Num:        v.PayMoney.Div(equity.Price).IntPart(),
-			Price:      equity.Price,
+			Num:        v.Quantity,
+			Price:      v.Price,
 			CreateTime: v.CreateTime,
 			Status:     v.Status,
 		}
 		switch v.Status {
-		case 2:
+		case 3:
 			//未中签回购金额
 			missIncome := v.PayMoney.Mul(equity.MissRate).Div(decimal.NewFromInt(100))
 			i.TotalPrice = v.PayMoney.Add(missIncome)
-		case 3:
+		case 2, 4:
 			//中签回购金额
 			hitIncome := v.PayMoney.Mul(equity.SellRate).Div(decimal.NewFromInt(100)).Round(2)
 			i.TotalPrice = v.PayMoney.Add(hitIncome)

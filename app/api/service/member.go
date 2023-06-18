@@ -200,6 +200,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 	for _, v := range list {
 		ids := make([]int, 0)
 		global.DB.Model(model.MemberParents{}).Select("uid").Where("parent_id = ?", v.Uid).Scan(&ids)
+
 		var childRechargeMember int64
 		var childBuyMember int64
 		var childBuyAmount float64
@@ -209,11 +210,11 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 			global.DB.Model(memberModel).Where("total_recharge > ? and id in (?)", 0, ids).Count(&childRechargeMember)
 			//下级用户总激活人数
 			global.DB.Model(memberModel).Where("is_buy = ? and id in (?)", model.StatusOk, ids).Count(&childBuyMember)
-			//下级用户总投资金额
-			global.DB.Model(memberModel).Select("COALESCE(sum(total_buy),0)").Where("id in (?)", ids).Scan(&childBuyAmount)
-			//下级用户总返佣金额
-			global.DB.Model(memberModel).Select("COALESCE(sum(total_rebate),0)").Where("id in (?)", ids).Scan(&childRebateAmount)
 		}
+		//用户投资金额
+		global.DB.Model(memberModel).Select("total_buy").Where("id = ?", v.Uid).Scan(&childBuyAmount)
+		//用户返佣金额
+		global.DB.Model(memberModel).Select("total_rebate").Where("id = ?", v.Uid).Scan(&childRebateAmount)
 
 		res.List = append(res.List, response.MyTeam{
 			Id:             v.Member.Id,

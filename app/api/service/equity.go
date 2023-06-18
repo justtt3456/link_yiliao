@@ -30,7 +30,7 @@ func (this EquityServiceBuy) Buy(member *model.Member) error {
 	if !p.Get(true) {
 		return errors.New("股权不存在！")
 	}
-	fmt.Println(fmt.Sprintf("%+v", p))
+
 	if p.PreStartTime > time.Now().Unix() {
 		return errors.New("股权预售时间未开始")
 	}
@@ -40,7 +40,7 @@ func (this EquityServiceBuy) Buy(member *model.Member) error {
 	if p.MinBuy > this.Quantity {
 		return errors.New(fmt.Sprintf("购买股权数量必须大于%v！", p.MinBuy))
 	}
-	amount := decimal.NewFromInt(int64(this.Quantity)).Sub(decimal.NewFromInt(1))
+	amount := decimal.NewFromInt(int64(this.Quantity)).Mul(p.Price)
 	if member.Balance.LessThan(amount) {
 		return errors.New("余额不足,请先充值！")
 	}
@@ -48,8 +48,10 @@ func (this EquityServiceBuy) Buy(member *model.Member) error {
 	inc := &model.OrderEquity{
 		UId:          member.Id,
 		Pid:          p.Id,
+		Price:        p.Price,
+		Quantity:     this.Quantity,
 		PayMoney:     amount,
-		Rate:         p.HitRate,
+		Rate:         decimal.NewFromInt(100),
 		AfterBalance: member.Balance.Sub(amount),
 		Status:       model.StatusReview,
 	}
@@ -58,9 +60,8 @@ func (this EquityServiceBuy) Buy(member *model.Member) error {
 		return err
 	}
 	//减去可投余额
-	p.Total -= int64(this.Quantity)
 	p.Current += int64(this.Quantity)
-	err = p.Update("total", "current")
+	err = p.Update("current")
 	if err != nil {
 		logrus.Errorf("购买产品减去可投余额失败%v", err)
 		return err

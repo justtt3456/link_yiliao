@@ -34,7 +34,7 @@ func Run() {
 	//用户
 	member := v1.MemberController{}
 	ga.GET("member/page_list", member.PageList)
-
+	ga.POST("logout", member.Logout)
 	//用户银行卡
 	ga.GET("member/bankcard/list", member.BankCardList)
 

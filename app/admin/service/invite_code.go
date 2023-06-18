@@ -80,15 +80,19 @@ type InviteCodeUpdate struct {
 }
 
 func (this InviteCodeUpdate) Update() error {
-	if this.Id == 0 {
+	if this.AgentId == 0 {
 		return errors.New("参数错误")
 	}
 	if this.Code == "" {
 		return errors.New("邀请码不能为空")
 	}
-	m := model.InviteCode{Id: this.Id}
+	m := model.InviteCode{AgentId: this.AgentId}
 	if !m.Get() {
 		return errors.New("记录不存在")
+	}
+	invite := model.InviteCode{Code: this.Code}
+	if invite.Get() {
+		return errors.New("邀请码已存在")
 	}
 	m.Code = this.Code
 	return m.Update("code")

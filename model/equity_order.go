@@ -8,9 +8,11 @@ import (
 )
 
 type OrderEquity struct {
-	Id           int             `gorm:"column:id;primary_key"`             //
-	UId          int             `gorm:"column:uid"`                        //关联用户id
-	Pid          int             `gorm:"column:pid"`                        //关联商品种类id
+	Id           int             `gorm:"column:id;primary_key"` //
+	UId          int             `gorm:"column:uid"`            //关联用户id
+	Pid          int             `gorm:"column:pid"`            //关联商品种类id
+	Price        decimal.Decimal `gorm:"column:price"`
+	Quantity     int             `gorm:"column:quantity"`
 	PayMoney     decimal.Decimal `gorm:"column:pay_money"`                  //购买付款金额 =手数
 	AfterBalance decimal.Decimal `gorm:"column:after_balance"`              //购买后余额
 	Rate         decimal.Decimal `gorm:"column:rate"`                       //中签率
@@ -83,12 +85,12 @@ func (this *OrderEquity) Sum2(where string, args []interface{}, field string) in
 	return total
 }
 
-func (this *OrderEquity) List(where string, args []interface{}) []*OrderEquity {
-	res := make([]*OrderEquity, 0)
-	tx := global.DB.Model(this).Joins("Guquan").Joins("Member").Where(where, args...).Find(&res)
+func (this *OrderEquity) List(where string, args []interface{}) []OrderEquity {
+	res := make([]OrderEquity, 0)
+	tx := global.DB.Model(this).Joins("Equity").Joins("Member").Where(where, args...).Find(&res)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)
-		return res
+		return nil
 	}
 	return res
 }

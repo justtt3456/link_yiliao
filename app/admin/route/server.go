@@ -205,7 +205,6 @@ func Run() {
 	ga.GET("active/page_list", active.PageList)
 	ga.POST("active/addActive", active.AddActive)
 	ga.POST("active/delActive", active.DelActive)
-	address := fmt.Sprintf(":%d", global.CONFIG.System.AdminAddr)
 
 	//新闻
 	news := v1.NewsController{}
@@ -221,7 +220,10 @@ func Run() {
 	ga.POST("agent/create", agent.Create)
 	ga.POST("agent/update", agent.Update)
 	ga.POST("agent/update_status", agent.UpdateStatus)
+	//邀请码
+	invite := v1.InviteCodeController{}
+	ga.POST("invite_code/update", invite.Update)
 
-	ga.GET("config/lang/list", config.LangList)
+	address := fmt.Sprintf(":%d", global.CONFIG.System.AdminAddr)
 	r.Run(address)
 }

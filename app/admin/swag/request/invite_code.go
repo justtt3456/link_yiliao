@@ -11,8 +11,8 @@ type InviteCodeCreate struct {
 	Code    string `json:"code"`     //邀请码
 }
 type InviteCodeUpdate struct {
-	Id   int    `json:"id"`   //
-	Code string `json:"code"` //邀请码
+	AgentId int    `json:"agent_id"` //
+	Code    string `json:"code"`     //邀请码
 }
 type InviteCodeRemove struct {
 	Id int `json:"id"`

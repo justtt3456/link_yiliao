@@ -19,4 +19,5 @@ type AgentInfo struct {
 	Token      string `json:"token"`
 	CreateTime int64  `json:"create_time"` //
 	UpdateTime int64  `json:"update_time"` //
+	InviteCode string `json:"invite_code"`
 }

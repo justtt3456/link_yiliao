@@ -125,7 +125,7 @@ type BuyGuquanPageListResp struct {
 
 type BuyGuquanList struct {
 	Id         int             `json:"id"`          //订单Id
-	Num        int64           `json:"num"`         //股权数据量
+	Num        int             `json:"num"`         //股权数据量
 	Price      decimal.Decimal `json:"price"`       //股权单价
 	CreateTime int64           `json:"create_time"` //获得时间
 	TotalPrice decimal.Decimal `json:"total_price"` //股权总价值

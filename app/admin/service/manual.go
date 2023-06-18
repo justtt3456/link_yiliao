@@ -61,7 +61,7 @@ func (this Manual) Balance() error {
 			member.Balance = member.Balance.Add(this.Amount)
 		case 2:
 			tradeType = 15
-			balance = member.Balance.Sub(decimal.NewFromInt(-1))
+			balance = member.Balance
 			desc = "可用余额减少"
 			member.Balance = member.Balance.Sub(this.Amount)
 		case 3:
@@ -71,7 +71,7 @@ func (this Manual) Balance() error {
 			member.WithdrawBalance = member.WithdrawBalance.Add(this.Amount)
 		case 4:
 			tradeType = 17
-			balance = member.WithdrawBalance.Sub(decimal.NewFromInt(-1))
+			balance = member.WithdrawBalance
 			desc = "提现"
 			member.WithdrawBalance = member.WithdrawBalance.Sub(this.Amount)
 		}
@@ -80,7 +80,7 @@ func (this Manual) Balance() error {
 			TradeType:  tradeType,
 			Amount:     this.Amount,
 			Before:     balance,
-			After:      balance.Add(this.Amount),
+			After:      member.Balance,
 			IsFrontend: this.IsFrontend,
 			Desc:       desc,
 		}

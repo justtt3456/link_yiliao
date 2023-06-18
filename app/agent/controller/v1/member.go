@@ -86,3 +86,21 @@ func (this MemberController) VerifiedPageList(c *gin.Context) {
 	this.Json(c, 0, "ok", list)
 	return
 }
+
+// @Summary	退出登录
+// @Tags		用户
+// @Param		token	header		string			false	"用户令牌"
+// @Param		object	body		request.Request	false	"查询参数"
+// @Success	200		{object}	response.Response
+// @Router		/logout [post]
+func (this MemberController) Logout(c *gin.Context) {
+	agent := this.AgentInfo(c)
+	agent.Token = ""
+	err := agent.Update("token")
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", nil)
+	return
+}

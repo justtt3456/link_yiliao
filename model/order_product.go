@@ -22,8 +22,9 @@ type OrderProduct struct {
 	IsReturnTeam    int             `gorm:"column:is_return_team"`             //是否已结算团队收益 0:否 1:是
 	IncomeRate      decimal.Decimal `gorm:"column:income_rate"`                //收益率
 	EndTime         int64           `gorm:"column:end_time"`                   //结束时间
-	Member          Member          `gorm:"foreignKey:UId;"`                   //BeLongsTo 关联用户 自身外键UId
-	Product         Product         `gorm:"foreignKey:Pid;"`                   //BeLongsTo 关联商品 自身外键Pid
+	Quantity        int             `gorm:"column:quantity"`
+	Member          Member          `gorm:"foreignKey:UId;"` //BeLongsTo 关联用户 自身外键UId
+	Product         Product         `gorm:"foreignKey:Pid;"` //BeLongsTo 关联商品 自身外键Pid
 }
 
 // TableName sets the insert table name for this struct type

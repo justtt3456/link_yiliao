@@ -476,6 +476,7 @@ func (this *MemberTeam) GetTeam() response.MemberListData {
 			TopId:              p.Parent.Id,
 			TopName:            p.Parent.Username,
 			ProductOrderAmount: v.Member.TotalBuy,
+			WithdrawThreshold:  v.Member.WithdrawThreshold,
 		})
 	}
 	res.List = items

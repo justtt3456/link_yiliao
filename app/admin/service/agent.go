@@ -52,15 +52,14 @@ func (this AgentList) PageList() response.AgentData {
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.AgentInfo, 0)
 	for _, v := range list {
-		//parent := model.Agent{
-		//	Id: v.ParentId,
-		//}
-		//if v.ParentId != 0 {
-		//	parent.Get()
-		//}
+		invite := model.InviteCode{
+			AgentId: v.Id,
+		}
+		invite.Get()
 		i := response.AgentInfo{
-			Id:   v.Id,
-			Name: v.Account,
+			Id:         v.Id,
+			Name:       v.Account,
+			InviteCode: invite.Code,
 			//ParentId:   v.ParentId,
 			//ParentName: parent.Name,
 			//GroupName:  v.GroupName,

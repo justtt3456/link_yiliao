@@ -117,7 +117,7 @@ func (this *Member) Info() *response.Member {
 	mv := MemberVerified{UId: this.Id}
 	mv.Get()
 	if len(mv.Mobile) >= 8 {
-		username = mv.Mobile[:3] + "****" + mv.Mobile[len(mv.Mobile)-4:]
+		mobile = mv.Mobile[:3] + "****" + mv.Mobile[len(mv.Mobile)-4:]
 	}
 	where := "uid = ? and is_read = ?"
 	args := []interface{}{this.Id, StatusClose}

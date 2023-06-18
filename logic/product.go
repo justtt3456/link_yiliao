@@ -24,7 +24,7 @@ func NewProductBuyLogic() *productBuyLogic {
 		config: &config,
 	}
 }
-func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product model.Product, amount decimal.Decimal, mc model.MemberCoupon, isFirst bool) error {
+func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product model.Product, amount decimal.Decimal, quantity int, mc model.MemberCoupon, isFirst bool) error {
 	if this.tx == nil {
 		this.tx = global.DB
 	}
@@ -45,7 +45,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 	switch pt {
 	case 1:
 		//订单入库
-		order, err := this.createOrder(member, product, amount)
+		order, err := this.createOrder(member, product, amount, quantity)
 		if err != nil {
 			return err
 		}
@@ -60,7 +60,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 			logrus.Errorf("购买产品减去可投余额失败%v", err)
 		}
 		//账变记录
-		err = this.createTrade(member, order, amount)
+		err = this.createTrade(member, order, amount, mc)
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 			}
 		}
 		//记录用户待收益利息及本金
-		member.PreIncome = member.PreIncome.Add(amount.Add(mc.Coupon.Price).Mul(product.IncomeRate).Mul(decimal.NewFromInt(int64(product.Interval))).Div(decimal.NewFromInt(100).Round(2)))
+		member.PreIncome = member.PreIncome.Add(amount.Mul(product.IncomeRate).Mul(decimal.NewFromInt(int64(product.Interval))).Div(decimal.NewFromInt(100).Round(2)))
 		member.PreCapital = member.PreCapital.Add(amount)
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
@@ -159,7 +159,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 	}
 	return nil
 }
-func (this productBuyLogic) createOrder(member *model.Member, product model.Product, amount decimal.Decimal) (*model.OrderProduct, error) {
+func (this productBuyLogic) createOrder(member *model.Member, product model.Product, amount decimal.Decimal, quantity int) (*model.OrderProduct, error) {
 	//购买
 	inc := &model.OrderProduct{
 		UId:          member.Id,
@@ -171,6 +171,7 @@ func (this productBuyLogic) createOrder(member *model.Member, product model.Prod
 		UpdateTime:   time.Now().Unix(),
 		IncomeRate:   product.IncomeRate,
 		EndTime:      time.Now().Unix() + int64(product.Interval*86400),
+		Quantity:     quantity,
 	}
 	err := this.tx.Create(&inc).Error
 	if err != nil {
@@ -178,15 +179,15 @@ func (this productBuyLogic) createOrder(member *model.Member, product model.Prod
 	}
 	return inc, nil
 }
-func (this productBuyLogic) createTrade(member *model.Member, order *model.OrderProduct, amount decimal.Decimal) error {
+func (this productBuyLogic) createTrade(member *model.Member, order *model.OrderProduct, amount decimal.Decimal, mc model.MemberCoupon) error {
 	//加入账变记录
 	trade := model.Trade{
 		UId:        member.Id,
 		TradeType:  1,
 		ItemId:     order.Id,
-		Amount:     amount,
+		Amount:     amount.Sub(mc.Coupon.Price),
 		Before:     member.Balance,
-		After:      member.Balance.Sub(amount),
+		After:      member.Balance.Sub(amount.Sub(mc.Coupon.Price)),
 		Desc:       "购买产品",
 		CreateTime: time.Now().Unix(),
 		UpdateTime: time.Now().Unix(),
