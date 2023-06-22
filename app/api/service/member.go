@@ -189,11 +189,13 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 		return nil, err
 	}
 	//总返佣
-	var totalRebate float64
-	err = global.DB.Model(memberModel).Select("COALESCE(sum(total_rebate),0)").Where("id in (?)", total).Scan(&totalRebate).Error
-	if err != nil {
-		return nil, err
-	}
+	//var totalRebate float64
+	//err = global.DB.Model(memberModel).Select("COALESCE(sum(total_rebate),0)").Where("id in (?)", total).Scan(&totalRebate).Error
+	//if err != nil {
+	//	return nil, err
+	//}
+	config := model.SetBase{}
+	config.Get()
 	list, page := m.GetChildListByParentId(where, args, this.Page, this.PageSize)
 	res.Page = FormatPage(page)
 	res.List = make([]response.MyTeam, 0)
@@ -204,7 +206,6 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 		var childRechargeMember int64
 		var childBuyMember int64
 		var childBuyAmount float64
-		var childRebateAmount float64
 		if len(ids) > 0 {
 			//下级用户总充值人数
 			global.DB.Model(memberModel).Where("total_recharge > ? and id in (?)", 0, ids).Count(&childRechargeMember)
@@ -214,8 +215,17 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 		//用户投资金额
 		global.DB.Model(memberModel).Select("total_buy").Where("id = ?", v.Uid).Scan(&childBuyAmount)
 		//用户返佣金额
-		global.DB.Model(memberModel).Select("total_rebate").Where("id = ?", v.Uid).Scan(&childRebateAmount)
-
+		var childRebateAmount decimal.Decimal
+		var payAmount float64
+		global.DB.Model(model.OrderProduct{}).Select("pay_money").Where("uid = ?", v.Uid).Scan(&payAmount)
+		switch v.Level {
+		case 1:
+			childRebateAmount = decimal.NewFromFloat(payAmount).Mul(config.OneSend).Div(decimal.NewFromInt(100)).Round(2)
+		case 2:
+			childRebateAmount = decimal.NewFromFloat(payAmount).Mul(config.TwoSend).Div(decimal.NewFromInt(100)).Round(2)
+		case 3:
+			childRebateAmount = decimal.NewFromFloat(payAmount).Mul(config.ThreeSend).Div(decimal.NewFromInt(100)).Round(2)
+		}
 		res.List = append(res.List, response.MyTeam{
 			Id:             v.Member.Id,
 			Username:       this.parseMobileNumber(v.Member.Username),
@@ -223,14 +233,14 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 			BuyMember:      int(childBuyMember),
 			RegisterMember: len(ids),
 			BuyAmount:      decimal.NewFromFloat(childBuyAmount),
-			RebateAmount:   decimal.NewFromFloat(childRebateAmount),
+			RebateAmount:   childRebateAmount,
 			Level:          v.Level,
 		})
 	}
 	res.RegisterMember = len(total)
 	res.BuyMember = buyMember
 	res.TotalRecharge = decimal.NewFromFloat(totalRecharge)
-	res.TotalRebate = decimal.NewFromFloat(totalRebate)
+	res.TotalRebate = member.TotalRebate
 	return &res, nil
 }
 

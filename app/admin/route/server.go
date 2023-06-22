@@ -98,6 +98,7 @@ func Run() {
 	ga.POST("config/base/update", config.BaseUpdate)
 	ga.GET("config/funds", config.Funds)
 	ga.POST("config/funds/update", config.FundsUpdate)
+	ga.GET("config/lang/list", config.LangList)
 	//收款银行卡
 	ga.GET("config/bank/list", config.BankList)
 	ga.POST("config/bank/create", config.BankCreate)
@@ -183,7 +184,9 @@ func Run() {
 	guquan := v1.GuquanController{}
 	ga.GET("guquan/list", guquan.List)
 	ga.POST("guquan/update", guquan.Update)
-
+	//股权分
+	score := v1.EquityScoreController{}
+	ga.GET("equity_score/page_list", score.PageList)
 	//订单管理
 	order := v1.OrderController{}
 	ga.GET("order/product_list", order.PageList)

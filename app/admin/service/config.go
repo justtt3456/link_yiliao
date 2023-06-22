@@ -3,6 +3,7 @@ package service
 import (
 	"china-russia/app/admin/swag/request"
 	"china-russia/app/admin/swag/response"
+	"china-russia/common"
 	"china-russia/model"
 	"errors"
 )
@@ -33,6 +34,10 @@ func (this ConfigBase) Get() (*response.ConfigBase, error) {
 		TwoReleaseRate:    base.TwoReleaseRate,
 		ThreeReleaseRate:  base.ThreeReleaseRate,
 		IncomeBalanceRate: base.IncomeBalanceRate,
+		EquityStartDate:   base.EquityStartDate,
+		EquityRate:        base.EquityRate,
+		EquityInterval:    base.EquityInterval,
+		EquityIncomeRate:  base.EquityIncomeRate,
 	}, nil
 }
 
@@ -62,6 +67,10 @@ func (this ConfigBaseUpdate) Update() error {
 			TwoReleaseRate:    this.TwoReleaseRate,
 			ThreeReleaseRate:  this.ThreeReleaseRate,
 			IncomeBalanceRate: this.IncomeBalanceRate,
+			EquityStartDate:   common.DateTimeToNewYorkUnix(this.EquityStartDate),
+			EquityRate:        this.EquityRate,
+			EquityInterval:    this.EquityInterval,
+			EquityIncomeRate:  this.EquityIncomeRate,
 		}
 		return c.Insert()
 	} else {
@@ -84,6 +93,10 @@ func (this ConfigBaseUpdate) Update() error {
 		conf.TwoReleaseRate = this.TwoReleaseRate
 		conf.ThreeReleaseRate = this.ThreeReleaseRate
 		conf.IncomeBalanceRate = this.IncomeBalanceRate
+		conf.EquityStartDate = common.DateTimeToNewYorkUnix(this.EquityStartDate)
+		conf.EquityRate = this.EquityRate
+		conf.EquityInterval = this.EquityInterval
+		conf.EquityIncomeRate = this.EquityIncomeRate
 		return conf.Update()
 	}
 }

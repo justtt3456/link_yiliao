@@ -50,9 +50,9 @@ func (this ProductCategoryCreate) Create() error {
 	if this.Name == "" {
 		return errors.New("分类名称不能为空")
 	}
-	if this.Lang == "" {
-		return errors.New("分类语言名称不能为空")
-	}
+	//if this.Lang == "" {
+	//	return errors.New("分类语言名称不能为空")
+	//}
 
 	m := model.ProductCategory{
 		Name:   this.Name,
@@ -72,9 +72,9 @@ func (this ProductCategoryUpdate) Update() error {
 	if this.Name == "" {
 		return errors.New("分类名称不能为空")
 	}
-	if this.Lang == "" {
-		return errors.New("分类语言不能为空")
-	}
+	//if this.Lang == "" {
+	//	return errors.New("分类语言不能为空")
+	//}
 
 	m := model.ProductCategory{
 		Id: this.Id,
@@ -84,7 +84,7 @@ func (this ProductCategoryUpdate) Update() error {
 	}
 	m.Name = this.Name
 	m.Status = this.Status
-	return m.Update("name", "lang", "status")
+	return m.Update("name", "status")
 }
 
 type ProductCategoryUpdateStatus struct {

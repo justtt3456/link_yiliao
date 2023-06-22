@@ -26,6 +26,10 @@ type ConfigBase struct {
 	TwoReleaseRate    decimal.Decimal `json:"two_release_rate"`    //二级代理释放比
 	ThreeReleaseRate  decimal.Decimal `json:"three_release_rate"`  //三级代理释放比
 	IncomeBalanceRate decimal.Decimal `json:"income_balance_rate"` //收益转可用余额比例
+	EquityStartDate   int64           `json:"equity_start_date"`   //股权分开启时间
+	EquityRate        decimal.Decimal `json:"equity_rate"`         //股权分额度比例
+	EquityInterval    int             `json:"equity_interval"`     //股权分收益天数
+	EquityIncomeRate  decimal.Decimal `json:"equity_income_rate"`  //股权分收益比例
 }
 type ConfigFundsResponse struct {
 	Code int         `json:"code"`

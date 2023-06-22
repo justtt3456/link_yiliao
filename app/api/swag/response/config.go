@@ -15,16 +15,17 @@ type Config struct {
 	IsOpen bool   `json:"is_open"`
 }
 type Base struct {
-	AppName      string          `json:"app_name"`      //网站应用名称
-	AppLogo      string          `json:"app_logo"`      //网站应用logo
-	VerifiedSend decimal.Decimal `json:"verified_send"` //实名送金币
-	RegisterSend decimal.Decimal `json:"register_send"` //注册24小时后  第一次充值送金币
-	OneSend      decimal.Decimal `json:"one_send"`      //一级奖励
-	TwoSend      decimal.Decimal `json:"two_send"`      //二级奖励
-	ThreeSend    decimal.Decimal `json:"three_send"`    //三级奖励
-	SendDesc     string          `json:"send_desc"`     //奖励描述
-	RegisterDesc string          `json:"register_desc"` //注册好礼描述
-	TeamDesc     string          `json:"team_desc"`     //团队奖励描述
+	AppName       string          `json:"app_name"`        //网站应用名称
+	AppLogo       string          `json:"app_logo"`        //网站应用logo
+	VerifiedSend  decimal.Decimal `json:"verified_send"`   //实名送金币
+	RegisterSend  decimal.Decimal `json:"register_send"`   //注册24小时后  第一次充值送金币
+	OneSend       decimal.Decimal `json:"one_send"`        //一级奖励
+	TwoSend       decimal.Decimal `json:"two_send"`        //二级奖励
+	ThreeSend     decimal.Decimal `json:"three_send"`      //三级奖励
+	SendDesc      string          `json:"send_desc"`       //奖励描述
+	RegisterDesc  string          `json:"register_desc"`   //注册好礼描述
+	TeamDesc      string          `json:"team_desc"`       //团队奖励描述
+	IsEquityScore int             `json:"is_equity_score"` //股权分是否开启
 
 }
 type Funds struct {

@@ -122,6 +122,14 @@ func (this *Member) Info() *response.Member {
 	where := "uid = ? and is_read = ?"
 	args := []interface{}{this.Id, StatusClose}
 	msg := MemberMessage{}
+	//股权分开启提现额度修改
+	config := SetBase{}
+	config.Get()
+	if time.Now().Unix() >= config.EquityStartDate {
+		equityScore := EquityScoreOrder{}
+		score := equityScore.SumScore("uid = ? and status = ? and create_time < ?", []interface{}{this.Id, StatusOk, common.GetTodayZero()}, "pay_money")
+		this.WithdrawThreshold = config.EquityRate.Mul(score).Div(decimal.NewFromInt(100)).Round(2)
+	}
 	return &response.Member{
 		Id:                  this.Id,
 		Username:            username,
@@ -153,6 +161,7 @@ func (this *Member) Info() *response.Member {
 		PreIncome:         this.PreIncome,
 		PreCapital:        this.PreCapital,
 		WithdrawThreshold: this.WithdrawThreshold,
+		EquityScore:       this.EquityScore,
 	}
 }
 

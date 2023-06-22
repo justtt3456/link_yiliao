@@ -263,6 +263,7 @@ func (this *productBuyLogic) proxyRebate(level int, productOrder *model.OrderPro
 	}
 	var income decimal.Decimal
 	var t int
+	var threshold decimal.Decimal
 	if level == 1 {
 		income = this.config.OneSend.Mul(productOrder.PayMoney).Div(decimal.NewFromInt(100)).Round(2)
 		//检测会员的订单
@@ -275,12 +276,25 @@ func (this *productBuyLogic) proxyRebate(level int, productOrder *model.OrderPro
 			income = income.Add(this.config.OneSendMoney)
 		}
 		t = 18
+		//提现额度
+		if time.Now().Unix() < this.config.EquityStartDate {
+			threshold = this.config.OneReleaseRate.Mul(productOrder.PayMoney).Div(decimal.NewFromInt(100)).Round(2)
+		}
+
 	} else if level == 2 {
 		income = this.config.TwoSend.Mul(productOrder.PayMoney).Div(decimal.NewFromInt(100)).Round(2)
 		t = 19
+		//提现额度
+		if time.Now().Unix() < this.config.EquityStartDate {
+			threshold = this.config.TwoReleaseRate.Mul(productOrder.PayMoney).Div(decimal.NewFromInt(100)).Round(2)
+		}
 	} else if level == 3 {
 		income = this.config.ThreeSend.Mul(productOrder.PayMoney).Div(decimal.NewFromInt(100)).Round(2)
 		t = 20
+		//提现额度
+		if time.Now().Unix() < this.config.EquityStartDate {
+			threshold = this.config.ThreeReleaseRate.Mul(productOrder.PayMoney).Div(decimal.NewFromInt(100)).Round(2)
+		}
 	}
 	if member.ParentId <= 0 {
 		return nil
@@ -313,7 +327,7 @@ func (this *productBuyLogic) proxyRebate(level int, productOrder *model.OrderPro
 	//增加用户返佣金额
 	parent.TotalRebate = parent.TotalRebate.Add(income)
 	//增加用户可提现额度
-	parent.WithdrawThreshold = parent.WithdrawThreshold.Add(productOrder.PayMoney)
+	parent.WithdrawThreshold = parent.WithdrawThreshold.Add(threshold)
 
 	err = this.tx.Select("withdraw_threshold", "total_rebate", "withdraw_balance").Updates(parent).Error
 	if err != nil {

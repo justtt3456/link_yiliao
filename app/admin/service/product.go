@@ -122,11 +122,11 @@ func (this ProductCreate) Create() error {
 	if this.Status == 0 {
 		return errors.New("状态不能为空")
 	}
-	if this.Type == 2 {
-		if this.DelayTime <= 0 {
-			return errors.New("延期时间必须大于0")
-		}
-	}
+	//if this.Type == 2 {
+	//	if this.DelayTime <= 0 {
+	//		return errors.New("延期时间必须大于0")
+	//	}
+	//}
 	//赠送产品Id分析
 	if this.Type == 5 {
 		this.GiftId = 0

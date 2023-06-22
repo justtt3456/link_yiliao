@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Manual struct {
@@ -57,7 +58,7 @@ func (this Manual) Balance() error {
 		case 1:
 			tradeType = 14
 			balance = member.Balance
-			desc = "他人向您转账"
+			desc = "后台上分可用余额"
 			member.Balance = member.Balance.Add(this.Amount)
 		case 2:
 			tradeType = 15
@@ -120,31 +121,47 @@ func (this Manual) Equity() error {
 		case 5:
 			tradeType = 17
 			equity = member.EquityScore
-			desc = "增加股权"
+			desc = "增加股权分"
 			member.EquityScore = int(decimal.NewFromInt(int64(member.EquityScore)).Add(this.Amount).IntPart())
-		case 6:
-			tradeType = 18
-			equity = member.EquityScore * -1
-			desc = "减少股权"
-			member.EquityScore = int(decimal.NewFromInt(int64(member.EquityScore)).Sub(this.Amount).IntPart())
-		}
-		trade := model.Trade{
-			UId:        member.Id,
-			TradeType:  tradeType,
-			Amount:     this.Amount,
-			Before:     decimal.NewFromInt(int64(equity)),
-			After:      decimal.NewFromInt(int64(equity)).Add(this.Amount),
-			IsFrontend: this.IsFrontend,
-			Desc:       desc,
-		}
-		err := trade.Insert()
-		if err != nil {
-			logrus.Error(err)
-			return err
-		}
-		err = member.Update("equity_score")
-		if err != nil {
-			return err
+			trade := model.Trade{
+				UId:        member.Id,
+				TradeType:  tradeType,
+				Amount:     this.Amount,
+				Before:     decimal.NewFromInt(int64(equity)),
+				After:      decimal.NewFromInt(int64(equity)).Add(this.Amount),
+				IsFrontend: this.IsFrontend,
+				Desc:       desc,
+			}
+			err := trade.Insert()
+			if err != nil {
+				logrus.Error(err)
+				return err
+			}
+			//待收本金收益增加
+			config := model.SetBase{}
+			config.Get()
+			income := this.Amount.Mul(config.EquityIncomeRate).Mul(decimal.NewFromInt(int64(config.EquityInterval))).Div(decimal.NewFromInt(100)).Round(2)
+			member.PreIncome = member.PreIncome.Add(income)
+			member.PreCapital = member.PreCapital.Add(this.Amount)
+			err = member.Update("equity_score", "pre_income", "pre_capital")
+			if err != nil {
+				return err
+			}
+			//股权分订单
+			order := model.EquityScoreOrder{
+				UId:      member.Id,
+				PayMoney: this.Amount,
+				Rate:     config.EquityIncomeRate,
+				Interval: config.EquityInterval,
+				Status:   model.StatusOk,
+				EndTime:  time.Now().Unix() + int64(config.EquityInterval*86400),
+			}
+			return order.Insert()
+			//case 6:
+			//	tradeType = 18
+			//	equity = member.EquityScore * -1
+			//	desc = "减少股权"
+			//	member.EquityScore = int(decimal.NewFromInt(int64(member.EquityScore)).Sub(this.Amount).IntPart())
 		}
 
 	}

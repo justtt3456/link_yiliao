@@ -174,7 +174,7 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount decimal.Dec
 		trade.Desc = "充值审核通过"
 	case 2: //系统
 		//trade.Desc = "福利派送"
-		trade.Desc = "他人向您转账"
+		trade.Desc = "后台上分可用余额"
 	}
 	err := trade.Insert()
 	if err != nil {

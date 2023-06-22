@@ -43,8 +43,8 @@ func (this *Equity) Do() {
 					TradeType:  17,
 					ItemId:     v.Id,
 					Amount:     returnMoney,
-					Before:     v.Member.Balance,
-					After:      v.Member.Balance.Add(returnMoney),
+					Before:     v.Member.WithdrawBalance,
+					After:      v.Member.WithdrawBalance.Add(returnMoney),
 					Desc:       "股权发行收益",
 					CreateTime: time.Now().Unix(),
 					UpdateTime: time.Now().Unix(),
@@ -56,10 +56,10 @@ func (this *Equity) Do() {
 				}
 
 				//用户加钱
-				m.Balance = m.Balance.Add(returnMoney)
+				m.WithdrawBalance = m.WithdrawBalance.Add(returnMoney)
 				//更改用户余额
 				m.TotalIncome = m.TotalIncome.Add(returnMoney)
-				err = m.Update("balance", "total_income")
+				err = m.Update("withdraw_balance", "total_income")
 				if err != nil {
 					logrus.Errorf("发行 修改余额失败  用户Id %v 收益 %v  err= &v", v.UId, returnMoney, err)
 				}
@@ -94,8 +94,8 @@ func (this *Equity) Do() {
 				TradeType:  17,
 				ItemId:     v.Id,
 				Amount:     returnMoney,
-				Before:     m.Balance,
-				After:      m.Balance.Add(returnMoney),
+				Before:     m.WithdrawBalance,
+				After:      m.WithdrawBalance.Add(returnMoney),
 				Desc:       "股权回购收益",
 				CreateTime: time.Now().Unix(),
 				UpdateTime: time.Now().Unix(),
@@ -106,9 +106,9 @@ func (this *Equity) Do() {
 				logrus.Errorf("回购返回的钱  用户Id%v  收益%v  err=%v", v.UId, returnMoney, err)
 			}
 			//用户加钱
-			m.Balance = m.Balance.Add(returnMoney)
+			m.WithdrawBalance = m.WithdrawBalance.Add(returnMoney)
 			m.TotalIncome = m.TotalIncome.Add(returnMoney)
-			err = m.Update("balance", "total_income")
+			err = m.Update("withdraw_balance", "total_income")
 			if err != nil {
 				logrus.Errorf("回购 修改余额失败  用户Id %v 收益 %v  err= &v", v.UId, returnMoney, err)
 			}

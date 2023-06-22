@@ -34,11 +34,10 @@ type Member struct {
 	Token               string          `json:"token"`                 //token盐
 	InviteCode          string          `json:"invite_code"`           //邀请码
 	Coupon              []Coupon        `json:"coupon"`                //用户有的优惠券
-	//Income decimal.Decimal `json:"income"` //总收益
-	//Guquan              int64           `json:"guquan"`                //股权
-	Message    int64           `json:"message"`     //站内信总条数
-	PreIncome  decimal.Decimal `json:"pre_income"`  //待收益
-	PreCapital decimal.Decimal `json:"pre_capital"` //待收本金
+	Message             int64           `json:"message"`               //站内信总条数
+	PreIncome           decimal.Decimal `json:"pre_income"`            //待收益
+	PreCapital          decimal.Decimal `json:"pre_capital"`           //待收本金
+	EquityScore         int             `json:"equity_score"`
 }
 
 type Coupon struct {

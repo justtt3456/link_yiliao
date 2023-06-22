@@ -52,7 +52,12 @@ func (this MemberBankCreate) Create(member model.Member) error {
 	if this.RealName == "" {
 		return errors.New(lang.Lang("Cardholder cannot be empty"))
 	}
-
+	mb := model.MemberBank{
+		UId: member.Id,
+	}
+	if mb.Get() {
+		return errors.New("只能绑定一张银行卡")
+	}
 	//允许N张银行卡
 	memberBank := model.MemberBank{
 		UId:        member.Id,
@@ -79,6 +84,7 @@ func (this MemberBankUpdate) Update(member model.Member) error {
 	if !memberBank.Get() {
 		return errors.New(lang.Lang("Bank card does not exist"))
 	}
+	return errors.New("请联系客服修改")
 	if this.RealName != "" {
 		memberBank.RealName = this.RealName
 	}
@@ -108,6 +114,7 @@ func (this MemberBankRemove) Remove(member model.Member) error {
 	if !memberBank.Get() {
 		return errors.New(lang.Lang("Bank card does not exist"))
 	}
+	return errors.New("请联系客服修改")
 	return memberBank.Remove()
 }
 

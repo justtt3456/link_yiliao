@@ -44,6 +44,10 @@ func (this EquityServiceBuy) Buy(member *model.Member) error {
 	if member.Balance.LessThan(amount) {
 		return errors.New("余额不足,请先充值！")
 	}
+	//交易密码验证
+	if common.Md5String(this.TransferPwd+member.WithdrawSalt) != member.WithdrawPassword {
+		return errors.New("交易密码错误")
+	}
 	//购买
 	inc := &model.OrderEquity{
 		UId:          member.Id,

@@ -3,6 +3,7 @@ package service
 import (
 	"china-russia/app/api/swag/response"
 	"china-russia/model"
+	"time"
 )
 
 type Config struct {
@@ -12,17 +13,22 @@ func (this Config) Get() response.Config {
 	res := response.Config{}
 	base := model.SetBase{}
 	if base.Get() {
+		equityScore := model.StatusClose
+		if time.Now().Unix() >= base.EquityStartDate {
+			equityScore = model.StatusOk
+		}
 		res.Base = response.Base{
-			AppName:      base.AppName,
-			AppLogo:      base.AppLogo,
-			VerifiedSend: base.VerifiedSend,
-			RegisterSend: base.RegisterSend,
-			OneSend:      base.OneSend,
-			TwoSend:      base.TwoSend,
-			ThreeSend:    base.ThreeSend,
-			SendDesc:     base.SendDesc,
-			RegisterDesc: base.RegisterDesc,
-			TeamDesc:     base.TeamDesc,
+			AppName:       base.AppName,
+			AppLogo:       base.AppLogo,
+			VerifiedSend:  base.VerifiedSend,
+			RegisterSend:  base.RegisterSend,
+			OneSend:       base.OneSend,
+			TwoSend:       base.TwoSend,
+			ThreeSend:     base.ThreeSend,
+			SendDesc:      base.SendDesc,
+			RegisterDesc:  base.RegisterDesc,
+			TeamDesc:      base.TeamDesc,
+			IsEquityScore: equityScore,
 		}
 	}
 	funds := model.SetFunds{}

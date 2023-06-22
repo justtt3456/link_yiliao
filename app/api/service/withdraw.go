@@ -144,9 +144,26 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	}
 	config := model.SetBase{}
 	config.Get()
-	//TODO::股权分开启 验证额度
-	if member.WithdrawThreshold.LessThan(this.TotalAmount) {
-		return errors.New("提现额度不足")
+	//股权分开启 验证额度
+	if time.Now().Unix() >= config.EquityStartDate {
+		equityScore := model.EquityScoreOrder{}
+		score := equityScore.SumScore("uid = ? and status = ? and create_time < ?", []interface{}{member.Id, model.StatusOk, common.GetTodayZero()}, "pay_money")
+		threshold := config.EquityRate.Mul(score).Div(decimal.NewFromInt(100)).Round(2)
+		if threshold.LessThan(this.TotalAmount) {
+			return errors.New("提现额度不足")
+		}
+		//当日已使用额度
+		sumModel := model.Withdraw{}
+		sumWhere := "uid = ? and create_time >= ? and status in (?)"
+		sumArgs := []interface{}{member.Id, common.GetTodayZero(), []int{model.StatusReview, model.StatusAccept}}
+		sum := sumModel.Sum(sumWhere, sumArgs, "total_amount")
+		if threshold.Sub(decimal.NewFromFloat(sum)).LessThan(this.TotalAmount) {
+			return errors.New("提现额度不足")
+		}
+	} else {
+		if member.WithdrawThreshold.LessThan(this.TotalAmount) {
+			return errors.New("提现额度不足")
+		}
 	}
 	//每日提现次数
 	countModel := model.Withdraw{}

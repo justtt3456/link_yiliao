@@ -57,7 +57,7 @@ func (this Manual) Balance() error {
 		case 1:
 			tradeType = 14
 			balance = member.Balance
-			desc = "他人向您转账"
+			desc = "后台上分可用余额"
 			member.Balance = member.Balance.Add(this.Amount)
 		case 2:
 			tradeType = 15

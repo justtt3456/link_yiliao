@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type WithdrawListService struct {
@@ -129,7 +130,12 @@ func (this WithdrawUpdateService) Update() error {
 			}
 			//回滚余额
 			user.WithdrawBalance = user.WithdrawBalance.Add(m.TotalAmount)
-			if err := user.Update("withdraw_balance"); err != nil {
+			config := model.SetBase{}
+			config.Get()
+			if time.Now().Unix() < config.EquityStartDate {
+				user.WithdrawThreshold = user.WithdrawThreshold.Add(m.TotalAmount)
+			}
+			if err := user.Update("withdraw_balance", "withdraw_threshold"); err != nil {
 				return err
 			}
 		case model.StatusAccept:

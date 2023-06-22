@@ -20,7 +20,10 @@ type SetBase struct {
 	RegisterDesc      string          `gorm:"column:register_desc"`       //注册好礼描述
 	TeamDesc          string          `gorm:"column:team_desc"`           //团队奖励描述
 	GiftRate          decimal.Decimal `gorm:"column:gift_rate"`           //赠品赠送比例
-	EquityStartDate   string          `gorm:"column:equity_start_date"`   //股权分开始日期
+	EquityStartDate   int64           `gorm:"column:equity_start_date"`   //股权分开始日期
+	EquityRate        decimal.Decimal `gorm:"column:equity_rate"`         //股权分对应提现额度比例
+	EquityInterval    int             `gorm:"column:equity_interval"`     //股权分收益时长
+	EquityIncomeRate  decimal.Decimal `gorm:"column:equity_income_rate"`  //股权分收益比例
 	OneReleaseRate    decimal.Decimal `gorm:"column:one_release_rate"`    //一级代理释放比例
 	TwoReleaseRate    decimal.Decimal `gorm:"column:two_release_rate"`    //二级代理释放比例
 	ThreeReleaseRate  decimal.Decimal `gorm:"column:three_release_rate"`  //三级代理释放比例

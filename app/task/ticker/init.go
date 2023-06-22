@@ -2,6 +2,7 @@ package ticker
 
 import (
 	"china-russia/app/task/repository"
+	"github.com/robfig/cron/v3"
 	"time"
 )
 
@@ -12,6 +13,8 @@ func Run() {
 	go unfreeze()
 	//股权
 	go equity()
+	//股权分
+	go equityScore()
 	//定时任务:收益结算
 	go repository.InitCrontab()
 	select {}
@@ -42,4 +45,14 @@ func equity() {
 		<-ticker.C
 		i.Do()
 	}
+}
+func equityScore() {
+	i := repository.EquityScore{}
+	c := cron.New(cron.WithSeconds())
+	c.AddFunc("0 0 0 * * ?", func() {
+		//id, err := c.AddFunc("0 * * * * *", func() {
+		i.Do()
+	})
+	c.Start()
+	select {}
 }

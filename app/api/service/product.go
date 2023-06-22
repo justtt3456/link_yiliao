@@ -510,7 +510,7 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	guquan.Get(true)
 
 	now := time.Now().Unix()
-	if now >= guquan.RecoverTime {
+	if now < guquan.OpenTime {
 		return nil
 	}
 
@@ -519,7 +519,9 @@ func (this *StockCertificate) GetInfo(member *model.Member) *response.StockCerti
 	if !orderModel.Get() {
 		return nil
 	}
-
+	if orderModel.Status == model.StatusReview || orderModel.Status == model.StatusRollback {
+		return nil
+	}
 	//获取用户信息
 	memberVerfiy := model.MemberVerified{UId: orderModel.UId}
 	memberVerfiy.Get()

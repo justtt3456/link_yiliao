@@ -56,6 +56,7 @@ func (this *GuquanUpdate) Update() error {
 		m.HitRate = this.LuckyRate
 		m.MissRate = this.ReturnRate
 		m.SellRate = this.ReturnLuckyRate
+		m.Price = this.Price
 		m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 		m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 		m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)
@@ -69,6 +70,7 @@ func (this *GuquanUpdate) Update() error {
 	m.HitRate = this.LuckyRate
 	m.MissRate = this.ReturnRate
 	m.SellRate = this.ReturnLuckyRate
+	m.Price = this.Price
 	m.PreStartTime = common.DateTimeToNewYorkUnix(this.PreStartTime)
 	m.PreEndTime = common.DateTimeToNewYorkUnix(this.PreEndTime)
 	m.OpenTime = common.DateTimeToNewYorkUnix(this.OpenTime)
