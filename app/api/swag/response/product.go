@@ -104,6 +104,7 @@ type BuyList struct {
 	Income   decimal.Decimal `json:"income"`   //每日收益
 	EndTime  int64           `json:"end_time"` //到期时间
 	Interval int             `json:"interval"` //投资时间
+	IsGift   int             `json:"is_gift"`  //是否赠品
 }
 
 type BuyListResp struct {

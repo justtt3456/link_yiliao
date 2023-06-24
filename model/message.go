@@ -9,11 +9,10 @@ import (
 
 type Message struct {
 	Id         int    `gorm:"column:id;primary_key"` //
-	UId        int    `gorm:"column:uid"`            //
+	UId        string `gorm:"column:uid"`            //
 	Title      string `gorm:"column:title"`          //标题
 	Content    string `gorm:"column:content"`        //内容
 	Status     int    `gorm:"column:status"`
-	IsRead     int    `gorm:"column:is_read"`
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //创建日期
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //修改时间
 }

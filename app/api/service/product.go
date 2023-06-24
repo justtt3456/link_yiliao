@@ -391,6 +391,10 @@ func (this BuyProductList) List(member *model.Member) *response.BuyListResp {
 		}
 		//每日收益
 		income := v.PayMoney.Mul(v.IncomeRate).Div(decimal.NewFromInt(100)).Round(2)
+		gift := 2
+		if v.Product.Type == 4 { //4为赠品
+			gift = 1
+		}
 		items = append(items, response.BuyList{
 			Name:     v.Product.Name,
 			BuyTime:  int(v.CreateTime),
@@ -399,6 +403,7 @@ func (this BuyProductList) List(member *model.Member) *response.BuyListResp {
 			Income:   income,
 			EndTime:  v.EndTime,
 			Interval: v.Product.Interval,
+			IsGift:   gift,
 		})
 	}
 	res.List = items

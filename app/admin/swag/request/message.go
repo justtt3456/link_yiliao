@@ -6,7 +6,7 @@ type MessageList struct {
 	PageSize int `form:"page_size"`
 }
 type MessageCreate struct {
-	UId     int    `json:"uid"`     //
+	UId     string `json:"uid"`     //
 	Title   string `json:"title"`   //标题
 	Content string `json:"content"` //内容
 	Status  int    `json:"status"`

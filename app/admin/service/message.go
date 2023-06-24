@@ -7,6 +7,8 @@ import (
 	"china-russia/model"
 	"errors"
 	"github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 )
 
 type MessageList struct {
@@ -55,7 +57,7 @@ type MessageCreate struct {
 }
 
 func (this MessageCreate) Create() error {
-	if this.UId == 0 {
+	if this.UId == "" {
 		return errors.New("接收用户错误")
 	}
 	if this.Title == "" {
@@ -64,12 +66,15 @@ func (this MessageCreate) Create() error {
 	if this.Content == "" {
 		return errors.New("内容不能为空")
 	}
+	split := strings.Split(this.UId, ",")
+	if len(split) == 0 {
+		return errors.New("接收用户错误")
+	}
 	m := model.Message{
 		UId:     this.UId,
 		Title:   this.Title,
 		Content: this.Content,
 		Status:  model.StatusClose,
-		IsRead:  1,
 	}
 	return m.Insert()
 }
@@ -81,9 +86,6 @@ type MessageUpdate struct {
 func (this MessageUpdate) Update() error {
 	if this.Id == 0 {
 		return errors.New("参数错误")
-	}
-	if this.UId == 0 {
-		return errors.New("接收用户错误")
 	}
 	if this.Title == "" {
 		return errors.New("标题不能为空")
@@ -118,7 +120,41 @@ func (this MessageUpdateStatus) UpdateStatus() error {
 	if !m.Get() {
 		return errors.New("站内信不存在")
 	}
-
+	if m.Status == model.StatusOk {
+		return errors.New("请勿重复发放")
+	}
+	if this.Status == model.StatusOk {
+		if m.UId == "-1" { //全部用户
+			member := model.Member{}
+			members := member.List("status = ?", []interface{}{model.StatusOk})
+			for _, v := range members {
+				msg := model.MemberMessage{
+					Uid:       v.Id,
+					MessageId: m.Id,
+					IsRead:    model.StatusClose,
+				}
+				err := msg.Insert()
+				if err != nil {
+					return err
+				}
+			}
+		} else {
+			for _, v := range strings.Split(m.UId, ",") {
+				uid, _ := strconv.Atoi(v)
+				if uid > 0 {
+					msg := model.MemberMessage{
+						Uid:       uid,
+						MessageId: m.Id,
+						IsRead:    model.StatusClose,
+					}
+					err := msg.Insert()
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
 	m.Status = this.Status
 	return m.Update("status")
 }
