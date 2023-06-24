@@ -97,12 +97,13 @@ type EquityListResp struct {
 }
 
 type BuyList struct {
-	Name    string          `json:"name"`     //产品名字
-	Status  int             `json:"status"`   //状态 1=进行中  2=结束
-	BuyTime int             `json:"buy_time"` //投资时间
-	Amount  decimal.Decimal `json:"amount"`   //金额
-	Income  decimal.Decimal `json:"income"`   //每日收益
-	EndTime int64           `json:"end_time"` //到期时间
+	Name     string          `json:"name"`     //产品名字
+	Status   int             `json:"status"`   //状态 1=进行中  2=结束
+	BuyTime  int             `json:"buy_time"` //投资时间
+	Amount   decimal.Decimal `json:"amount"`   //金额
+	Income   decimal.Decimal `json:"income"`   //每日收益
+	EndTime  int64           `json:"end_time"` //到期时间
+	Interval int             `json:"interval"` //投资时间
 }
 
 type BuyListResp struct {
