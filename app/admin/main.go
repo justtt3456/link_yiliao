@@ -26,9 +26,6 @@ func main() {
 	global.REDIS = dao.Redis()
 	//设置默认中文
 	global.Language = "zh_cn"
-	//google := extends.NewGoogleAuth()
-	//google.VerifyCode("NN1SJlUQzYFS0clTEpUNDVkW2ElSTJ1VDRTQyg1S0oENGN1NLVF6VCV1SDBF5UQRTU", "this.GoogleCode")
-
 	//路由初始化
 	route.Run()
 }

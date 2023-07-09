@@ -67,7 +67,7 @@ func (this ConfigBaseUpdate) Update() error {
 			TwoReleaseRate:    this.TwoReleaseRate,
 			ThreeReleaseRate:  this.ThreeReleaseRate,
 			IncomeBalanceRate: this.IncomeBalanceRate,
-			EquityStartDate:   common.DateTimeToNewYorkUnix(this.EquityStartDate),
+			EquityStartDate:   common.DateToNewYorkUnix(this.EquityStartDate),
 			EquityRate:        this.EquityRate,
 			EquityInterval:    this.EquityInterval,
 			EquityIncomeRate:  this.EquityIncomeRate,

@@ -63,12 +63,12 @@ func (this *Trade) PageList(where string, args []interface{}, page, pageSize int
 	pageUtil.SetPage(pageSize, total)
 	return res, pageUtil
 }
-func (this *Trade) Sum(where string, args []interface{}, field string) decimal.Decimal {
-	var total decimal.Decimal
+func (this *Trade) Sum(where string, args []interface{}, field string) float64 {
+	var total float64
 	tx := global.DB.Model(this).Select("COALESCE(sum("+field+"),0)").Where(where, args...).Scan(&total)
 	if tx.Error != nil {
 		logrus.Error(tx.Error)
-		return decimal.Zero
+		return 0
 	}
 	return total
 }

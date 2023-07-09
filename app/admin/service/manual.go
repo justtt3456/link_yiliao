@@ -58,22 +58,22 @@ func (this Manual) Balance() error {
 		case 1:
 			tradeType = 14
 			balance = member.Balance
-			desc = "后台上分可用余额"
+			desc = "增加可用余额"
 			member.Balance = member.Balance.Add(this.Amount)
 		case 2:
 			tradeType = 15
 			balance = member.Balance
-			desc = "可用余额减少"
+			desc = "系统回调可用余额"
 			member.Balance = member.Balance.Sub(this.Amount)
 		case 3:
 			tradeType = 16
 			balance = member.WithdrawBalance
-			desc = "充值"
+			desc = "增加可提现余额"
 			member.WithdrawBalance = member.WithdrawBalance.Add(this.Amount)
 		case 4:
 			tradeType = 17
 			balance = member.WithdrawBalance
-			desc = "提现"
+			desc = "系统回调可提现余额"
 			member.WithdrawBalance = member.WithdrawBalance.Sub(this.Amount)
 		}
 		trade := model.Trade{

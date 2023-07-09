@@ -123,6 +123,7 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 				logrus.Errorf("存入账单失败  今日%v  用户Id %v err= %v", time.Now().Format("20060102"), v.UId, err)
 				continue
 			}
+			member.PreIncome = member.PreIncome.Sub(income)
 			//更改用户可提现余额
 			member.WithdrawBalance = member.WithdrawBalance.Add(income)
 			//每日返本
@@ -164,7 +165,7 @@ func (this *Award) Run() {
 	}
 	//订单列表
 	o := model.OrderProduct{}
-	productOrder := o.GetValidOrderList(today)
+	productOrder := o.GetValidOrderList(today - 86400)
 	if len(productOrder) == 0 {
 		return
 	}
@@ -199,13 +200,13 @@ func (this *Award) TeamIncome() {
 			userIds := orderModel.GetOrderUserIds(teamStartTime, teamEndTime)
 			count := len(userIds)
 			var rate decimal.Decimal
-			if count >= 6 {
+			if count >= 2000 {
 				rate = decimal.NewFromFloat(1.8)
-			} else if count >= 4 {
+			} else if count >= 700 {
 				rate = decimal.NewFromFloat(1.25)
-			} else if count >= 2 {
+			} else if count >= 300 {
 				rate = decimal.NewFromFloat(1)
-			} else if count >= 1 {
+			} else if count >= 100 {
 				rate = decimal.NewFromFloat(0.8)
 			} else {
 				continue

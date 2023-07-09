@@ -282,6 +282,9 @@ func (this MemberVerifiedUpdate) Update() error {
 		if !m.Get() {
 			return errors.New("记录不存在")
 		}
+		if m.Status == model.StatusAccept {
+			return errors.New("已通过")
+		}
 		if this.Status != model.StatusAccept && this.Status != model.StatusRollback {
 			return errors.New("状态错误")
 		}
