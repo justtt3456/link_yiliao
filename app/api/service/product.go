@@ -321,7 +321,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		return errors.New("可投额度不足！")
 	}
 	//余额检查
-	if member.Balance.LessThanOrEqual(amount) {
+	if member.Balance.LessThan(amount) {
 		return errors.New("余额不足,请先充值！")
 	}
 	//交易密码验证

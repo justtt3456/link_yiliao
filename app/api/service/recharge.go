@@ -34,13 +34,12 @@ func (this RechargeCreate) checkError() error {
 		return errors.New(lang.Lang("System configuration error, please contact the administrator"))
 	}
 	//充值金额和时间
-	//amount := int64(this.Amount) * int64(model.UNITY)
-	//if amount < funds.RechargeMinAmount {
-	//	return errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.3f"), float64(funds.RechargeMinAmount)/model.UNITY))
-	//}
-	//if amount > funds.RechargeMaxAmount {
-	//	return errors.New(fmt.Sprintf(lang.Lang("Maximum deposit %.3f"), float64(funds.RechargeMaxAmount)/model.UNITY))
-	//}
+	if this.Amount.LessThan(funds.RechargeMinAmount) {
+		return errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.2f"), funds.RechargeMinAmount.InexactFloat64()))
+	}
+	if funds.RechargeMaxAmount.LessThan(this.Amount) {
+		return errors.New(fmt.Sprintf(lang.Lang("Maximum deposit %.2f"), funds.RechargeMaxAmount.InexactFloat64()))
+	}
 	now := time.Now().Unix()
 	startTime := common.TimeToUnix(funds.RechargeStartTime)
 	endTime := common.TimeToUnix(funds.RechargeEndTime)
