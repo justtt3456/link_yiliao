@@ -55,7 +55,7 @@ type MessageCreate struct {
 }
 
 func (this MessageCreate) Create() error {
-	if this.UId == 0 {
+	if this.UId == "" {
 		return errors.New("接收用户错误")
 	}
 	if this.Title == "" {
@@ -69,7 +69,6 @@ func (this MessageCreate) Create() error {
 		Title:   this.Title,
 		Content: this.Content,
 		Status:  model.StatusClose,
-		IsRead:  1,
 	}
 	return m.Insert()
 }

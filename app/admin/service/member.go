@@ -300,24 +300,25 @@ func (this MemberVerifiedUpdate) Update() error {
 		if this.Status == 2 {
 			member.IsReal = this.Status
 			member.RealName = m.RealName
-		}
-		if decimal.Zero.LessThan(c.VerifiedSend) {
-			//加入账变记录
-			trade := model.Trade{
-				UId:        member.Id,
-				TradeType:  8,
-				Amount:     c.VerifiedSend,
-				Before:     member.Balance,
-				After:      member.Balance.Add(c.VerifiedSend),
-				Desc:       "实名认证礼金",
-				CreateTime: time.Now().Unix(),
-				UpdateTime: time.Now().Unix(),
-				IsFrontend: 1,
+			if decimal.Zero.LessThan(c.VerifiedSend) {
+				//加入账变记录
+				trade := model.Trade{
+					UId:        member.Id,
+					TradeType:  8,
+					Amount:     c.VerifiedSend,
+					Before:     member.Balance,
+					After:      member.Balance.Add(c.VerifiedSend),
+					Desc:       "实名认证礼金",
+					CreateTime: time.Now().Unix(),
+					UpdateTime: time.Now().Unix(),
+					IsFrontend: 1,
+				}
+				trade.Insert()
+				//第一次实名通过的时候送奖金
+				member.Balance = member.Balance.Add(c.VerifiedSend)
 			}
-			trade.Insert()
-			//第一次实名通过的时候送奖金
-			member.Balance = member.Balance.Add(c.VerifiedSend)
 		}
+
 		err := member.Update("is_real", "real_name", "balance")
 		if err != nil {
 			return err

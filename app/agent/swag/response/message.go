@@ -11,7 +11,7 @@ type MessageData struct {
 }
 type MessageInfo struct {
 	Id         int    `json:"id"`      //
-	UId        int    `json:"uid"`     //
+	UId        string `json:"uid"`     //
 	Title      string `json:"title"`   //标题
 	Content    string `json:"content"` //内容
 	Status     int    `json:"status"`

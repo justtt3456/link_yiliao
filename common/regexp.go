@@ -26,7 +26,7 @@ func otherMobile(mobile string) bool {
 }
 
 func IsIdCard(card string) bool {
-	regRuler := "(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)"
+	regRuler := "(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)"
 	reg := regexp.MustCompile(regRuler)
 	return reg.MatchString(card)
 }
