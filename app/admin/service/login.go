@@ -4,6 +4,7 @@ import (
 	"china-russia/app/admin/swag/request"
 	"china-russia/common"
 	"china-russia/extends"
+	"china-russia/global"
 	"china-russia/model"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -30,14 +31,16 @@ func (this LoginService) Login(c *gin.Context) (*model.Admin, error) {
 	if !admin.Get() {
 		return nil, errors.New("账号不存在")
 	}
-	//验证谷歌验证码
-	google := extends.NewGoogleAuth()
-	b, err := google.VerifyCode(admin.GoogleAuth, this.GoogleCode)
-	if err != nil {
-		return nil, errors.New("验证码错误")
-	}
-	if !b {
-		return nil, errors.New("验证码错误")
+	if !global.CONFIG.System.Debug {
+		//验证谷歌验证码
+		google := extends.NewGoogleAuth()
+		b, err := google.VerifyCode(admin.GoogleAuth, this.GoogleCode)
+		if err != nil {
+			return nil, errors.New("验证码错误")
+		}
+		if !b {
+			return nil, errors.New("验证码错误")
+		}
 	}
 	//验证密码
 	if admin.Password != common.Md5String(this.Password+admin.Salt) {

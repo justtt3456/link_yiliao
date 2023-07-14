@@ -5,6 +5,7 @@ import (
 	"china-russia/global"
 	"encoding/json"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"log"
 	"strconv"
@@ -12,21 +13,20 @@ import (
 )
 
 type PayChannel struct {
-	Id         int     `gorm:"column:id;primary_key"`             //
-	Name       string  `gorm:"column:name"`                       //支付方式名称
-	PaymentId  int     `gorm:"column:payment_id"`                 //第三方名称
-	Code       string  `gorm:"column:code"`                       //支付编码
-	Min        int64   `gorm:"column:min"`                        //最小值
-	Max        int64   `gorm:"column:max"`                        //最大值
-	Status     int     `gorm:"column:status"`                     //状态
-	Category   int     `gorm:"column:category"`                   //分类(所属支付方式,预留待使用)
-	Sort       int     `gorm:"column:sort"`                       //排序值
-	Icon       string  `gorm:"column:icon"`                       //图标
-	Fee        int     `gorm:"column:fee"`                        //手续费
-	Lang       string  `gorm:"column:lang"`                       //语言
-	CreateTime int64   `gorm:"column:create_time;autoCreateTime"` //
-	UpdateTime int64   `gorm:"column:update_time;autoUpdateTime"` //
-	Payment    Payment `gorm:"foreignKey:PaymentId"`              //外键
+	Id         int             `gorm:"column:id;primary_key"`             //
+	Name       string          `gorm:"column:name"`                       //支付方式名称
+	PaymentId  int             `gorm:"column:payment_id"`                 //第三方名称
+	MethodId   int             `gorm:"column:method_id"`                  //
+	Code       string          `gorm:"column:code"`                       //支付编码
+	Min        decimal.Decimal `gorm:"column:min"`                        //最小值
+	Max        decimal.Decimal `gorm:"column:max"`                        //最大值
+	Status     int             `gorm:"column:status"`                     //状态
+	Sort       int             `gorm:"column:sort"`                       //排序值
+	Icon       string          `gorm:"column:icon"`                       //图标
+	Fee        decimal.Decimal `gorm:"column:fee"`                        //手续费
+	CreateTime int64           `gorm:"column:create_time;autoCreateTime"` //
+	UpdateTime int64           `gorm:"column:update_time;autoUpdateTime"` //
+	Payment    Payment         `gorm:"foreignKey:PaymentId"`              //外键
 }
 
 // TableName sets the insert table name for this struct type
@@ -102,15 +102,16 @@ func (this *PayChannel) Get() bool {
 	//global.REDIS.HSet(HashKeyPayment, strconv.Itoa(this.Id), string(bytes))
 	return true
 }
-func (this PayChannel) List() []PayChannel {
-	res := make([]PayChannel, 0)
-	tx := global.DB.Model(this).Joins("Payment").Where(this).Where("`Payment`.`type` = ?", this.Payment.Type).Order("sort desc").Scan(&res)
-	if tx.Error != nil {
-		logrus.Error(tx.Error)
-		return nil
-	}
-	return res
-}
+
+//	func (this PayChannel) List() []PayChannel {
+//		res := make([]PayChannel, 0)
+//		tx := global.DB.Model(this).Joins("Payment").Where(this).Where("`Payment`.`type` = ?", this.Payment.Type).Order("sort desc").Scan(&res)
+//		if tx.Error != nil {
+//			logrus.Error(tx.Error)
+//			return nil
+//		}
+//		return res
+//	}
 func (this *PayChannel) PageList(where string, args []interface{}, page, pageSize int) ([]PayChannel, common.Page) {
 	res := make([]PayChannel, 0)
 	pageUtil := common.Page{

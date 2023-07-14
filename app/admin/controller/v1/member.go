@@ -263,6 +263,29 @@ func (this MemberController) UpdateVerified(c *gin.Context) {
 	return
 }
 
+// @Summary 修改用户实名认证信息
+// @Tags 用户
+// @Accept application/json
+// @Produce application/json
+// @Param token header string false "用户令牌"
+// @Param object body request.MemberVerifiedInfoUpdate false "查询参数"
+// @Success 200 {object} response.Response
+// @Router /member/verified_info/update [post]
+func (this MemberController) UpdateVerifiedInfo(c *gin.Context) {
+	s := service.MemberVerifiedInfoUpdate{}
+	err := c.ShouldBindJSON(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	if err = s.UpdateInfo(); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", nil)
+	return
+}
+
 // @Summary 删除用户实名认证
 // @Tags 用户
 // @Accept application/json

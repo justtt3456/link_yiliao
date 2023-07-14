@@ -29,7 +29,7 @@ type PayInterface interface {
 	//获取三方订单号
 	TradeSn(map[string]interface{}) string
 	//获取实际金额
-	RealMoney(map[string]interface{}) int64
+	RealMoney(map[string]interface{}) float64
 	//获取支付时间
 	PayTime(map[string]interface{}) int64
 }
@@ -69,6 +69,8 @@ func NewPay(payment model.Payment) PayInterface {
 	switch payment.ClassName {
 	case "WePay":
 		return newWePay(payment)
+	case "AzfPay":
+		return newAzfPay(payment)
 	default:
 		return newWePay(payment)
 	}

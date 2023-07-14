@@ -16,7 +16,6 @@ type PaymentAddRequest struct {
 	PubKey         string `json:"pub_key"`         //公钥
 	ClassName      string `json:"class_name"`      //类名
 	WithdrawStatus int    `json:"withdraw_status"` //是否启用代付 1是2否
-	Type           int    `json:"type"`            //1=微信  2=支付宝
 }
 type PaymentUpdateRequest struct {
 	Id             int    `json:"id"`
@@ -30,7 +29,6 @@ type PaymentUpdateRequest struct {
 	PubKey         string `json:"pub_key"`         //公钥
 	ClassName      string `json:"class_name"`      //类名
 	WithdrawStatus int    `json:"withdraw_status"` //是否启用代付 1是2否
-	Type           int    `json:"type"`            //1=微信  2=支付宝
 }
 type PaymentRemoveRequest struct {
 	Id int `json:"id"`

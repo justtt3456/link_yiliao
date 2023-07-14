@@ -22,7 +22,6 @@ type Payment struct {
 	PriKey         string `gorm:"column:pri_key"`                    //私钥
 	PubKey         string `gorm:"column:pub_key"`                    //公钥
 	ClassName      string `gorm:"column:class_name"`                 //类名
-	Type           int    `gorm:"column:type"`                       //1=微信  2=支付宝
 	WithdrawStatus int    `gorm:"column:withdraw_status"`            //是否启用代付 1是2否
 	CreateTime     int64  `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime     int64  `gorm:"column:update_time;autoUpdateTime"` //

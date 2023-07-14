@@ -48,7 +48,6 @@ func (this PaymentListService) PageList() *response.PaymentData {
 			WithdrawStatus: v.WithdrawStatus,
 			CreateTime:     v.CreateTime,
 			UpdateTime:     v.UpdateTime,
-			Type:           v.Type,
 		}
 		res = append(res, i)
 	}
@@ -64,9 +63,6 @@ func (this PaymentAddService) Add() error {
 	if this.RechargeURL == "" {
 		return errors.New("充值地址不能为空")
 	}
-	if this.WithdrawURL == "" {
-		return errors.New("提现地址不能为空")
-	}
 	if this.NotifyURL == "" {
 		return errors.New("回调地址不能为空")
 	}
@@ -75,9 +71,6 @@ func (this PaymentAddService) Add() error {
 	}
 	if this.ClassName == "" {
 		return errors.New("类名不能为空")
-	}
-	if this.Type == 0 {
-		return errors.New("支付类型不能为空")
 	}
 	m := model.Payment{
 		PayName:        this.PayName,
@@ -90,7 +83,6 @@ func (this PaymentAddService) Add() error {
 		PubKey:         this.PubKey,
 		ClassName:      this.ClassName,
 		WithdrawStatus: this.WithdrawStatus,
-		Type:           this.Type,
 	}
 	return m.Insert()
 }
@@ -104,9 +96,9 @@ func (this PaymentUpdateService) Update() error {
 	if this.RechargeURL == "" {
 		return errors.New("充值地址不能为空")
 	}
-	if this.WithdrawURL == "" {
-		return errors.New("提现地址不能为空")
-	}
+	//if this.WithdrawURL == "" {
+	//	return errors.New("提现地址不能为空")
+	//}
 	if this.NotifyURL == "" {
 		return errors.New("回调地址不能为空")
 	}
@@ -131,8 +123,7 @@ func (this PaymentUpdateService) Update() error {
 	m.PriKey = this.PriKey
 	m.PubKey = this.PubKey
 	m.ClassName = this.ClassName
-	m.Type = this.Type
-	return m.Update("pay_name", "type", "recharge_url", "withdraw_url", "notify_url", "merchant_no", "secret", "pri_key", "pub_key", "class_name", "withdraw_status")
+	return m.Update("pay_name", "recharge_url", "withdraw_url", "notify_url", "merchant_no", "secret", "pri_key", "pub_key", "class_name", "withdraw_status")
 }
 func (this PaymentRemoveService) Remove() error {
 	if this.Id == 0 {

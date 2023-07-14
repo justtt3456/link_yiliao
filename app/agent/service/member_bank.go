@@ -5,7 +5,7 @@ import (
 	"china-russia/app/agent/swag/response"
 	"china-russia/model"
 	"errors"
-	//"china-russia/model"
+	//"yiliao/model"
 )
 
 type MemberBankList struct {

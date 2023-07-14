@@ -82,7 +82,7 @@ func (this ProductController) PageList(c *gin.Context) {
 // @Tags		产品
 // @Param		token	header		string			false	"用户令牌"
 // @Param		object	query		request.Request	false	"查询参数"
-// @Success	200		{object}	response.GuquanListResp
+// @Success	200		{object}	response.EquityListResp
 // @Router		/product/guquan [get]
 func (this ProductController) Guquan(c *gin.Context) {
 	s := service.GuQuanList{}

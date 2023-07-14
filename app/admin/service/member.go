@@ -285,11 +285,6 @@ func (this MemberVerifiedUpdate) Update() error {
 		if m.Status == model.StatusAccept {
 			return errors.New("已通过")
 		}
-		if this.Status != model.StatusAccept && this.Status != model.StatusRollback {
-			return errors.New("状态错误")
-		}
-		m.Status = this.Status
-		m.Update("status")
 		member := model.Member{Id: m.UId}
 		if !member.Get() {
 			return errors.New("用户不存在")
@@ -297,8 +292,8 @@ func (this MemberVerifiedUpdate) Update() error {
 		//获取基础配置表信息
 		c := model.SetBase{}
 		c.Get()
-		if this.Status == 2 {
-			member.IsReal = this.Status
+		switch this.Status {
+		case model.StatusAccept:
 			member.RealName = m.RealName
 			if decimal.Zero.LessThan(c.VerifiedSend) {
 				//加入账变记录
@@ -317,14 +312,45 @@ func (this MemberVerifiedUpdate) Update() error {
 				//第一次实名通过的时候送奖金
 				member.Balance = member.Balance.Add(c.VerifiedSend)
 			}
+		case model.StatusRollback:
+			member.RealName = ""
+		default:
+			return errors.New("状态错误")
 		}
-
+		m.Status = this.Status
+		m.Update("status")
+		member.IsReal = this.Status
 		err := member.Update("is_real", "real_name", "balance")
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+type MemberVerifiedInfoUpdate struct {
+	request.MemberVerifiedInfoUpdate
+}
+
+func (this MemberVerifiedInfoUpdate) UpdateInfo() error {
+	if this.Id == 0 {
+		return errors.New("参数错误")
+	}
+	m := model.MemberVerified{Id: this.Id}
+	if !m.Get() {
+		return errors.New("记录不存在")
+	}
+	member := model.Member{Id: m.UId}
+	if !member.Get() {
+		return errors.New("用户不存在")
+	}
+	m.RealName = this.RealName
+	m.IdNumber = this.IdNumber
+	if m.Status == model.StatusAccept {
+		member.RealName = this.RealName
+		member.Update("real_name")
+	}
+	return m.Update("real_name", "id_number")
 }
 
 type MemberVerifiedRemove struct {

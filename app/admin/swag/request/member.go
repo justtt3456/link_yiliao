@@ -47,6 +47,11 @@ type MemberVerifiedUpdate struct {
 	Ids    []int `json:"ids"`
 	Status int   `json:"status" form:"status"` // 2通过 3驳回
 }
+type MemberVerifiedInfoUpdate struct {
+	Id       int    `json:"id"`
+	RealName string `json:"real_name"` //
+	IdNumber string `json:"id_number"` //
+}
 type MemberVerifiedRemove struct {
 	Id int `json:"id"`
 }

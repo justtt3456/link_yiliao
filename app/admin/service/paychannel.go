@@ -6,6 +6,7 @@ import (
 	"china-russia/common"
 	"china-russia/model"
 	"errors"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,16 +44,15 @@ func (this PayChannelListService) PageList() *response.PayChannelData {
 			PaymentId:   v.PaymentId,
 			PaymentName: v.Payment.PayName,
 			Code:        v.Code,
-			//Min:         float64(v.Min) ,
-			//Max:         float64(v.Max) ,
-			Status:     v.Status,
-			Category:   v.Category,
-			Sort:       v.Sort,
-			Icon:       v.Icon,
-			Fee:        v.Fee,
-			Lang:       v.Lang,
-			CreateTime: v.CreateTime,
-			UpdateTime: v.UpdateTime,
+			Min:         (v.Min),
+			Max:         (v.Max),
+			Status:      v.Status,
+			MethodId:    v.MethodId,
+			Sort:        v.Sort,
+			Icon:        v.Icon,
+			Fee:         v.Fee,
+			CreateTime:  v.CreateTime,
+			UpdateTime:  v.UpdateTime,
 		}
 		res = append(res, i)
 	}
@@ -69,27 +69,27 @@ func (this PayChannelCreateService) Create() error {
 	if this.PaymentId == 0 {
 		return errors.New("支付名称不能为空")
 	}
+	if this.MethodId == 0 {
+		return errors.New("支付方式不能为空")
+	}
 	if this.Code == "" {
 		return errors.New("通道编码不能为空")
 	}
-	//if this.Min == 0 {
-	//	return errors.New("最小值不能为空")
-	//}
-	//if this.Max == 0 {
-	//	return errors.New("最大值不能为空")
-	//}
-	if this.Lang == "" {
-		return errors.New("语言不能为空")
+	if this.Min.LessThanOrEqual(decimal.Zero) {
+		return errors.New("最小值不能为空")
+	}
+	if this.Max.LessThan(this.Min) {
+		return errors.New("最大值错误")
 	}
 	m := model.PayChannel{
 		Name:      this.Name,
 		PaymentId: this.PaymentId,
 		Code:      this.Code,
-		//Min:       int64(this.Min),
-		//Max:       int64(this.Max),
-		Icon: this.Icon,
-		Fee:  this.Fee,
-		Lang: this.Lang,
+		Min:       this.Min,
+		Max:       this.Max,
+		Icon:      this.Icon,
+		Fee:       this.Fee,
+		MethodId:  this.MethodId,
 	}
 	return m.Insert()
 }
@@ -103,20 +103,17 @@ func (this PayChannelUpdateService) Update() error {
 	if this.PaymentId == 0 {
 		return errors.New("支付名称不能为空")
 	}
+	if this.MethodId == 0 {
+		return errors.New("支付方式不能为空")
+	}
 	if this.Code == "" {
 		return errors.New("通道编码不能为空")
 	}
-	//if this.Min == 0 {
-	//	return errors.New("最小值不能为空")
-	//}
-	//if this.Max == 0 {
-	//	return errors.New("最大值不能为空")
-	//}
-	if this.Lang == "" {
-		return errors.New("语言不能为空")
+	if this.Min.LessThanOrEqual(decimal.Zero) {
+		return errors.New("最小值不能为空")
 	}
-	if this.Lang == "" {
-		return errors.New("语言不能为空")
+	if this.Max.LessThan(this.Min) {
+		return errors.New("最大值错误")
 	}
 	m := model.PayChannel{
 		Id: this.Id,
@@ -127,12 +124,12 @@ func (this PayChannelUpdateService) Update() error {
 	m.Name = this.Name
 	m.PaymentId = this.PaymentId
 	m.Code = this.Code
-	//m.Min = int64(this.Min)
-	//m.Max = int64(this.Max)
+	m.Min = (this.Min)
+	m.Max = (this.Max)
 	m.Icon = this.Icon
 	m.Fee = this.Fee
-	m.Lang = this.Lang
-	return m.Update("name", "payment_id", "code", "min", "max", "icon", "fee", "lang")
+	m.MethodId = this.MethodId
+	return m.Update("name", "payment_id", "code", "min", "max", "icon", "fee", "method_id")
 }
 func (this PayChannelRemoveService) Remove() error {
 	if this.Id == 0 {

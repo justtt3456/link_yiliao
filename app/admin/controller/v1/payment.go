@@ -2,6 +2,7 @@ package v1
 
 import (
 	"china-russia/app/admin/service"
+	"china-russia/app/admin/swag/response"
 	"china-russia/model"
 	"github.com/gin-gonic/gin"
 )
@@ -35,7 +36,27 @@ func (this PaymentController) PageList(c *gin.Context) {
 // @Router /payment/list [get]
 func (this PaymentController) List(c *gin.Context) {
 	s := model.Payment{}
-	this.Json(c, 0, "ok", s.List())
+	list := s.List()
+	res := make([]response.Payment, 0)
+	for _, v := range list {
+		i := response.Payment{
+			Id:             v.Id,
+			PayName:        v.PayName,
+			RechargeURL:    v.RechargeURL,
+			WithdrawURL:    v.WithdrawURL,
+			NotifyURL:      v.NotifyURL,
+			MerchantNo:     v.MerchantNo,
+			Secret:         v.Secret,
+			PriKey:         v.PriKey,
+			PubKey:         v.PubKey,
+			ClassName:      v.ClassName,
+			WithdrawStatus: v.WithdrawStatus,
+			CreateTime:     v.CreateTime,
+			UpdateTime:     v.UpdateTime,
+		}
+		res = append(res, i)
+	}
+	this.Json(c, 0, "ok", res)
 	return
 }
 

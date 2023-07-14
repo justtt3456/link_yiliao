@@ -8,6 +8,7 @@ import (
 	"china-russia/global"
 	"china-russia/lang"
 	"china-russia/model"
+	"china-russia/pay"
 	"errors"
 	"fmt"
 	"github.com/shopspring/decimal"
@@ -77,13 +78,13 @@ func (this RechargeCreate) checkError() error {
 			return errors.New(lang.Lang("credential image must be required!"))
 		}
 	case "paymentAlipay":
-		if this.ChannelId == 0 {
-			return errors.New(lang.Lang("Payment channel cannot be empty"))
-		}
+		//if this.ChannelId == 0 {
+		//	return errors.New(lang.Lang("Payment channel cannot be empty"))
+		//}
 	case "paymentWx":
-		if this.ChannelId == 0 {
-			return errors.New(lang.Lang("Payment channel cannot be empty"))
-		}
+		//if this.ChannelId == 0 {
+		//	return errors.New(lang.Lang("Payment channel cannot be empty"))
+		//}
 	}
 
 	return nil
@@ -113,23 +114,17 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 
 	case "paymentAlipay", "paymentWx":
 		//三方支付
-		if method.Code == "paymentAlipay" {
-			this.ChannelId = 2
-		} else {
-			this.ChannelId = 1
-		}
-		channel := model.PayChannel{Id: this.ChannelId}
+		channel := model.PayChannel{MethodId: this.Method}
 		if !channel.Get() {
 			return nil, errors.New(lang.Lang("The payment channel does not exist"))
 		}
 		//充值金额
-
-		//if amount < channel.Min {
-		//	return nil, errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.2f"), float64(channel.Min)/model.UNITY))
-		//}
-		//if amount > channel.Max {
-		//	return nil, errors.New(fmt.Sprintf(lang.Lang("Maximum recharge %.2f"), float64(channel.Max)/model.UNITY))
-		//}
+		if this.Amount.LessThan(channel.Min) {
+			return nil, errors.New(fmt.Sprintf(lang.Lang("Minimum deposit %.2f"), channel.Min.InexactFloat64()))
+		}
+		if channel.Max.LessThan(this.Amount) {
+			return nil, errors.New(fmt.Sprintf(lang.Lang("Maximum recharge %.2f"), channel.Max.InexactFloat64()))
+		}
 		p := model.Payment{
 			Id: channel.PaymentId,
 		}
@@ -141,6 +136,21 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 			return nil, err
 		}
 		//三方支付
+		payment := pay.NewPay(p)
+		param := pay.RechargeParam{
+			OrderNo: order.OrderSn,
+			Amount:  this.Amount,
+			Channel: channel.Code,
+		}
+		recharge := payment.Recharge(param)
+		if recharge.Code != 0 {
+			return nil, errors.New(recharge.Msg)
+		}
+		return &response.RechargeCreate{
+			Code: 0,
+			Msg:  "",
+			Data: response.RechargeUrl{Url: recharge.Data.Url},
+		}, nil
 		payOrder := extends.OrderParam{
 			BaseParam: extends.BaseParam{
 				Url:       strings.TrimSpace(p.RechargeURL) + "/payment",
@@ -292,111 +302,110 @@ func (this RechargeMethod) formatList(lists []model.RechargeMethod) []response.R
 	return res
 }
 
-type RechargeMethodInfo struct {
-	request.RechargeMethodInfo
-}
-
-func (this RechargeMethodInfo) Info() []map[string]interface{} {
-	res := make([]map[string]interface{}, 0)
-	switch this.Code {
-	case "kf": // 客服直充 返回客服充值链接
-		m := model.SetKf{
-			Status: model.StatusOk,
-		}
-		list := m.List(true)
-		for _, v := range list {
-			item := map[string]interface{}{
-				"id":         v.Id,
-				"name":       v.Name,
-				"start_time": v.StartTime,
-				"end_time":   v.EndTime,
-				"link":       v.Link,
-			}
-			res = append(res, item)
-		}
-		break
-	case "bank": //银行卡充值 返回收款银行卡信息
-		m := model.SetBank{
-			Status: model.StatusOk,
-		}
-		list := m.List(true)
-		for _, v := range list {
-			item := map[string]interface{}{
-				"id":          v.Id,
-				"bank_name":   v.BankName,
-				"card_number": v.CardNumber,
-				"real_name":   v.RealName,
-				"branch_bank": v.BranchBank,
-			}
-			res = append(res, item)
-		}
-		break
-	case "alipay": //支付宝充值 返回收款支付宝信息
-		m := model.SetAlipay{
-			Status: model.StatusOk,
-		}
-		list := m.List(true)
-		for _, v := range list {
-			item := map[string]interface{}{
-				"id":        v.Id,
-				"account":   v.Account,
-				"real_name": v.RealName,
-			}
-			res = append(res, item)
-		}
-		break
-	case "usdt": //usdt充值 返回usdt收款信息
-		m := model.SetUsdt{
-			Status: model.StatusOk,
-		}
-		list := m.List(true)
-		for _, v := range list {
-			item := map[string]interface{}{
-				"id":      v.Id,
-				"address": v.Address,
-				"proto":   v.Proto,
-			}
-			res = append(res, item)
-		}
-		break
-	case "paymentAlipay": // 三方支付 返回三方支付信息
-		m := model.PayChannel{
-			Status:  model.StatusOk,
-			Lang:    global.Language,
-			Payment: model.Payment{Type: 2},
-		}
-		list := m.List()
-		for _, v := range list {
-			item := map[string]interface{}{
-				"id":   v.Id,
-				"name": v.Name,
-				"min":  v.Min,
-				"max":  v.Max,
-				"icon": v.Icon,
-			}
-			res = append(res, item)
-		}
-		break
-	case "paymentWx": // 三方支付 返回三方支付信息
-		m := model.PayChannel{
-			Status:  model.StatusOk,
-			Lang:    global.Language,
-			Payment: model.Payment{Type: 1},
-		}
-		list := m.List()
-		for _, v := range list {
-			item := map[string]interface{}{
-				"id":   v.Id,
-				"name": v.Name,
-				"min":  v.Min,
-				"max":  v.Max,
-				"icon": v.Icon,
-			}
-			res = append(res, item)
-		}
-		break
-	default:
-		return nil
-	}
-	return res
-}
+//type RechargeMethodInfo struct {
+//	request.RechargeMethodInfo
+//}
+//
+//func (this RechargeMethodInfo) Info() []map[string]interface{} {
+//	res := make([]map[string]interface{}, 0)
+//	switch this.Code {
+//	case "kf": // 客服直充 返回客服充值链接
+//		m := model.SetKf{
+//			Status: model.StatusOk,
+//		}
+//		list := m.List(true)
+//		for _, v := range list {
+//			item := map[string]interface{}{
+//				"id":         v.Id,
+//				"name":       v.Name,
+//				"start_time": v.StartTime,
+//				"end_time":   v.EndTime,
+//				"link":       v.Link,
+//			}
+//			res = append(res, item)
+//		}
+//		break
+//	case "bank": //银行卡充值 返回收款银行卡信息
+//		m := model.SetBank{
+//			Status: model.StatusOk,
+//		}
+//		list := m.List(true)
+//		for _, v := range list {
+//			item := map[string]interface{}{
+//				"id":          v.Id,
+//				"bank_name":   v.BankName,
+//				"card_number": v.CardNumber,
+//				"real_name":   v.RealName,
+//				"branch_bank": v.BranchBank,
+//			}
+//			res = append(res, item)
+//		}
+//		break
+//	case "alipay": //支付宝充值 返回收款支付宝信息
+//		m := model.SetAlipay{
+//			Status: model.StatusOk,
+//		}
+//		list := m.List(true)
+//		for _, v := range list {
+//			item := map[string]interface{}{
+//				"id":        v.Id,
+//				"account":   v.Account,
+//				"real_name": v.RealName,
+//			}
+//			res = append(res, item)
+//		}
+//		break
+//	case "usdt": //usdt充值 返回usdt收款信息
+//		m := model.SetUsdt{
+//			Status: model.StatusOk,
+//		}
+//		list := m.List(true)
+//		for _, v := range list {
+//			item := map[string]interface{}{
+//				"id":      v.Id,
+//				"address": v.Address,
+//				"proto":   v.Proto,
+//			}
+//			res = append(res, item)
+//		}
+//		break
+//	case "paymentAlipay": // 三方支付 返回三方支付信息
+//		m := model.PayChannel{
+//			Status:  model.StatusOk,
+//			Payment: model.Payment{Type: 2},
+//		}
+//		list := m.List()
+//		for _, v := range list {
+//			item := map[string]interface{}{
+//				"id":   v.Id,
+//				"name": v.Name,
+//				"min":  v.Min,
+//				"max":  v.Max,
+//				"icon": v.Icon,
+//			}
+//			res = append(res, item)
+//		}
+//		break
+//	case "paymentWx": // 三方支付 返回三方支付信息
+//		m := model.PayChannel{
+//			Status:  model.StatusOk,
+//			Lang:    global.Language,
+//			Payment: model.Payment{Type: 1},
+//		}
+//		list := m.List()
+//		for _, v := range list {
+//			item := map[string]interface{}{
+//				"id":   v.Id,
+//				"name": v.Name,
+//				"min":  v.Min,
+//				"max":  v.Max,
+//				"icon": v.Icon,
+//			}
+//			res = append(res, item)
+//		}
+//		break
+//	default:
+//		return nil
+//	}
+//	return res
+//}

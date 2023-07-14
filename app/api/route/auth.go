@@ -49,7 +49,7 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	//充值
 	recharge := v1.RechargeController{}
 	r.GET("recharge/method", recharge.Method)
-	r.GET("recharge/method_info", recharge.MethodInfo)
+	//r.GET("recharge/method_info", recharge.MethodInfo)
 	r.POST("recharge/create", recharge.Create)
 	r.GET("recharge/page_list", recharge.PageList)
 	//提现

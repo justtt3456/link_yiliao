@@ -78,6 +78,7 @@ func Run() {
 	//用户实名认证
 	ga.GET("member/verified/page_list", member.VerifiedPageList)
 	ga.POST("member/verified/update", member.UpdateVerified)
+	ga.POST("member/verified_info/update", member.UpdateVerifiedInfo)
 	ga.POST("member/verified/remove", member.RemoveVerified)
 
 	//充值

@@ -78,7 +78,8 @@ func (this NotifyController) Notify(c *gin.Context) {
 		c.String(http.StatusOK, "订单状态错误")
 		return
 	}
-	if item.Amount.Equal(decimal.NewFromInt(p.RealMoney(data))) {
+	amount := decimal.NewFromFloat(p.RealMoney(data))
+	if !item.Amount.Equal(amount) {
 		log.Println("金额错误")
 		c.String(http.StatusOK, "金额错误")
 		return

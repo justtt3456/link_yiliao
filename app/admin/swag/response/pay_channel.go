@@ -20,11 +20,10 @@ type PayChannel struct {
 	Min         decimal.Decimal `json:"min"`          //最小值
 	Max         decimal.Decimal `json:"max"`          //最大值
 	Status      int             `json:"status"`       //状态
-	Category    int             `json:"category"`     //分类(所属支付方式)
-	Sort        int             `json:"sort"`         //排序值
-	Icon        string          `json:"icon"`         //图标
-	Fee         int             `json:"fee"`          //手续费
-	Lang        string          `json:"lang"`
+	MethodId    int             `json:"method_id"`
+	Sort        int             `json:"sort"` //排序值
+	Icon        string          `json:"icon"` //图标
+	Fee         decimal.Decimal `json:"fee"`  //手续费
 	CreateTime  int64           `json:"create_time"`
 	UpdateTime  int64           `json:"update_time"`
 }

@@ -103,7 +103,6 @@ func (this *GoogleAuth) decode(s string) string {
 // 获取动态码
 func (this *GoogleAuth) Code(secret string) (string, error) {
 	secretUpper := this.decode(secret)
-	fmt.Println(secretUpper)
 	secretKey, err := this.base32decode(secretUpper)
 	if err != nil {
 		return "", err

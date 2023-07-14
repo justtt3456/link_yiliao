@@ -23,5 +23,4 @@ type Payment struct {
 	WithdrawStatus int    `json:"withdraw_status"` //是否启用代付 1是2否
 	CreateTime     int64  `json:"create_time"`
 	UpdateTime     int64  `json:"update_time"`
-	Type           int    `json:"type"` //1=微信  2=支付宝
 }

@@ -49,15 +49,15 @@ func (this RechargeController) Method(c *gin.Context) {
 // @Param		object	query		request.RechargeMethodInfo	false	"查询参数"
 // @Success	200		{object}	response.Response
 // @Router		/recharge/method_info [get]
-func (this RechargeController) MethodInfo(c *gin.Context) {
-	s := service.RechargeMethodInfo{}
-	if err := c.ShouldBindQuery(&s); err != nil {
-		this.Json(c, 10001, err.Error(), nil)
-		return
-	}
-	this.Json(c, 0, "ok", s.Info())
-	return
-}
+//func (this RechargeController) MethodInfo(c *gin.Context) {
+//	s := service.RechargeMethodInfo{}
+//	if err := c.ShouldBindQuery(&s); err != nil {
+//		this.Json(c, 10001, err.Error(), nil)
+//		return
+//	}
+//	this.Json(c, 0, "ok", s.Info())
+//	return
+//}
 
 // @Summary	充值提交
 // @Tags		充值
