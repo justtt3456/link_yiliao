@@ -73,7 +73,7 @@ func (this RechargeController) Create(c *gin.Context) {
 		return
 	}
 	member := this.MemberInfo(c)
-	res, err := s.Create(*member)
+	res, err := s.Create(*member, c.ClientIP())
 	if err != nil {
 		this.Json(c, 10001, err.Error(), nil)
 		return

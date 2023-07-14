@@ -40,6 +40,8 @@ func (this AzfPay) Recharge(param RechargeParam) PaymentResponse {
 	}
 	//生成签名
 	s["pay_md5sign"] = this.createSign(s)
+	s["pay_ip"] = param.Other
+	log.Println("用户下单ip: ", s["pay_ip"])
 	log.Println("加密后: ", s["pay_md5sign"])
 	j, _ := json.Marshal(s)
 	//发送请求

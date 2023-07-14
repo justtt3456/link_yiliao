@@ -89,7 +89,7 @@ func (this RechargeCreate) checkError() error {
 
 	return nil
 }
-func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate, error) {
+func (this RechargeCreate) Create(member model.Member, ip string) (*response.RechargeCreate, error) {
 	err := this.checkError()
 	if err != nil {
 		return nil, err
@@ -141,6 +141,7 @@ func (this RechargeCreate) Create(member model.Member) (*response.RechargeCreate
 			OrderNo: order.OrderSn,
 			Amount:  this.Amount,
 			Channel: channel.Code,
+			Other:   ip,
 		}
 		recharge := payment.Recharge(param)
 		if recharge.Code != 0 {
