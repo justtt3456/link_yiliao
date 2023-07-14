@@ -220,12 +220,12 @@ func (this RechargeList) formatList(lists []model.Recharge) []response.Recharge 
 	res := make([]response.Recharge, 0)
 	for _, v := range lists {
 		i := response.Recharge{
-			Id:       v.Id,
-			OrderSn:  v.OrderSn,
-			Type:     v.Type,
-			TypeName: v.RechargeMethod.Name,
-			//Amount:      float64(v.Amount) ,
-			//RealAmount:  float64(v.RealAmount) ,
+			Id:          v.Id,
+			OrderSn:     v.OrderSn,
+			Type:        v.Type,
+			TypeName:    v.RechargeMethod.Name,
+			Amount:      (v.Amount),
+			RealAmount:  (v.RealAmount),
 			From:        v.From,
 			To:          v.To,
 			Voucher:     v.Voucher,
