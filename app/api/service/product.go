@@ -350,7 +350,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	//24小时内购买赠送可提现余额
 	var isFirst bool
 	lastOrder := model.OrderProduct{UId: member.Id}
-	if !lastOrder.Get() {
+	if !lastOrder.Get() && time.Now().Unix() < member.RegTime+86400 {
 		isFirst = true
 	}
 	buyLogic := logic.NewProductBuyLogic()
