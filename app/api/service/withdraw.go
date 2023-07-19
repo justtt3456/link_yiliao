@@ -174,14 +174,14 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		return errors.New(fmt.Sprintf(lang.Lang("You can only withdraw %d times per day"), c.WithdrawCount))
 	}
 	//当月未参与投资，不允许提现
-	exist := model.OrderProduct{UId: member.Id}
-	if exist.Get() {
-		if exist.CreateTime+30*86400 < time.Now().Unix() {
-			return errors.New("30天内未激活账户，不允许提现")
-		}
-	} else {
-		return errors.New("30天内未激活账户，不允许提现")
-	}
+	//exist := model.OrderProduct{UId: member.Id}
+	//if exist.Get() {
+	//	if exist.CreateTime+30*86400 < time.Now().Unix() {
+	//		return errors.New("30天内未激活账户，不允许提现")
+	//	}
+	//} else {
+	//	return errors.New("30天内未激活账户，不允许提现")
+	//}
 	//计算手续费
 	fee := c.WithdrawFee.Mul(this.TotalAmount).Div(decimal.NewFromInt(100)).Round(2)
 	//生成提现记录
