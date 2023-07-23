@@ -47,10 +47,11 @@ type Coupon struct {
 }
 
 type MyTeam struct {
-	Id             int             `json:"id"`              //
-	Username       string          `json:"username"`        //用户名
-	RechargeMember int             `json:"recharge_member"` //充值人数
-	BuyMember      int             `json:"buy_member"`      //激活人数
+	Id             int    `json:"id"`              //
+	Username       string `json:"username"`        //用户名
+	RechargeMember int    `json:"recharge_member"` //充值人数
+	//BuyMember      int             `json:"buy_member"`      //激活人数
+	RealName       string          `json:"real_name"`       //实名信息
 	RegisterMember int             `json:"register_member"` //注册人数
 	BuyAmount      decimal.Decimal `json:"buy_amount"`      //投资金额
 	RebateAmount   decimal.Decimal `json:"rebate_amount"`   //返佣金额

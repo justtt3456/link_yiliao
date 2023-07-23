@@ -204,13 +204,13 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 		global.DB.Model(model.MemberParents{}).Select("uid").Where("parent_id = ?", v.Uid).Scan(&ids)
 
 		var childRechargeMember int64
-		var childBuyMember int64
+		//var childBuyMember int64
 		var childBuyAmount float64
 		if len(ids) > 0 {
 			//下级用户总充值人数
 			global.DB.Model(memberModel).Where("total_recharge > ? and id in (?)", 0, ids).Count(&childRechargeMember)
 			//下级用户总激活人数
-			global.DB.Model(memberModel).Where("is_buy = ? and id in (?)", model.StatusOk, ids).Count(&childBuyMember)
+			//global.DB.Model(memberModel).Where("is_buy = ? and id in (?)", model.StatusOk, ids).Count(&childBuyMember)
 		}
 		//用户投资金额
 		global.DB.Model(memberModel).Select("total_buy").Where("id = ?", v.Uid).Scan(&childBuyAmount)
@@ -230,7 +230,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 			Id:             v.Member.Id,
 			Username:       this.parseMobileNumber(v.Member.Username),
 			RechargeMember: int(childRechargeMember),
-			BuyMember:      int(childBuyMember),
+			RealName:       v.Member.RealName,
 			RegisterMember: len(ids),
 			BuyAmount:      decimal.NewFromFloat(childBuyAmount),
 			RebateAmount:   childRebateAmount,
