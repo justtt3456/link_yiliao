@@ -122,6 +122,7 @@ func (this NotifyController) recharge(member model.Member, order model.Recharge)
 	}
 	//上分
 	member.Balance = member.Balance.Add(order.Amount)
+	member.TotalRecharge = member.TotalRecharge.Add(order.Amount)
 	return member.Update("balance")
 	//config := model.SetBase{}
 	//if !config.Get() {
