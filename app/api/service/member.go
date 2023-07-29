@@ -133,9 +133,10 @@ func (this MemberVerified) Verified(member model.Member) error {
 	}
 	//当身份证号已存在时
 	if ex.Get() {
-		return errors.New(lang.Lang("The Id number has been submitted for certification"))
+		if ex.Status == model.StatusAccept || ex.Status == model.StatusReview {
+			return errors.New(lang.Lang("The Id number has been submitted for certification"))
+		}
 	}
-
 	m := model.MemberVerified{
 		UId:      member.Id,
 		RealName: this.RealName,

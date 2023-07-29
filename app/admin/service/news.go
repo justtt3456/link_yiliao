@@ -66,9 +66,9 @@ func (this NewsCreate) Create() error {
 	if this.Content == "" {
 		return errors.New("内容不能为空")
 	}
-	if this.Cover == "" {
-		return errors.New("封面不能为空")
-	}
+	//if this.Cover == "" {
+	//	return errors.New("封面不能为空")
+	//}
 	m := model.News{
 		Title:   this.Title,
 		Content: this.Content,
@@ -97,9 +97,9 @@ func (this NewsUpdate) Update() error {
 	if this.Content == "" {
 		return errors.New("内容不能为空")
 	}
-	if this.Cover == "" {
-		return errors.New("封面不能为空")
-	}
+	//if this.Cover == "" {
+	//	return errors.New("封面不能为空")
+	//}
 	m := model.News{
 		Id: this.Id,
 	}

@@ -47,8 +47,8 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 			//更改用户可提现余额
 			member.WithdrawBalance = member.WithdrawBalance.Add(income)
 			//是否到期返回本金
-			if v.Product.Type == 1 {
-				if now >= v.EndTime {
+			if now >= v.EndTime {
+				if v.Product.Type == 1 {
 					//存入收益列表
 					trade := model.Trade{
 						UId:        v.UId,
@@ -63,9 +63,9 @@ func (this *Award) Income(orders []*model.OrderProduct) {
 					_ = trade.Insert()
 					member.WithdrawBalance = member.WithdrawBalance.Add(v.PayMoney)
 					member.PreCapital = member.PreCapital.Sub(v.PayMoney)
-					v.IsReturnCapital = 1
-					v.Update("is_return_capital")
 				}
+				v.IsReturnCapital = 1
+				v.Update("is_return_capital")
 			}
 			member.PreIncome = member.PreIncome.Sub(income)
 
