@@ -16,6 +16,7 @@ type MemberList struct {
 	EndTime   string `json:"end_time" form:"end_time"`
 	Page      int    `json:"page" form:"page"`
 	PageSize  int    `json:"page_size" form:"page_size"`
+	AgentName string `json:"agent_name" form:"agent_name"`
 }
 type MemberUpdate struct {
 	Id          int    `json:"id"`

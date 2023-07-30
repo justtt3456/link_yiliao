@@ -96,6 +96,14 @@ func (this MemberList) getWhere() (string, []interface{}) {
 	if this.EndTime != "" {
 		where["reg_time <"] = common.DateToUnix(this.EndTime)
 	}
+	if this.AgentName != "" {
+		agent := model.Agent{Account: this.AgentName}
+		if agent.Get() {
+			where["agent_id"] = agent.Id
+		} else {
+			where["agent_id"] = -1
+		}
+	}
 	build, vals, err := common.WhereBuild(where)
 	if err != nil {
 		logrus.Error(err)
