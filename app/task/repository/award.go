@@ -196,8 +196,10 @@ func (this *Award) TeamIncome() {
 				continue
 			}
 			//获取团队代理Id列表
-			orderModel := model.OrderProduct{}
-			userIds := orderModel.GetOrderUserIds(teamStartTime, teamEndTime)
+			userIds := make([]int, 0)
+			global.DB.Model(model.MemberParents{}).Select("uid").Where("parent_id = ?", v).Scan(&userIds)
+			//orderModel := model.OrderProduct{}
+			//userIds := orderModel.GetOrderUserIds(teamStartTime, teamEndTime)
 			count := len(userIds)
 			var rate decimal.Decimal
 			if count >= 2000 {
@@ -212,34 +214,37 @@ func (this *Award) TeamIncome() {
 				continue
 			}
 			var amount float64
-			tx := global.DB.Model(model.OrderProduct{}).Select("COALESCE(sum(pay_money),0)").Where("create_time between ? and ?", teamStartTime, teamEndTime).Scan(&amount)
+			tx := global.DB.Model(model.OrderProduct{}).Select("COALESCE(sum(pay_money),0)").Where("uid in (?) and create_time between ? and ?", userIds, teamStartTime, teamEndTime).Scan(&amount)
 			if tx.Error != nil {
 				logrus.Error(tx.Error)
 				continue
 			}
 			income := rate.Mul(decimal.NewFromFloat(amount)).Div(decimal.NewFromInt(100)).Round(2)
-			//存入收益列表
-			trade := model.Trade{
-				UId:        v,
-				TradeType:  21,
-				ItemId:     0,
-				Amount:     income,
-				Before:     member.WithdrawBalance,
-				After:      member.WithdrawBalance.Add(income),
-				Desc:       "团队收益",
-				CreateTime: now,
-				UpdateTime: now,
-				IsFrontend: 1,
+			if decimal.Zero.LessThan(income) {
+				//存入收益列表
+				trade := model.Trade{
+					UId:        v,
+					TradeType:  21,
+					ItemId:     0,
+					Amount:     income,
+					Before:     member.WithdrawBalance,
+					After:      member.WithdrawBalance.Add(income),
+					Desc:       "团队收益",
+					CreateTime: now,
+					UpdateTime: now,
+					IsFrontend: 1,
+				}
+				_ = trade.Insert()
+				//更改账户余额
+				member.WithdrawBalance = member.WithdrawBalance.Add(income)
+				//更改账户余额
+				member.TotalIncome = member.TotalIncome.Add(income)
+				err := member.Update("total_income", "withdraw_balance")
+				if err != nil {
+					logrus.Error(err)
+				}
 			}
-			_ = trade.Insert()
-			//更改账户余额
-			member.WithdrawBalance = member.WithdrawBalance.Add(income)
-			//更改账户余额
-			member.TotalIncome = member.TotalIncome.Add(income)
-			err := member.Update("total_income", "withdraw_balance")
-			if err != nil {
-				logrus.Error(err)
-			}
+
 		}
 	}
 }
