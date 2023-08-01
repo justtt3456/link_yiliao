@@ -197,7 +197,7 @@ func (this *Award) TeamIncome() {
 			}
 			//获取团队代理Id列表
 			userIds := make([]int, 0)
-			global.DB.Model(model.MemberParents{}).Select("uid").Where("parent_id = ?", v).Scan(&userIds)
+			global.DB.Model(model.MemberParents{}).Select("uid").Where("parent_id = ? and level <= 3", v).Scan(&userIds)
 			//orderModel := model.OrderProduct{}
 			//userIds := orderModel.GetOrderUserIds(teamStartTime, teamEndTime)
 			count := len(userIds)
