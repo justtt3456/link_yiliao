@@ -25,7 +25,6 @@ type Member struct {
 	InvestFreeze      decimal.Decimal `gorm:"column:invest_freeze"`           //余额宝冻结金额
 	InvestAmount      decimal.Decimal `gorm:"column:invest_amount"`           //余额宝有效金额
 	InvestIncome      decimal.Decimal `gorm:"column:invest_income"`           //余额宝总收益
-	Avatar            string          `gorm:"column:avatar"`                  //头像
 	Status            int             `gorm:"column:status"`                  //帐号启用状态，1启用2禁用
 	FundsStatus       int             `gorm:"column:funds_status"`            //资金冻结状态
 	Level             int             `gorm:"column:level"`                   //等级
@@ -131,18 +130,18 @@ func (this *Member) Info() *response.Member {
 		this.WithdrawThreshold = config.EquityRate.Mul(score).Div(decimal.NewFromInt(100)).Round(2)
 	}
 	return &response.Member{
-		Id:                  this.Id,
-		Username:            username,
-		Balance:             this.Balance,
-		WithdrawBalance:     this.WithdrawBalance,
-		IsReal:              this.IsReal,
-		RealName:            mv.RealName,
-		IdNumber:            mv.IdNumber,
-		Mobile:              mobile,
-		InvestFreeze:        this.InvestFreeze,
-		InvestAmount:        this.InvestAmount,
-		InvestIncome:        this.InvestIncome,
-		Avatar:              this.Avatar,
+		Id:              this.Id,
+		Username:        username,
+		Balance:         this.Balance,
+		WithdrawBalance: this.WithdrawBalance,
+		IsReal:          this.IsReal,
+		RealName:        mv.RealName,
+		IdNumber:        mv.IdNumber,
+		Mobile:          mobile,
+		InvestFreeze:    this.InvestFreeze,
+		InvestAmount:    this.InvestAmount,
+		InvestIncome:    this.InvestIncome,
+		//Avatar:              this.Avatar,
 		Status:              this.Status,
 		FundsStatus:         this.FundsStatus,
 		Level:               this.Level,

@@ -31,10 +31,11 @@ func (this Member) UpdateInfo(member *model.Member) error {
 	//if this.Wechat != "" {
 	//	member.Wechat = this.Wechat
 	//}
-	if this.Avatar != "" {
-		member.Avatar = this.Avatar
-	}
-	return member.Update("nickname", "email", "qq", "wechat", "avatar")
+	//if this.Avatar != "" {
+	//member.Avatar = this.Avatar
+	//}
+	//return member.Update("nickname", "email", "qq", "wechat", "avatar")
+	return nil
 }
 func (this Member) Logout(member *model.Member) error {
 	member.Token = ""

@@ -196,8 +196,12 @@ func (this *Award) TeamIncome() {
 				continue
 			}
 			//获取团队代理Id列表
+			mps := make([]model.MemberParents, 0)
+			global.DB.Model(model.MemberParents{}).Joins("Member").Where("parent_id = ? and c_member_parents.level <= 3 and Member.is_buy = 1", v).Find(&mps)
 			userIds := make([]int, 0)
-			global.DB.Model(model.MemberParents{}).Select("uid").Where("parent_id = ? and level <= 3", v).Scan(&userIds)
+			for _, m := range mps {
+				userIds = append(userIds, m.Uid)
+			}
 			//orderModel := model.OrderProduct{}
 			//userIds := orderModel.GetOrderUserIds(teamStartTime, teamEndTime)
 			count := len(userIds)
