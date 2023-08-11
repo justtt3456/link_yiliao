@@ -1,4 +1,4 @@
-package extends
+package global
 
 import (
 	"fmt"
