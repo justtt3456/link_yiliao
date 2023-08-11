@@ -79,7 +79,7 @@ func (this LoginController) SendCode(c *gin.Context) {
 		return
 	}
 	if !common.CaptchaVerify(c, s.Code) {
-		this.Json(c, 10001, "验证码错误", nil)
+		this.Json(c, 10001, "图形验证码错误", nil)
 		return
 	}
 	sms := extends.SmsBao{}

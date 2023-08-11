@@ -1,9 +1,10 @@
 package common
 
 import (
+	"china-russia/global"
 	"github.com/afocus/captcha"
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"image/color"
 	"image/png"
@@ -18,14 +19,16 @@ func Session(keyPairs string) gin.HandlerFunc {
 	return sessions.Sessions(keyPairs, store)
 }
 func SessionConfig() sessions.Store {
-	sessionMaxAge := 3600
-	sessionSecret := "topgoer"
-	var store sessions.Store
-	store = cookie.NewStore([]byte(sessionSecret))
-	store.Options(sessions.Options{
-		MaxAge: sessionMaxAge, //seconds
-		Path:   "/",
-	})
+	store, _ := redis.NewStore(10, "tcp", global.CONFIG.Redis.Addr, global.CONFIG.Redis.Password, []byte("topgoer"))
+	//
+	//sessionMaxAge := 3600
+	//sessionSecret := "topgoer"
+	//var store sessions.Store
+	//store = cookie.NewStore([]byte(sessionSecret))
+	//store.Options(sessions.Options{
+	//	MaxAge: sessionMaxAge, //seconds
+	//	Path:   "/",
+	//})
 	return store
 }
 
@@ -50,7 +53,7 @@ func CaptchaVerify(c *gin.Context, code string) bool {
 	session := sessions.Default(c)
 	captchaId := session.Get("captcha")
 	log.Println(captchaId, code)
-	if captchaId := session.Get("captcha"); captchaId != nil {
+	if captchaId != nil {
 		session.Delete("captcha")
 		_ = session.Save()
 		if captchaId.(string) == code {

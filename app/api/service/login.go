@@ -99,9 +99,10 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 		return nil, errors.New(lang.Lang("Invitation code cannot be empty"))
 	}
 	//验证码
-	//if !common.CaptchaVerify(c, this.Code) {
-	//	return nil, errors.New("验证码错误")
-	//}
+	if this.Code != global.REDIS.Get(this.Username).Val() {
+		return nil, errors.New(lang.Lang("Verification code error"))
+	}
+	global.REDIS.Del(this.Username)
 	//检查邀请码
 	invite := model.InviteCode{
 		Code: this.InviteCode,
