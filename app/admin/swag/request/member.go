@@ -40,7 +40,8 @@ type MemberUpdateStatus struct {
 }
 type MemberVerifiedList struct {
 	Username string `json:"username" form:"username"` //用户名
-	Status   int    `json:"status" form:"status"`     //状态 1审核中 2通过 3驳回
+	RealName string `json:"real_name" form:"real_name"`
+	Status   int    `json:"status" form:"status"` //状态 1审核中 2通过 3驳回
 	Page     int    `json:"page" form:"page"`
 	PageSize int    `json:"page_size" form:"page_size"`
 }

@@ -7,7 +7,6 @@ import (
 	"china-russia/global"
 	"china-russia/model"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
 
@@ -266,6 +265,9 @@ func (this MemberVerifiedList) getWhere() (string, []interface{}) {
 	where := map[string]interface{}{}
 	if this.Username != "" {
 		where["Member.username"] = this.Username
+	}
+	if this.RealName != "" {
+		where[model.MemberVerified{}.TableName()+".real_name"] = this.RealName
 	}
 	if this.Status > 0 {
 		where[model.MemberVerified{}.TableName()+".status"] = this.Status
@@ -556,5 +558,5 @@ type GetCode struct {
 }
 
 func (this *GetCode) GetCode() string {
-	return global.REDIS.Get(fmt.Sprintf("reg_%v", this.Mobile)).Val()
+	return global.REDIS.Get(this.Mobile).Val()
 }
