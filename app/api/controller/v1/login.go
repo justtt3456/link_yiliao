@@ -78,7 +78,7 @@ func (this LoginController) SendCode(c *gin.Context) {
 		this.Json(c, 10001, "手机号必传", nil)
 		return
 	}
-	if !common.CaptchaVerify(c, s.Code) {
+	if !common.CaptchaVerify(c, s.Time, s.Code) {
 		this.Json(c, 10001, "图形验证码错误", nil)
 		return
 	}
