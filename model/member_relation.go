@@ -7,6 +7,7 @@ import (
 )
 
 type MemberParents struct {
+	Id             int            `gorm:"column:id"`
 	Uid            int            `gorm:"column:uid" db:"uid" json:"uid" form:"uid"`                         //查询祖先
 	ParentId       int            `gorm:"column:parent_id" db:"parent_id" json:"parent_id" form:"parent_id"` //查询后代
 	Level          int            `gorm:"column:level" db:"level" json:"level" form:"level"`

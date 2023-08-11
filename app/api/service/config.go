@@ -29,6 +29,9 @@ func (this Config) Get() response.Config {
 			RegisterDesc:  base.RegisterDesc,
 			TeamDesc:      base.TeamDesc,
 			IsEquityScore: equityScore,
+			DownloadUrl:   base.DownloadUrl,
+			UsdtBuyRate:   base.UsdtBuyRate,
+			UsdtSellRate:  base.UsdtSellRate,
 		}
 	}
 	funds := model.SetFunds{}

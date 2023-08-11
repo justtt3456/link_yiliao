@@ -18,7 +18,7 @@ func (s PublicRouter) InitRouter(r *gin.RouterGroup) {
 	r.Use(common.Session("topgoer"))
 	r.POST("login", c.Login)
 	r.POST("register", c.Register)
-	r.POST("sendCode", c.SendCode)
+	r.POST("send_sms", c.SendSms)
 	r.GET("captcha", func(c *gin.Context) {
 		common.Captcha(c, 4)
 	})

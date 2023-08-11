@@ -1,7 +1,6 @@
 package global
 
 import (
-	"china-russia/extends"
 	"github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -18,7 +17,7 @@ func Log() {
 		rotatelogs.WithRotationTime(24*time.Hour), // 日志切割时间间隔
 	)
 
-	hook := extends.NewHook(extends.WriterMap{
+	hook := NewHook(WriterMap{
 		logrus.ErrorLevel: err,
 		logrus.FatalLevel: err,
 		logrus.PanicLevel: err,

@@ -29,7 +29,10 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	r.POST("member_bank/update", memberBank.Update)
 	r.POST("member_bank/remove", memberBank.Remove)
 	r.GET("member_bank/list", memberBank.List)
-
+	//用户usdt
+	memberUsdt := v1.MemberUsdtController{}
+	r.GET("member_usdt/list", memberUsdt.List)
+	r.POST("member_usdt/create", memberUsdt.Create)
 	//产品列表
 	product := v1.ProductController{}
 	r.GET("product/category", product.Category)

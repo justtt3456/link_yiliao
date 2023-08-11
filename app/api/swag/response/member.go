@@ -12,6 +12,7 @@ type Member struct {
 	Username string `json:"username"` //手机号
 	//TotalBalance        decimal.Decimal `json:"total_balance"`         //可用余额
 	Balance             decimal.Decimal `json:"balance"`            //可用余额
+	UsdtBalance         decimal.Decimal `json:"usdt_balance"`       //usdt余额
 	WithdrawBalance     decimal.Decimal `json:"withdraw_balance"`   //可提现余额
 	WithdrawThreshold   decimal.Decimal `json:"withdraw_threshold"` //可提现额度
 	IsReal              int             `json:"is_real"`            //是否实名 0未实名 1审核中 2通过 3驳回

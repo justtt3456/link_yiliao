@@ -5,10 +5,10 @@ import (
 	"china-russia/app/api/service"
 	"china-russia/app/api/swag/request"
 	"china-russia/common"
+	"china-russia/extends"
 	"china-russia/global"
-	"fmt"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 type LoginController struct {
@@ -67,58 +67,35 @@ func (this LoginController) Register(c *gin.Context) {
 // @Produce	application/json
 // @Param		object	body		request.SendCode	false	"查询参数"
 // @Success	200		{object}	response.Response
-// @Router		/sendCode [post]
-func (this LoginController) SendCode(c *gin.Context) {
+// @Router		/send_sms [post]
+func (this LoginController) SendSms(c *gin.Context) {
 	s := request.SendCode{}
 	err := c.ShouldBindJSON(&s)
 	if err != nil {
 		this.Json(c, 10001, err.Error(), nil)
 		return
 	}
-	if s.Username == "" {
-		this.Json(c, 10001, "手机号必传", nil)
+	//验证码
+	if !common.CaptchaVerify(c, s.Code) {
+		this.Json(c, 10001, "验证码错误", nil)
 		return
 	}
-
 	if !common.IsMobile(s.Username, global.Language) {
 		this.Json(c, 10001, "手机号必传", nil)
 		return
 	}
-
-	var code string
-	if global.CONFIG.Sms.Phone.Dev {
-		code = "1111"
-	} else {
-		code = common.RandIntRunes(4)
-		msg := fmt.Sprintf(global.CONFIG.Sms.Phone.Sign, code)
-		param := map[string]string{
-			"u": global.CONFIG.Sms.Phone.Username,
-			"p": common.Md5String(global.CONFIG.Sms.Phone.Password),
-			"m": s.Username,
-			"c": msg,
-		}
-		b, err := common.GetParam(global.CONFIG.Sms.Phone.Url, param, nil, nil)
-		if err != nil {
-			this.Json(c, 10001, err.Error(), nil)
-			return
-		}
-		if string(b) != "0" {
-			this.Json(c, 10001, "发送失败", nil)
-			return
-		}
-	}
-
-	var key string
-	if s.Type == 1 {
-		key = fmt.Sprintf("reg_%v", s.Username)
-	} else {
-		key = fmt.Sprintf("forget_%v", s.Username)
-	}
-	if global.REDIS.Get(key).Val() != "" {
-		this.Json(c, 0, "验证码已发送，请间隔5分钟再尝试", nil)
+	redis := model.Redis{}
+	if err := redis.Lock("lock:" + s.Username); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
 		return
 	}
-	global.REDIS.Set(key, code, 300*time.Second)
+	defer redis.Unlock("lock:" + s.Username)
+	sms := extends.SmsBao{}
+	err = sms.Send(s.Username)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
 	this.Json(c, 0, "发送成功", nil)
 	return
 }

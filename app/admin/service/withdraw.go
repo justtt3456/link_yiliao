@@ -115,6 +115,7 @@ func (this WithdrawUpdateService) Update() error {
 		}
 		switch this.Status {
 		case model.StatusRollback:
+			//method := model.WithdrawMethod{Id: m.UId}
 			//生成账单
 			trade := model.Trade{
 				UId:       m.UId,

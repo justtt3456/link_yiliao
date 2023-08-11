@@ -108,10 +108,10 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	if this.Id == 0 {
 		return errors.New(lang.Lang("Bank card does not exist"))
 	}
-	memberBank := model.MemberBank{Id: this.Id}
-	if !memberBank.Get() {
-		return errors.New(lang.Lang("Bank card does not exist"))
-	}
+	//memberBank := model.MemberBank{Id: this.Id}
+	//if !memberBank.Get() {
+	//	return errors.New(lang.Lang("Bank card does not exist"))
+	//}
 	//验证交易密码
 	if common.Md5String(this.WithdrawPassword+member.WithdrawSalt) != member.WithdrawPassword {
 		return errors.New(lang.Lang("Incorrect withdraw password"))
@@ -121,6 +121,7 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	if !method.Get() {
 		return errors.New(lang.Lang("Wrong withdrawal method"))
 	}
+
 	//提现时间 金额验证
 	c := model.SetFunds{}
 	if c.Get() {
@@ -184,22 +185,51 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	//}
 	//计算手续费
 	fee := c.WithdrawFee.Mul(this.TotalAmount).Div(decimal.NewFromInt(100)).Round(2)
+	var bankName string
+	var branchBank string
+	var realName string
+	var cardNumber string
+	var bankPhone string
+	var usdtAmount decimal.Decimal
+	var realAmount decimal.Decimal
+	switch method.Code {
+	case "bank":
+		bank := model.MemberBank{Id: this.Id}
+		if !bank.Get() {
+			return errors.New("银行卡不存在")
+		}
+		bankName = bank.BankName
+		branchBank = bank.BranchBank
+		realName = bank.RealName
+		cardNumber = bank.CardNumber
+		bankPhone = bank.BankPhone
+		realAmount = this.TotalAmount.Sub(fee)
+	case "usdt":
+		usdt := model.MemberUsdt{Id: this.Id}
+		if !usdt.Get() {
+			return errors.New("usdt地址不存在")
+		}
+		bankName = usdt.Protocol
+		cardNumber = usdt.Address
+		//usdtAmount = this.TotalAmount.Sub(fee).Div(config.UsdtRate).Round(2)
+		//realAmount = this.TotalAmount.Div(config.UsdtRate).Round(2)
+	}
 	//生成提现记录
 	order := model.Withdraw{
 		UId:          member.Id,
 		WithdrawType: this.Method,
-		BankName:     memberBank.BankName,
-		BranchBank:   memberBank.BranchBank,
-		RealName:     memberBank.RealName,
-		CardNumber:   memberBank.CardNumber,
-		BankPhone:    memberBank.BankPhone,
-		Amount:       this.TotalAmount.Sub(fee),
+		BankName:     bankName,
+		BranchBank:   branchBank,
+		RealName:     realName,
+		CardNumber:   cardNumber,
+		BankPhone:    bankPhone,
+		Amount:       realAmount,
 		Fee:          fee,
 		TotalAmount:  this.TotalAmount,
 		Status:       model.StatusReview,
 		OrderSn:      common.OrderSn(),
+		UsdtAmount:   usdtAmount,
 	}
-
 	if err := tx.Create(&order).Error; err != nil {
 		//解锁
 		//redisLock.Unlock(lockKey)

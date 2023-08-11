@@ -54,7 +54,7 @@ func Run() {
 	ga.POST("role/remove", role.Remove)
 	//权限
 	permission := v1.PermissionController{}
-	ga.GET("/permission/list", permission.List)
+	ga.GET("permission/list", permission.List)
 	ga.POST("permission/create", permission.Create)
 	ga.POST("permission/update", permission.Update)
 	ga.POST("permission/remove", permission.Remove)
@@ -75,6 +75,10 @@ func Run() {
 	ga.GET("member/bankcard/list", member.BankCardList)
 	ga.POST("member/bankcard/update", member.UpdateBankCard)
 	ga.POST("member/bankcard/remove", member.RemoveBankCard)
+	//用户usdt
+	ga.GET("member_usdt/list", member.UsdtList)
+	ga.POST("member_usdt/update", member.UpdateUsdt)
+	ga.POST("member_usdt/remove", member.RemoveUsdt)
 	//用户实名认证
 	ga.GET("member/verified/page_list", member.VerifiedPageList)
 	ga.POST("member/verified/update", member.UpdateVerified)
@@ -106,6 +110,12 @@ func Run() {
 	ga.POST("config/bank/update", config.BankUpdate)
 	ga.POST("config/bank/update_status", config.BankUpdateStatus)
 	ga.POST("config/bank/remove", config.BankRemove)
+	//收款usdt
+	ga.GET("config/usdt/list", config.UsdtList)
+	ga.POST("config/usdt/create", config.UsdtCreate)
+	ga.POST("config/usdt/update", config.UsdtUpdate)
+	ga.POST("config/usdt/update_status", config.UsdtUpdateStatus)
+	ga.POST("config/usdt/remove", config.UsdtRemove)
 	//客服
 	ga.GET("config/kf/list", config.KfList)
 	ga.POST("config/kf/update", config.KfUpdate)
