@@ -26,6 +26,7 @@ type Base struct {
 	RegisterDesc  string          `json:"register_desc"`   //注册好礼描述
 	TeamDesc      string          `json:"team_desc"`       //团队奖励描述
 	IsEquityScore int             `json:"is_equity_score"` //股权分是否开启
+	DownloadUrl   string          `json:"download_url"`    //下载链接
 
 }
 type Funds struct {
