@@ -29,6 +29,7 @@ type SetBase struct {
 	ThreeReleaseRate  decimal.Decimal `gorm:"column:three_release_rate"`  //三级代理释放比例
 	IncomeBalanceRate decimal.Decimal `gorm:"column:income_balance_rate"` //收益转可用余额比例
 	SignRewards       decimal.Decimal `gorm:"column:sign_rewards"`        //签到奖励
+	DownloadUrl       string          `gorm:"column:download_url"`        //下载链接
 }
 
 // TableName sets the insert table name for this struct type

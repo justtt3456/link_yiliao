@@ -25,6 +25,7 @@ type ConfigBaseUpdate struct {
 	EquityRate        decimal.Decimal `json:"equity_rate"`         //股权分额度比例
 	EquityInterval    int             `json:"equity_interval"`     //股权分收益天数
 	EquityIncomeRate  decimal.Decimal `json:"equity_income_rate"`  //股权分收益比例
+	DownloadUrl       string          `json:"download_url"`
 }
 
 type ConfigFundsUpdate struct {

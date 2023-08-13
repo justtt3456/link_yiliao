@@ -30,6 +30,9 @@ type ConfigBase struct {
 	EquityRate        decimal.Decimal `json:"equity_rate"`         //股权分额度比例
 	EquityInterval    int             `json:"equity_interval"`     //股权分收益天数
 	EquityIncomeRate  decimal.Decimal `json:"equity_income_rate"`  //股权分收益比例
+	DownloadUrl       string          `json:"download_url"`        //下载链接
+	//UsdtBuyRate       decimal.Decimal `json:"usdt_buy_rate"`       //usdt买汇率
+	//UsdtSellRate      decimal.Decimal `json:"usdt_sell_rate"`      //usdt卖汇率
 }
 type ConfigFundsResponse struct {
 	Code int         `json:"code"`

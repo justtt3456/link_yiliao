@@ -68,7 +68,7 @@ func (this *News) PageList(where string, args []interface{}, page, pageSize int)
 	}
 	if total > 0 {
 		offset := (page - 1) * pageSize
-		tx := global.DB.Model(this).Where(where, args...).Limit(pageSize).Offset(offset).Order("sort desc").Find(&res)
+		tx := global.DB.Model(this).Where(where, args...).Limit(pageSize).Offset(offset).Order("id desc").Find(&res)
 		if tx.Error != nil {
 			logrus.Error(tx.Error)
 			return res, pageUtil

@@ -38,6 +38,7 @@ func (this ConfigBase) Get() (*response.ConfigBase, error) {
 		EquityRate:        base.EquityRate,
 		EquityInterval:    base.EquityInterval,
 		EquityIncomeRate:  base.EquityIncomeRate,
+		DownloadUrl:       base.DownloadUrl,
 	}, nil
 }
 
@@ -71,6 +72,7 @@ func (this ConfigBaseUpdate) Update() error {
 			EquityRate:        this.EquityRate,
 			EquityInterval:    this.EquityInterval,
 			EquityIncomeRate:  this.EquityIncomeRate,
+			DownloadUrl:       this.DownloadUrl,
 		}
 		return c.Insert()
 	} else {
@@ -97,6 +99,7 @@ func (this ConfigBaseUpdate) Update() error {
 		conf.EquityRate = this.EquityRate
 		conf.EquityInterval = this.EquityInterval
 		conf.EquityIncomeRate = this.EquityIncomeRate
+		conf.DownloadUrl = this.DownloadUrl
 		return conf.Update()
 	}
 }
