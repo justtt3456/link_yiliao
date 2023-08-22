@@ -33,6 +33,7 @@ type ConfigBase struct {
 	DownloadUrl       string          `json:"download_url"`        //下载链接
 	UsdtBuyRate       decimal.Decimal `json:"usdt_buy_rate"`       //usdt买汇率
 	UsdtSellRate      decimal.Decimal `json:"usdt_sell_rate"`      //usdt卖汇率
+
 }
 type ConfigFundsResponse struct {
 	Code int         `json:"code"`

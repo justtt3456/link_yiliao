@@ -75,11 +75,6 @@ func (this LoginController) SendSms(c *gin.Context) {
 		this.Json(c, 10001, err.Error(), nil)
 		return
 	}
-	//验证码
-	if !common.CaptchaVerify(c, s.Code) {
-		this.Json(c, 10001, "验证码错误", nil)
-		return
-	}
 	if !common.IsMobile(s.Username, global.Language) {
 		this.Json(c, 10001, "手机号必传", nil)
 		return
@@ -90,6 +85,10 @@ func (this LoginController) SendSms(c *gin.Context) {
 		return
 	}
 	defer redis.Unlock("lock:" + s.Username)
+	if !common.CaptchaVerify(c, s.Time, s.Code) {
+		this.Json(c, 10001, "图形验证码错误", nil)
+		return
+	}
 	sms := extends.SmsBao{}
 	err = sms.Send(s.Username)
 	if err != nil {

@@ -21,4 +21,5 @@ type Help struct {
 type SendCode struct {
 	Username string `json:"username"` //用户名（手机号）
 	Code     string `json:"code"`     //
+	Time     int64  `json:"time"`     //
 }
