@@ -8,10 +8,8 @@ import (
 	"china-russia/lang"
 	"china-russia/model"
 	"errors"
-	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type Member struct {
@@ -257,106 +255,99 @@ type MemberTransfer struct {
 }
 
 func (this *MemberTransfer) Transfer(member *model.Member) error {
-	//1=可用转可提  2=可提转可用
-	c := model.SetFunds{}
-	c.Get()
+	redis := model.Redis{}
+	if err := redis.Lock("lock:" + member.Username); err != nil {
+		return errors.New("操作频繁")
+	}
+	defer redis.Unlock("lock:" + member.Username)
+
 	if this.Amount.LessThanOrEqual(decimal.Zero) {
 		return errors.New("金额必须大于0")
 	}
-	if common.Md5String(this.TransferPwd+member.WithdrawSalt) != member.WithdrawPassword {
-		return errors.New("交易密码错误")
-	}
-
+	//if common.Md5String(this.TransferPwd+member.WithdrawSalt) != member.WithdrawPassword {
+	//	return errors.New("交易密码错误")
+	//}
+	c := model.SetBase{}
+	c.Get()
 	switch this.Type {
-	//case 1:
-	//	trade := model.Trade{UId: member.Id, TradeType: 5}
-	//	count, err := trade.CountByToday()
-	//	if err != nil {
-	//		return err
-	//	}
-	//	if count >= c.DayTurnMoneyNum {
-	//		return errors.New(fmt.Sprintf("每日只能转%v次", c.DayTurnMoneyNum))
-	//	}
-	//	member.Balance -= amount
-	//	member.WithdrawBalance += amount
-	//	err = member.Update("balance", "withdraw_balance")
-	//	if err != nil {
-	//		return err
-	//	}
-	//	//加入账单
-	//	inc := model.Trade{
-	//		UId:        member.Id,
-	//		TradeType:  5,
-	//		Amount:     amount,
-	//		Before:     member.WithdrawBalance - amount,
-	//		After:      member.WithdrawBalance,
-	//		Desc:       "可用转可提",
-	//		CreateTime: time.Now().Unix(),
-	//		UpdateTime: time.Now().Unix(),
-	//		IsFrontend: 1,
-	//	}
-	//	err = inc.Insert()
-	//	if err != nil {
-	//		logrus.Errorf("可用转可提 记录失败%v", err)
-	//	}
-	case 2:
-		//当前余额分析
-		if this.Amount.LessThan(member.WithdrawBalance) {
-			return errors.New("可用提现金额不足!")
+	case 1: //U转R
+		if member.UsdtBalance.LessThan(this.Amount) {
+			return errors.New("usdt账户余额不足")
 		}
-		trade := model.Trade{UId: member.Id, TradeType: 6}
-		count, err := trade.CountByToday()
-		if err != nil {
-			return err
-		}
-		if count >= c.DayTurnMoneyNum {
-			return errors.New(fmt.Sprintf("每日只能转账%v次", c.DayTurnMoneyNum))
-		}
-
-		member.WithdrawBalance = member.WithdrawBalance.Sub(this.Amount)
-		member.Balance = member.Balance.Add(this.Amount)
-		err = member.Update("balance", "withdraw_balance")
+		amount := this.Amount.Mul(c.UsdtSellRate)
+		member.Balance = member.Balance.Add(amount)
+		member.UsdtBalance = member.UsdtBalance.Sub(this.Amount)
+		err := member.Update("balance", "usdt_balance")
 		if err != nil {
 			return err
 		}
 		//加入账单
-		inc := model.Trade{
+		usdt := model.Trade{
 			UId:        member.Id,
-			TradeType:  6,
+			TradeType:  5,
 			Amount:     this.Amount,
-			Before:     member.Balance.Sub(this.Amount),
-			After:      member.Balance,
-			Desc:       "可提转可用",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
+			Before:     member.UsdtBalance.Add(this.Amount),
+			After:      member.UsdtBalance,
+			Desc:       "usdt转cny",
 			IsFrontend: 1,
 		}
-		err = inc.Insert()
+		err = usdt.Insert()
 		if err != nil {
-			logrus.Errorf("可提转可用 记录失败%v", err)
+			logrus.Errorf("usdt转cny 记录失败%v", err)
 		}
-		//额外赠送
-		extraAmount := this.Amount.Mul(decimal.NewFromFloat(0.05))
-		extra := model.Trade{
+		cny := model.Trade{
 			UId:        member.Id,
-			TradeType:  6,
-			Amount:     extraAmount,
-			Before:     member.Balance,
-			After:      member.Balance.Add(extraAmount),
-			Desc:       "可提转可用补贴金",
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
+			TradeType:  5,
+			Amount:     amount,
+			Before:     member.Balance.Sub(amount),
+			After:      member.Balance,
+			Desc:       "usdt转cny",
 			IsFrontend: 1,
 		}
-		err = extra.Insert()
+		err = cny.Insert()
 		if err != nil {
-			logrus.Errorf("可提转可用补贴金 记录失败%v", err)
+			logrus.Errorf("usdt转cny 记录失败%v", err)
 		}
-		member.Balance = member.Balance.Add(extraAmount)
-		err = member.Update("balance")
+
+	case 2: //R转U
+		amount := this.Amount.Div(c.UsdtBuyRate)
+		if member.Balance.LessThan(this.Amount) {
+			return errors.New("账户余额不足")
+		}
+		member.Balance = member.Balance.Sub(this.Amount)
+		member.UsdtBalance = member.UsdtBalance.Add(amount)
+		err := member.Update("balance", "usdt_balance")
 		if err != nil {
 			return err
 		}
+		//加入账单
+		cny := model.Trade{
+			UId:        member.Id,
+			TradeType:  5,
+			Amount:     this.Amount,
+			Before:     member.Balance.Add(this.Amount),
+			After:      member.Balance,
+			Desc:       "cny转usdt",
+			IsFrontend: 1,
+		}
+		err = cny.Insert()
+		if err != nil {
+			logrus.Errorf("cny转usdt 记录失败%v", err)
+		}
+		usdt := model.Trade{
+			UId:        member.Id,
+			TradeType:  5,
+			Amount:     amount,
+			Before:     member.UsdtBalance.Sub(amount),
+			After:      member.UsdtBalance,
+			Desc:       "cny转usdt",
+			IsFrontend: 1,
+		}
+		err = usdt.Insert()
+		if err != nil {
+			logrus.Errorf("cny转usdt 记录失败%v", err)
+		}
+
 	}
 	return nil
 }

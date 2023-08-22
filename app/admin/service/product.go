@@ -104,9 +104,9 @@ func (this ProductCreate) Create() error {
 	if this.LimitBuy == 0 {
 		return errors.New("限购数量不能为空")
 	}
-	if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
-		return errors.New("提现额度比例不能为空")
-	}
+	//if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
+	//	return errors.New("提现额度比例不能为空")
+	//}
 	if this.IsHot == 0 {
 		return errors.New("是否热门不能为空")
 	}
@@ -200,9 +200,9 @@ func (this ProductUpdate) Update() error {
 	if this.LimitBuy == 0 {
 		return errors.New("限购数量不能为空")
 	}
-	if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
-		return errors.New("提现额度比例不能为空")
-	}
+	//if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
+	//	return errors.New("提现额度比例不能为空")
+	//}
 	if this.IsHot == 0 {
 		return errors.New("是否热门不能为空")
 	}

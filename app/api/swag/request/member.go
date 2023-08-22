@@ -24,7 +24,7 @@ type MemberVerified struct {
 }
 
 type MemberTransfer struct {
-	Type        int             `json:"type"`         // 1=可用转可提  2=可提转可用
+	Type        int             `json:"type"`         // //1=U转R  2=R转U
 	Amount      decimal.Decimal `json:"amount"`       // 金额
 	TransferPwd string          `json:"transfer_pwd"` // 交易密码
 }
