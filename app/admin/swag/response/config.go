@@ -31,8 +31,9 @@ type ConfigBase struct {
 	EquityInterval    int             `json:"equity_interval"`     //股权分收益天数
 	EquityIncomeRate  decimal.Decimal `json:"equity_income_rate"`  //股权分收益比例
 	DownloadUrl       string          `json:"download_url"`        //下载链接
-	//UsdtBuyRate       decimal.Decimal `json:"usdt_buy_rate"`       //usdt买汇率
-	//UsdtSellRate      decimal.Decimal `json:"usdt_sell_rate"`      //usdt卖汇率
+	UsdtBuyRate       decimal.Decimal `json:"usdt_buy_rate"`       //usdt买汇率
+	UsdtSellRate      decimal.Decimal `json:"usdt_sell_rate"`      //usdt卖汇率
+
 }
 type ConfigFundsResponse struct {
 	Code int         `json:"code"`
@@ -105,7 +106,7 @@ type ConfigUsdt struct {
 	Id         int    `json:"id"`          //
 	Address    string `json:"address"`     //
 	Status     int    `json:"status"`      //
-	Proto      int    `json:"proto"`       //协议 1 ERC20 2 TRC20
+	Proto      string `json:"proto"`       //协议  ERC20  TRC20
 	CreateTime int64  `json:"create_time"` //
 	UpdateTime int64  `json:"update_time"` //
 }

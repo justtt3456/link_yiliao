@@ -13,7 +13,7 @@ type SetUsdt struct {
 	Id         int    `gorm:"column:id;primary_key"`             //
 	Address    string `gorm:"column:address"`                    //
 	Status     int    `gorm:"column:status"`                     //
-	Proto      int    `gorm:"column:proto"`                      //协议 1 ERC20 2 TRC20
+	Proto      string `gorm:"column:proto"`                      //协议 ERC20 TRC20
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //
 }

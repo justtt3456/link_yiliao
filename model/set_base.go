@@ -30,6 +30,8 @@ type SetBase struct {
 	IncomeBalanceRate decimal.Decimal `gorm:"column:income_balance_rate"` //收益转可用余额比例
 	SignRewards       decimal.Decimal `gorm:"column:sign_rewards"`        //签到奖励
 	DownloadUrl       string          `gorm:"column:download_url"`        //下载链接
+	UsdtBuyRate       decimal.Decimal `gorm:"column:usdt_buy_rate"`       //usdt买汇率
+	UsdtSellRate      decimal.Decimal `gorm:"column:usdt_sell_rate"`      //usdt卖汇率
 }
 
 // TableName sets the insert table name for this struct type

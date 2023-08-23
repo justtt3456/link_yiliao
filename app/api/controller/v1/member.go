@@ -154,35 +154,13 @@ func (this MemberController) Team(c *gin.Context) {
 	return
 }
 
-// @Summary	可用和可提  余额互转
+// @Summary	usdt cny余额互转
 // @Tags		用户
 // @Param		token	header		string					false	"用户令牌"
 // @Param		object	body		request.MemberTransfer	false	"查询参数"
 // @Success	200		{object}	response.MyTeamList
 // @Router		/member/transfer [post]
 func (this MemberController) Transfer(c *gin.Context) {
-	s := service.MemberTransfer{}
-	if err := c.ShouldBindJSON(&s); err != nil {
-		this.Json(c, 10001, err.Error(), nil)
-		return
-	}
-	member := this.MemberInfo(c)
-	err := s.Transfer(member)
-	if err != nil {
-		this.Json(c, 10001, err.Error(), nil)
-		return
-	}
-	this.Json(c, 0, "ok", nil)
-	return
-}
-
-// @Summary	可用和可提  余额互转
-// @Tags		用户
-// @Param		token	header		string					false	"用户令牌"
-// @Param		object	body		request.MemberTransfer	false	"查询参数"
-// @Success	200		{object}	response.MyTeamList
-// @Router		/member/transfer [post]
-func (this MemberController) MemberCoupon(c *gin.Context) {
 	s := service.MemberTransfer{}
 	if err := c.ShouldBindJSON(&s); err != nil {
 		this.Json(c, 10001, err.Error(), nil)

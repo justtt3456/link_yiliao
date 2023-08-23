@@ -113,7 +113,10 @@ func (this RechargeUpdate) Update(admin model.Admin) error {
 		}
 		if this.Status == model.StatusAccept {
 			r := RechargeHandle{}
-			r.Recharge(member, m.Id, m.Amount, 1, 3, 1)
+			err := r.Recharge(member, m, m.Amount, 1, 3, 1)
+			if err != nil {
+				return err
+			}
 		}
 		m.Status = this.Status
 		m.Description = this.Description
@@ -158,16 +161,33 @@ func (this RechargeService) getWhere(db *gorm.DB) *gorm.DB {
 type RechargeHandle struct {
 }
 
-func (RechargeHandle) Recharge(member model.Member, item int, amount decimal.Decimal, way int, tradeType int, isfront int) error {
+func (RechargeHandle) Recharge(member model.Member, recharge model.Recharge, amount decimal.Decimal, way int, tradeType int, isfront int) error {
+	method := model.RechargeMethod{Id: recharge.Type}
+	if !method.Get() {
+		return errors.New("充值方式错误")
+	}
 	//账单
 	trade := model.Trade{
-		UId:        member.Id,
-		TradeType:  tradeType,
-		ItemId:     item,
-		Amount:     amount,
-		Before:     member.Balance,
-		After:      member.Balance.Add(amount),
+		UId:       member.Id,
+		TradeType: tradeType,
+		ItemId:    recharge.Id,
+		Amount:    amount,
+		//Before:     member.Balance,
+		//After:      member.Balance.Add(amount),
 		IsFrontend: isfront,
+	}
+	switch method.Code {
+	case "bank":
+		trade.Before = member.Balance
+		trade.After = member.Balance.Add(amount)
+		//上分
+		member.Balance = member.Balance.Add(amount)
+		member.TotalRecharge = member.TotalRecharge.Add(amount)
+	case "usdt":
+		trade.Before = member.UsdtBalance
+		trade.After = member.UsdtBalance.Add(amount)
+		//上分
+		member.UsdtBalance = member.UsdtBalance.Add(amount)
 	}
 	switch way {
 	case 1: //审核
@@ -181,10 +201,8 @@ func (RechargeHandle) Recharge(member model.Member, item int, amount decimal.Dec
 		logrus.Error(err)
 		return err
 	}
-	//上分
-	member.Balance = member.Balance.Add(amount)
-	member.TotalRecharge = member.TotalRecharge.Add(amount)
-	return member.Update("balance", "total_recharge")
+
+	return member.Update("balance", "usdt_balance", "total_recharge")
 }
 
 func (RechargeHandle) TopupUseBalance(member model.Member, item int, amount decimal.Decimal, tradeType int, isfront int) error {

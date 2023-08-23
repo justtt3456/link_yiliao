@@ -25,7 +25,10 @@ type ConfigBaseUpdate struct {
 	EquityRate        decimal.Decimal `json:"equity_rate"`         //股权分额度比例
 	EquityInterval    int             `json:"equity_interval"`     //股权分收益天数
 	EquityIncomeRate  decimal.Decimal `json:"equity_income_rate"`  //股权分收益比例
-	DownloadUrl       string          `json:"download_url"`
+	DownloadUrl       string          `json:"download_url"`        //下载链接
+	UsdtBuyRate       decimal.Decimal `json:"usdt_buy_rate"`       //usdt买汇率
+	UsdtSellRate      decimal.Decimal `json:"usdt_sell_rate"`      //usdt卖汇率
+
 }
 
 type ConfigFundsUpdate struct {
@@ -93,13 +96,13 @@ type ConfigAlipayRemove struct {
 type ConfigUsdtCreate struct {
 	Address string `json:"address"` //
 	Status  int    `json:"status"`  //
-	Proto   int    `json:"proto"`   //协议 1 ERC20 2 TRC20
+	Proto   string `json:"proto"`   //协议  ERC20  TRC20
 }
 type ConfigUsdtUpdate struct {
 	Id      int    `json:"id"`      //
 	Address string `json:"address"` //
 	Status  int    `json:"status"`  //
-	Proto   int    `json:"proto"`   //协议 1 ERC20 2 TRC20
+	Proto   string `json:"proto"`   //协议  ERC20  TRC20
 }
 type ConfigUsdtUpdateStatus struct {
 	Id     int `json:"id"`     //

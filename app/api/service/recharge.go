@@ -94,8 +94,8 @@ func (this RechargeCreate) Create(member model.Member, ip string) (*response.Rec
 	if err != nil {
 		return nil, err
 	}
-	funds := model.SetFunds{}
-	funds.Get()
+	base := model.SetBase{}
+	base.Get()
 	//获取支付方式
 	method := model.RechargeMethod{Id: this.Method}
 	method.Get()
@@ -111,7 +111,17 @@ func (this RechargeCreate) Create(member model.Member, ip string) (*response.Rec
 		} else {
 			return &response.RechargeCreate{}, nil
 		}
-
+	case "usdt":
+		usdt := model.SetUsdt{
+			Id: this.To,
+		}
+		usdt.Get()
+		_, err := this.create(member, usdt.Address, this.Amount, 0)
+		if err != nil {
+			return nil, err
+		} else {
+			return &response.RechargeCreate{}, nil
+		}
 	case "paymentAlipay", "paymentWx":
 		//三方支付
 		channel := model.PayChannel{MethodId: this.Method}
@@ -225,8 +235,8 @@ func (this RechargeList) formatList(lists []model.Recharge) []response.Recharge 
 			OrderSn:     v.OrderSn,
 			Type:        v.Type,
 			TypeName:    v.RechargeMethod.Name,
-			Amount:      (v.Amount),
-			RealAmount:  (v.RealAmount),
+			Amount:      v.Amount,
+			RealAmount:  v.RealAmount,
 			From:        v.From,
 			To:          v.To,
 			Voucher:     v.Voucher,
@@ -287,6 +297,19 @@ func (this RechargeMethod) formatList(lists []model.RechargeMethod) []response.R
 					"card_number": v.CardNumber,
 					"real_name":   v.RealName,
 					"branch_bank": v.BranchBank,
+				}
+				ress = append(ress, item)
+			}
+		} else if v.Code == "usdt" {
+			m := model.SetUsdt{
+				Status: model.StatusOk,
+			}
+			list := m.List(true)
+			for _, u := range list {
+				item := map[string]interface{}{
+					"id":      u.Id,
+					"address": u.Address,
+					"proto":   u.Proto,
 				}
 				ress = append(ress, item)
 			}

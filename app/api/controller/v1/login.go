@@ -7,6 +7,7 @@ import (
 	"china-russia/common"
 	"china-russia/extends"
 	"china-russia/global"
+	"china-russia/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -66,8 +67,8 @@ func (this LoginController) Register(c *gin.Context) {
 // @Produce	application/json
 // @Param		object	body		request.SendCode	false	"查询参数"
 // @Success	200		{object}	response.Response
-// @Router		/sendCode [post]
-func (this LoginController) SendCode(c *gin.Context) {
+// @Router		/send_sms [post]
+func (this LoginController) SendSms(c *gin.Context) {
 	s := request.SendCode{}
 	err := c.ShouldBindJSON(&s)
 	if err != nil {
@@ -78,6 +79,12 @@ func (this LoginController) SendCode(c *gin.Context) {
 		this.Json(c, 10001, "手机号必传", nil)
 		return
 	}
+	redis := model.Redis{}
+	if err := redis.Lock("lock:" + s.Username); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	defer redis.Unlock("lock:" + s.Username)
 	if !common.CaptchaVerify(c, s.Time, s.Code) {
 		this.Json(c, 10001, "图形验证码错误", nil)
 		return

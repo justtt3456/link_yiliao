@@ -14,8 +14,8 @@ type MemberUsdtController struct {
 // Tags 用户usdt
 // Param token header string false "用户令牌"
 // Param object query request.Request false "查询参数"
-// Success 200 {object} response.MemberBankResponse
-// Router /member_bank/list [get]
+// Success 200 {object} response.MemberUsdtList
+// Router /member_usdt/list [get]
 func (this MemberUsdtController) List(c *gin.Context) {
 	s := service.MemberUsdtList{}
 	if err := c.ShouldBindQuery(&s); err != nil {
@@ -30,9 +30,9 @@ func (this MemberUsdtController) List(c *gin.Context) {
 // Summary 绑定usdt
 // Tags 用户usdt
 // Param token header string false "用户令牌"
-// Param object body request.MemberBankCreate false "查询参数"
+// Param object body request.MemberUsdtCreate false "查询参数"
 // Success 200 {object} response.Response
-// Router /member_bank/create [post]
+// Router /member_usdt/create [post]
 func (this MemberUsdtController) Create(c *gin.Context) {
 	s := service.MemberUsdtCreate{}
 	if err := c.ShouldBindJSON(&s); err != nil {

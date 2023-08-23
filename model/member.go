@@ -19,6 +19,7 @@ type Member struct {
 	WithdrawSalt      string          `gorm:"column:withdraw_salt"`
 	AgentId           int             `gorm:"column:agent_id"`                //代理id
 	Balance           decimal.Decimal `gorm:"column:balance"`                 //可用余额
+	UsdtBalance       decimal.Decimal `gorm:"column:usdt_balance"`            //usdt余额
 	WithdrawBalance   decimal.Decimal `gorm:"column:withdraw_balance"`        //可提现余额
 	IsReal            int             `gorm:"column:is_real"`                 //是否实名 1审核中 2通过 3驳回
 	RealName          string          `gorm:"column:real_name"`               //真实姓名
@@ -133,6 +134,7 @@ func (this *Member) Info() *response.Member {
 		Id:              this.Id,
 		Username:        username,
 		Balance:         this.Balance,
+		UsdtBalance:     this.UsdtBalance,
 		WithdrawBalance: this.WithdrawBalance,
 		IsReal:          this.IsReal,
 		RealName:        mv.RealName,

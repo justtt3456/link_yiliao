@@ -221,6 +221,70 @@ func (this MemberController) RemoveBankCard(c *gin.Context) {
 	return
 }
 
+// @Summary 用户usdt列表
+// @Tags 用户
+// @Param token header string false "用户令牌"
+// @Param object query request.MemberBankList false "查询参数"
+// @Success 200 {object} response.MemberBankListResponse
+// @Router /member_usdt/list [get]
+func (this MemberController) UsdtList(c *gin.Context) {
+	s := service.MemberUsdtList{}
+	err := c.ShouldBindQuery(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	list := s.List()
+	this.Json(c, 0, "ok", list)
+	return
+}
+
+// @Summary 修改用户usdt
+// @Tags 用户
+// @Accept application/json
+// @Produce application/json
+// @Param token header string false "用户令牌"
+// @Param object body request.MemberBankUpdate false "查询参数"
+// @Success 200 {object} response.Response
+// @Router /member_usdt/update [post]
+func (this MemberController) UpdateUsdt(c *gin.Context) {
+	s := service.MemberUsdtUpdate{}
+	err := c.ShouldBindJSON(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	if err = s.Update(); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", nil)
+	return
+}
+
+// @Summary 删除用户usdt
+// @Tags 用户
+// @Accept application/json
+// @Produce application/json
+// @Param token header string false "用户令牌"
+// @Param object body request.MemberBankRemove false "查询参数"
+// @Success 200 {object} response.Response
+// @Router /member_usdt/remove [post]
+func (this MemberController) RemoveUsdt(c *gin.Context) {
+	s := service.MemberUsdtRemove{}
+	err := c.ShouldBindJSON(&s)
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	if err = s.Remove(); err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", nil)
+	return
+}
+
 // @Summary 用户实名认证列表
 // @Tags 用户
 // @Param token header string false "用户令牌"
