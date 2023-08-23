@@ -92,9 +92,10 @@ func (this JuHePay) createSign(m map[string]interface{}) string {
 	log.Println("加密前: ", paramStr)
 	return strings.ToUpper(common.Md5String(paramStr))
 }
-func (this JuHePay) VerifySign(m map[string]interface{}) bool {
+func (this *JuHePay) VerifySign(m map[string]interface{}) bool {
 	sign := m["sign"].(string)
 	delete(m, "sign")
+	delete(m, "attach")
 	if sign != this.createSign(m) {
 		this.error = "签名错误"
 		return false
@@ -169,9 +170,9 @@ func (this JuHePay) PayTime(m map[string]interface{}) int64 {
 	return time.Now().Unix()
 }
 func (this JuHePay) Success() string {
-	return "OK"
+	return "ok"
 }
-func (this JuHePay) Error() string {
+func (this *JuHePay) Error() string {
 	if this.error == "" {
 		this.error = "未知错误"
 	}
