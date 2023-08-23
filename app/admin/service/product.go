@@ -104,9 +104,9 @@ func (this ProductCreate) Create() error {
 	if this.LimitBuy == 0 {
 		return errors.New("限购数量不能为空")
 	}
-	if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
-		return errors.New("提现额度比例不能为空")
-	}
+	//if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
+	//	return errors.New("提现额度比例不能为空")
+	//}
 	if this.IsHot == 0 {
 		return errors.New("是否热门不能为空")
 	}
@@ -133,9 +133,9 @@ func (this ProductCreate) Create() error {
 	}
 	if this.GiftId > 0 {
 		giftModel := model.Product{
-			Id:     this.GiftId,
-			Type:   5,
-			Status: 1,
+			Id:   this.GiftId,
+			Type: 5,
+			//Status: 1,
 		}
 		if !giftModel.Get() {
 			return errors.New("赠品不存在")
@@ -200,9 +200,9 @@ func (this ProductUpdate) Update() error {
 	if this.LimitBuy == 0 {
 		return errors.New("限购数量不能为空")
 	}
-	if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
-		return errors.New("提现额度比例不能为空")
-	}
+	//if this.WithdrawThresholdRate.LessThanOrEqual(decimal.Zero) {
+	//	return errors.New("提现额度比例不能为空")
+	//}
 	if this.IsHot == 0 {
 		return errors.New("是否热门不能为空")
 	}
@@ -218,20 +218,20 @@ func (this ProductUpdate) Update() error {
 	if this.Status == 0 {
 		return errors.New("状态不能为空")
 	}
-	if this.Type == 2 {
-		if this.DelayTime <= 0 {
-			return errors.New("延期时间必须大于0")
-		}
-	}
+	//if this.Type == 2 {
+	//	if this.DelayTime <= 0 {
+	//		return errors.New("延期时间必须大于0")
+	//	}
+	//}
 	//赠送产品Id分析
 	if this.Type == 5 {
 		this.GiftId = 0
 	}
 	if this.GiftId > 0 {
 		giftModel := model.Product{
-			Id:     this.GiftId,
-			Type:   5,
-			Status: 1,
+			Id:   this.GiftId,
+			Type: 5,
+			//Status: 1,
 		}
 		if !giftModel.Get() {
 			return errors.New("赠品不存在")

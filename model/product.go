@@ -124,7 +124,7 @@ func (this *Product) PageList(where string, args []interface{}, page, pageSize i
 
 func (this *Product) GiftList() []Product {
 	list := make([]Product, 0)
-	result := global.DB.Model(this).Select("id", "name").Where("status=?", 1).Where("type=?", 5).Find(&list)
+	result := global.DB.Model(this).Select("id", "name").Where("type=?", 5).Find(&list)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return nil
