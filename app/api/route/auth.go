@@ -89,4 +89,7 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	//签到
 	sign := v1.SignController{}
 	r.GET("sign/sign", sign.Sign)
+	//im
+	im := v1.IMController{}
+	r.GET("im", im.Link)
 }

@@ -11,44 +11,46 @@ import (
 )
 
 type Member struct {
-	Id                int             `gorm:"column:id"`
-	Username          string          `gorm:"column:username"`          //手机号
-	Password          string          `gorm:"column:password"`          //密码，sha1加密
-	Salt              string          `gorm:"column:salt"`              //盐
-	WithdrawPassword  string          `gorm:"column:withdraw_password"` //提现密码
-	WithdrawSalt      string          `gorm:"column:withdraw_salt"`
-	AgentId           int             `gorm:"column:agent_id"`                //代理id
-	Balance           decimal.Decimal `gorm:"column:balance"`                 //可用余额
-	UsdtBalance       decimal.Decimal `gorm:"column:usdt_balance"`            //usdt余额
-	WithdrawBalance   decimal.Decimal `gorm:"column:withdraw_balance"`        //可提现余额
-	IsReal            int             `gorm:"column:is_real"`                 //是否实名 1审核中 2通过 3驳回
-	RealName          string          `gorm:"column:real_name"`               //真实姓名
-	InvestFreeze      decimal.Decimal `gorm:"column:invest_freeze"`           //余额宝冻结金额
-	InvestAmount      decimal.Decimal `gorm:"column:invest_amount"`           //余额宝有效金额
-	InvestIncome      decimal.Decimal `gorm:"column:invest_income"`           //余额宝总收益
-	Status            int             `gorm:"column:status"`                  //帐号启用状态，1启用2禁用
-	FundsStatus       int             `gorm:"column:funds_status"`            //资金冻结状态
-	Level             int             `gorm:"column:level"`                   //等级
-	Score             int             `gorm:"column:score"`                   //信誉分
-	LastLoginTime     int64           `gorm:"column:last_login_time"`         //最后登录时间
-	LastLoginIp       string          `gorm:"column:last_login_ip"`           //最后登录ip
-	RegTime           int64           `gorm:"column:reg_time;autoCreateTime"` //注册时间
-	RegisterIp        string          `gorm:"column:register_ip"`             //注册ip
-	Token             string          `gorm:"column:token"`                   //token盐
-	DisableLoginTime  int64           `gorm:"column:disable_login_time"`      //禁止登录时间
-	DisableBetTime    int64           `gorm:"column:disable_bet_time"`        //禁止投注时间
-	WithdrawAmount    int64           `gorm:"column:withdraw_amount"`         //提现流水
-	Description       string          `gorm:"column:description"`             //用户备注
-	IsBuy             int             `gorm:"column:is_buy"`                  //1=有效 2=无效
-	Equity            int             `gorm:"column:equity"`                  //股权
-	EquityScore       int             `gorm:"column:equity_score"`            //股权分
-	PreIncome         decimal.Decimal `gorm:"column:pre_income"`              //待收益
-	PreCapital        decimal.Decimal `gorm:"column:pre_capital"`             //待收本金
-	TotalRebate       decimal.Decimal `gorm:"column:total_rebate"`            //总返佣
-	TotalRecharge     decimal.Decimal `gorm:"column:total_recharge"`          //总充值
-	TotalIncome       decimal.Decimal `gorm:"column:total_income"`            //总收益
-	WithdrawThreshold decimal.Decimal `gorm:"column:withdraw_threshold"`      //提现额度
-	TotalBuy          decimal.Decimal `gorm:"column:total_buy"`
+	Id                  int             `gorm:"column:id"`
+	Username            string          `gorm:"column:username"`          //手机号
+	Password            string          `gorm:"column:password"`          //密码，sha1加密
+	Salt                string          `gorm:"column:salt"`              //盐
+	WithdrawPassword    string          `gorm:"column:withdraw_password"` //提现密码
+	WithdrawSalt        string          `gorm:"column:withdraw_salt"`
+	AgentId             int             `gorm:"column:agent_id"`                //代理id
+	Balance             decimal.Decimal `gorm:"column:balance"`                 //可用余额
+	UsdtBalance         decimal.Decimal `gorm:"column:usdt_balance"`            //usdt余额
+	WithdrawBalance     decimal.Decimal `gorm:"column:withdraw_balance"`        //可提现余额
+	UsdtWithdrawBalance decimal.Decimal `gorm:"column:usdt_withdraw_balance"`   //可提现余额
+	IsReal              int             `gorm:"column:is_real"`                 //是否实名 1审核中 2通过 3驳回
+	RealName            string          `gorm:"column:real_name"`               //真实姓名
+	InvestFreeze        decimal.Decimal `gorm:"column:invest_freeze"`           //余额宝冻结金额
+	InvestAmount        decimal.Decimal `gorm:"column:invest_amount"`           //余额宝有效金额
+	InvestIncome        decimal.Decimal `gorm:"column:invest_income"`           //余额宝总收益
+	Status              int             `gorm:"column:status"`                  //帐号启用状态，1启用2禁用
+	FundsStatus         int             `gorm:"column:funds_status"`            //资金冻结状态
+	Level               int             `gorm:"column:level"`                   //等级
+	Score               int             `gorm:"column:score"`                   //信誉分
+	LastLoginTime       int64           `gorm:"column:last_login_time"`         //最后登录时间
+	LastLoginIp         string          `gorm:"column:last_login_ip"`           //最后登录ip
+	RegTime             int64           `gorm:"column:reg_time;autoCreateTime"` //注册时间
+	RegisterIp          string          `gorm:"column:register_ip"`             //注册ip
+	Token               string          `gorm:"column:token"`                   //token盐
+	DisableLoginTime    int64           `gorm:"column:disable_login_time"`      //禁止登录时间
+	DisableBetTime      int64           `gorm:"column:disable_bet_time"`        //禁止投注时间
+	WithdrawAmount      int64           `gorm:"column:withdraw_amount"`         //提现流水
+	Description         string          `gorm:"column:description"`             //用户备注
+	IsBuy               int             `gorm:"column:is_buy"`                  //1=有效 2=无效
+	Equity              int             `gorm:"column:equity"`                  //股权
+	EquityScore         int             `gorm:"column:equity_score"`            //股权分
+	PreIncome           decimal.Decimal `gorm:"column:pre_income"`              //待收益
+	PreCapital          decimal.Decimal `gorm:"column:pre_capital"`             //待收本金
+	TotalRebate         decimal.Decimal `gorm:"column:total_rebate"`            //总返佣
+	TotalRecharge       decimal.Decimal `gorm:"column:total_recharge"`          //总充值
+	TotalIncome         decimal.Decimal `gorm:"column:total_income"`            //总收益
+	WithdrawThreshold   decimal.Decimal `gorm:"column:withdraw_threshold"`      //提现额度
+	TotalBuy            decimal.Decimal `gorm:"column:total_buy"`
+	YiBaoBalance        decimal.Decimal `gorm:"column:yibao_balance"`
 }
 
 // TableName sets the insert table name for this struct type
@@ -163,6 +165,7 @@ func (this *Member) Info() *response.Member {
 		PreCapital:        this.PreCapital,
 		WithdrawThreshold: this.WithdrawThreshold,
 		EquityScore:       this.EquityScore,
+		YiBaoBalance:      this.YiBaoBalance,
 	}
 }
 

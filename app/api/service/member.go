@@ -184,7 +184,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 	}
 	//充值金额
 	var totalRecharge float64
-	err = global.DB.Model(memberModel).Select("COALESCE(sum(total_recharge),0)").Where("id in (?)", total).Scan(&totalRecharge).Error
+	err = global.DB.Model(model.Recharge{}).Select("COALESCE(sum(amount),0)").Where("uid in (?) and status = 2", total).Scan(&totalRecharge).Error
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +270,7 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 	c := model.SetBase{}
 	c.Get()
 	switch this.Type {
-	case 1: //U转R
+	case 1: //可用U转R
 		if member.UsdtBalance.LessThan(this.Amount) {
 			return errors.New("usdt账户余额不足")
 		}
@@ -288,12 +288,12 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 			Amount:     this.Amount,
 			Before:     member.UsdtBalance.Add(this.Amount),
 			After:      member.UsdtBalance,
-			Desc:       "usdt转cny",
+			Desc:       "可用usdt转可用cny",
 			IsFrontend: 1,
 		}
 		err = usdt.Insert()
 		if err != nil {
-			logrus.Errorf("usdt转cny 记录失败%v", err)
+			logrus.Errorf("可用usdt转可用cny 记录失败%v", err)
 		}
 		cny := model.Trade{
 			UId:        member.Id,
@@ -301,15 +301,15 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 			Amount:     amount,
 			Before:     member.Balance.Sub(amount),
 			After:      member.Balance,
-			Desc:       "usdt转cny",
+			Desc:       "可用usdt转可用cny",
 			IsFrontend: 1,
 		}
 		err = cny.Insert()
 		if err != nil {
-			logrus.Errorf("usdt转cny 记录失败%v", err)
+			logrus.Errorf("可用usdt转可用cny 记录失败%v", err)
 		}
 
-	case 2: //R转U
+	case 2: //可用R转U
 		amount := this.Amount.Div(c.UsdtBuyRate)
 		if member.Balance.LessThan(this.Amount) {
 			return errors.New("账户余额不足")
@@ -327,12 +327,12 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 			Amount:     this.Amount,
 			Before:     member.Balance.Add(this.Amount),
 			After:      member.Balance,
-			Desc:       "cny转usdt",
+			Desc:       "可用cny转可用usdt",
 			IsFrontend: 1,
 		}
 		err = cny.Insert()
 		if err != nil {
-			logrus.Errorf("cny转usdt 记录失败%v", err)
+			logrus.Errorf("可用cny转可用usdt 记录失败%v", err)
 		}
 		usdt := model.Trade{
 			UId:        member.Id,
@@ -340,14 +340,91 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 			Amount:     amount,
 			Before:     member.UsdtBalance.Sub(amount),
 			After:      member.UsdtBalance,
-			Desc:       "cny转usdt",
+			Desc:       "可用cny转可用usdt",
 			IsFrontend: 1,
 		}
 		err = usdt.Insert()
 		if err != nil {
-			logrus.Errorf("cny转usdt 记录失败%v", err)
+			logrus.Errorf("可用cny转可用usdt 记录失败%v", err)
 		}
 
+	case 3: //可提U转R
+		if member.UsdtWithdrawBalance.LessThan(this.Amount) {
+			return errors.New("usdt账户余额不足")
+		}
+		amount := this.Amount.Mul(c.UsdtSellRate)
+		member.WithdrawBalance = member.Balance.Add(amount)
+		member.UsdtWithdrawBalance = member.UsdtBalance.Sub(this.Amount)
+		err := member.Update("withdraw_balance", "usdt_withdraw_balance")
+		if err != nil {
+			return err
+		}
+		//加入账单
+		usdt := model.Trade{
+			UId:        member.Id,
+			TradeType:  5,
+			Amount:     this.Amount,
+			Before:     member.UsdtWithdrawBalance.Add(this.Amount),
+			After:      member.UsdtWithdrawBalance,
+			Desc:       "可提usdt转可提cny",
+			IsFrontend: 1,
+		}
+		err = usdt.Insert()
+		if err != nil {
+			logrus.Errorf("可提usdt转可提cny 记录失败%v", err)
+		}
+		cny := model.Trade{
+			UId:        member.Id,
+			TradeType:  5,
+			Amount:     amount,
+			Before:     member.WithdrawBalance.Sub(amount),
+			After:      member.WithdrawBalance,
+			Desc:       "可提usdt转可提cny",
+			IsFrontend: 1,
+		}
+		err = cny.Insert()
+		if err != nil {
+			logrus.Errorf("可提usdt转可提cny 记录失败%v", err)
+		}
+
+	case 4: //可提R转U
+		amount := this.Amount.Div(c.UsdtBuyRate)
+		if member.WithdrawBalance.LessThan(this.Amount) {
+			return errors.New("账户余额不足")
+		}
+		member.WithdrawBalance = member.WithdrawBalance.Sub(this.Amount)
+		member.UsdtWithdrawBalance = member.UsdtWithdrawBalance.Add(amount)
+		err := member.Update("withdraw_balance", "usdt_withdraw_balance")
+		if err != nil {
+			return err
+		}
+		//加入账单
+		cny := model.Trade{
+			UId:        member.Id,
+			TradeType:  5,
+			Amount:     this.Amount,
+			Before:     member.WithdrawBalance.Add(this.Amount),
+			After:      member.WithdrawBalance,
+			Desc:       "可提cny转可提usdt",
+			IsFrontend: 1,
+		}
+		err = cny.Insert()
+		if err != nil {
+			logrus.Errorf("可提cny转可提usdt 记录失败%v", err)
+		}
+		usdt := model.Trade{
+			UId:        member.Id,
+			TradeType:  5,
+			Amount:     amount,
+			Before:     member.UsdtWithdrawBalance.Sub(amount),
+			After:      member.UsdtWithdrawBalance,
+			Desc:       "可提cny转可提usdt",
+			IsFrontend: 1,
+		}
+		err = usdt.Insert()
+		if err != nil {
+			logrus.Errorf("可提cny转可提usdt 记录失败%v", err)
+		}
 	}
 	return nil
 }

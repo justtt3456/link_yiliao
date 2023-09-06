@@ -106,12 +106,8 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	}
 	//银行卡Id
 	if this.Id == 0 {
-		return errors.New(lang.Lang("Bank card does not exist"))
+		return errors.New("提款方式错误")
 	}
-	//memberBank := model.MemberBank{Id: this.Id}
-	//if !memberBank.Get() {
-	//	return errors.New(lang.Lang("Bank card does not exist"))
-	//}
 	//验证交易密码
 	if common.Md5String(this.WithdrawPassword+member.WithdrawSalt) != member.WithdrawPassword {
 		return errors.New(lang.Lang("Incorrect withdraw password"))
@@ -139,10 +135,7 @@ func (this WithdrawCreate) Create(member model.Member) error {
 			return errors.New(fmt.Sprintf(lang.Lang("Maximum withdraw %v"), c.WithdrawMaxAmount))
 		}
 	}
-	//检查余额
-	if member.WithdrawBalance.LessThan(this.TotalAmount) {
-		return errors.New(lang.Lang("Insufficient account balance"))
-	}
+
 	config := model.SetBase{}
 	config.Get()
 	//股权分开启 验证额度
@@ -150,20 +143,39 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		equityScore := model.EquityScoreOrder{}
 		score := equityScore.SumScore("uid = ? and status = ? and create_time < ?", []interface{}{member.Id, model.StatusOk, common.GetTodayZero()}, "pay_money")
 		threshold := config.EquityRate.Mul(score).Div(decimal.NewFromInt(100)).Round(2)
-		if threshold.LessThan(this.TotalAmount) {
-			return errors.New("提现额度不足")
+		if method.Code == "bank" {
+			if threshold.LessThan(this.TotalAmount) {
+				return errors.New("提现额度不足")
+			}
+		} else if method.Code == "usdt" {
+			if threshold.Div(config.UsdtBuyRate).LessThan(this.TotalAmount) {
+				return errors.New("提现额度不足")
+			}
 		}
 		//当日已使用额度
 		sumModel := model.Withdraw{}
 		sumWhere := "uid = ? and create_time >= ? and status in (?)"
 		sumArgs := []interface{}{member.Id, common.GetTodayZero(), []int{model.StatusReview, model.StatusAccept}}
 		sum := sumModel.Sum(sumWhere, sumArgs, "total_amount")
-		if threshold.Sub(decimal.NewFromFloat(sum)).LessThan(this.TotalAmount) {
-			return errors.New("提现额度不足")
+
+		if method.Code == "bank" {
+			if threshold.Sub(decimal.NewFromFloat(sum)).LessThan(this.TotalAmount) {
+				return errors.New("提现额度不足")
+			}
+		} else if method.Code == "usdt" {
+			if threshold.Sub(decimal.NewFromFloat(sum)).Div(config.UsdtBuyRate).LessThan(this.TotalAmount) {
+				return errors.New("提现额度不足")
+			}
 		}
 	} else {
-		if member.WithdrawThreshold.LessThan(this.TotalAmount) {
-			return errors.New("提现额度不足")
+		if method.Code == "bank" {
+			if member.WithdrawThreshold.LessThan(this.TotalAmount) {
+				return errors.New("提现额度不足")
+			}
+		} else if method.Code == "usdt" {
+			if member.WithdrawThreshold.Div(config.UsdtBuyRate).LessThan(this.TotalAmount) {
+				return errors.New("提现额度不足")
+			}
 		}
 	}
 	//每日提现次数
@@ -192,8 +204,13 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	var bankPhone string
 	var usdtAmount decimal.Decimal
 	var realAmount decimal.Decimal
+	var totalAmount decimal.Decimal
 	switch method.Code {
 	case "bank":
+		//检查余额
+		if member.WithdrawBalance.LessThan(this.TotalAmount) {
+			return errors.New(lang.Lang("Insufficient account balance"))
+		}
 		bank := model.MemberBank{Id: this.Id}
 		if !bank.Get() {
 			return errors.New("银行卡不存在")
@@ -204,13 +221,19 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		cardNumber = bank.CardNumber
 		bankPhone = bank.BankPhone
 		realAmount = this.TotalAmount.Sub(fee)
+		totalAmount = this.TotalAmount
 	case "usdt":
+		//检查余额
+		if member.UsdtWithdrawBalance.LessThan(this.TotalAmount) {
+			return errors.New(lang.Lang("Insufficient account balance"))
+		}
 		usdt := model.MemberUsdt{Id: this.Id}
 		if !usdt.Get() {
 			return errors.New("usdt地址不存在")
 		}
 		bankName = usdt.Protocol
 		cardNumber = usdt.Address
+		totalAmount = this.TotalAmount.Mul(config.UsdtBuyRate)
 		//usdtAmount = this.TotalAmount.Sub(fee).Div(config.UsdtRate).Round(2)
 		//realAmount = this.TotalAmount.Div(config.UsdtRate).Round(2)
 	}
@@ -225,7 +248,7 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		BankPhone:    bankPhone,
 		Amount:       realAmount,
 		Fee:          fee,
-		TotalAmount:  this.TotalAmount,
+		TotalAmount:  totalAmount,
 		Status:       model.StatusReview,
 		OrderSn:      common.OrderSn(),
 		UsdtAmount:   usdtAmount,
@@ -245,15 +268,24 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		After:     member.WithdrawBalance.Sub(this.TotalAmount),
 		Desc:      "提现申请",
 	}
+	if method.Code == "usdt" {
+		trade.Before = member.UsdtWithdrawBalance
+		trade.After = member.UsdtWithdrawBalance.Sub(this.TotalAmount)
+	}
 	if err := tx.Create(&trade).Error; err != nil {
 		//解锁
 		//redisLock.Unlock(lockKey)
 		return err
 	}
 	//更改用户余额
-	member.WithdrawBalance = member.WithdrawBalance.Sub(this.TotalAmount)
-	member.WithdrawThreshold = member.WithdrawThreshold.Sub(this.TotalAmount)
-	return tx.Select("withdraw_balance", "withdraw_threshold").Updates(member).Error
+	if method.Code == "bank" {
+		member.WithdrawBalance = member.WithdrawBalance.Sub(this.TotalAmount)
+		member.WithdrawThreshold = member.WithdrawThreshold.Sub(this.TotalAmount)
+	} else if method.Code == "usdt" {
+		member.UsdtWithdrawBalance = member.UsdtWithdrawBalance.Sub(this.TotalAmount)
+		member.WithdrawThreshold = member.WithdrawThreshold.Sub(this.TotalAmount.Mul(config.UsdtBuyRate))
+	}
+	return tx.Select("withdraw_balance", "usdt_withdraw_balance", "withdraw_threshold").Updates(member).Error
 }
 
 type WithdrawMethod struct {

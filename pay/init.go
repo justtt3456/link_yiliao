@@ -73,6 +73,8 @@ func NewPay(payment model.Payment) PayInterface {
 		return newAzfPay(payment)
 	case "JuHePay":
 		return newJuHePay(payment)
+	case "YiPay":
+		return newYiPay(payment)
 	default:
 		return newWePay(payment)
 	}

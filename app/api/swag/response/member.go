@@ -39,6 +39,7 @@ type Member struct {
 	PreIncome           decimal.Decimal `json:"pre_income"`            //待收益
 	PreCapital          decimal.Decimal `json:"pre_capital"`           //待收本金
 	EquityScore         int             `json:"equity_score"`
+	YiBaoBalance        decimal.Decimal `json:"yibao_balance"`
 }
 
 type Coupon struct {

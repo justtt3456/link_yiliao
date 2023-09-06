@@ -16,33 +16,32 @@ import (
 	"time"
 )
 
-type JuHePay struct {
+type YiPay struct {
 	payment model.Payment
 	error   string
 }
 
-func newJuHePay(payment model.Payment) PayInterface {
-	return &JuHePay{
+func newYiPay(payment model.Payment) PayInterface {
+	return &YiPay{
 		payment: payment,
 	}
 }
 
-func (this JuHePay) Recharge(param RechargeParam) PaymentResponse {
+func (this YiPay) Recharge(param RechargeParam) PaymentResponse {
 	//参数组装
-	amount := param.Amount.InexactFloat64()
+	amount := param.Amount.String()
 	s := map[string]interface{}{
-		"pay_memberid":    this.payment.MerchantNo,
-		"pay_amount":      amount,
-		"pay_bankcode":    param.Channel,
-		"pay_orderid":     param.OrderNo,
-		"pay_notifyurl":   this.payment.NotifyURL,
-		"pay_callbackurl": this.payment.NotifyURL,
-		"pay_applydate":   time.Now().Format("2006-01-02 15:04:05"),
+		"partnerid": this.payment.MerchantNo,
+		"amount":    amount,
+		//"pay_bankcode": param.Channel,
+		"orderid":   param.OrderNo,
+		"notifyurl": this.payment.NotifyURL,
 	}
 	//生成签名
-	s["pay_md5sign"] = this.createSign(s)
-	s["pay_productname"] = "VIP基础服务"
-	log.Println("加密后: ", s["pay_md5sign"])
+	s["sign"] = this.createSign(s)
+	//s["pay_ip"] = param.Other
+	//log.Println("用户下单ip: ", s["pay_ip"])
+	log.Println("加密后: ", s["sign"])
 	j, _ := json.Marshal(s)
 	//发送请求
 	resp := this.sendRequest(this.payment.RechargeURL, j)
@@ -54,10 +53,10 @@ func (this JuHePay) Recharge(param RechargeParam) PaymentResponse {
 		fmt.Println(err)
 		return PaymentResponse{10001, err.Error(), nil}
 	}
-	if res["code"] != float64(200) {
+	if res["status"] != float64(200) {
 		return PaymentResponse{10001, res["msg"].(string), nil}
 	}
-	data := res["data"].(string)
+	data := res["url"].(string)
 	return PaymentResponse{
 		Code: 0,
 		Msg:  "ok",
@@ -66,7 +65,7 @@ func (this JuHePay) Recharge(param RechargeParam) PaymentResponse {
 		},
 	}
 }
-func (this JuHePay) createSign(m map[string]interface{}) string {
+func (this YiPay) createSign(m map[string]interface{}) string {
 	var keys []string
 	for k := range m {
 		keys = append(keys, k)
@@ -87,23 +86,25 @@ func (this JuHePay) createSign(m map[string]interface{}) string {
 		default:
 			s = ""
 		}
+		if s == "" {
+			continue
+		}
 		paramStr += k + "=" + s + "&"
 	}
 	paramStr += "key=" + this.payment.Secret
 	log.Println("加密前: ", paramStr)
-	return strings.ToUpper(common.Md5String(paramStr))
+	return strings.ToLower(common.Md5String(paramStr))
 }
-func (this *JuHePay) VerifySign(m map[string]interface{}) bool {
+func (this YiPay) VerifySign(m map[string]interface{}) bool {
 	sign := m["sign"].(string)
 	delete(m, "sign")
-	delete(m, "attach")
 	if sign != this.createSign(m) {
 		this.error = "签名错误"
 		return false
 	}
 	return true
 }
-func (this JuHePay) sendRequest(uri string, data []byte) []byte {
+func (this YiPay) sendRequest(uri string, data []byte) []byte {
 	m := map[string]interface{}{}
 	json.Unmarshal(data, &m)
 	paramStr := url.Values{}
@@ -143,37 +144,37 @@ func (this JuHePay) sendRequest(uri string, data []byte) []byte {
 	return responseData
 }
 
-func (this JuHePay) ResponseData(m map[string]interface{}) map[string]interface{} {
+func (this YiPay) ResponseData(m map[string]interface{}) map[string]interface{} {
 	return m
 }
-func (this JuHePay) OrderType(m map[string]interface{}) int {
+func (this YiPay) OrderType(m map[string]interface{}) int {
 	return 1
 }
-func (this JuHePay) OrderStatus(m map[string]interface{}) bool {
-	status := m["returncode"].(string)
-	if status != "00" {
+func (this YiPay) OrderStatus(m map[string]interface{}) bool {
+	status := m["status"].(string)
+	if status != "1" {
 		this.error = "状态错误"
 		return false
 	}
 	return true
 }
-func (this JuHePay) OrderSn(m map[string]interface{}) string {
+func (this YiPay) OrderSn(m map[string]interface{}) string {
 	return m["orderid"].(string)
 }
-func (this JuHePay) TradeSn(m map[string]interface{}) string {
+func (this YiPay) TradeSn(m map[string]interface{}) string {
 	return m["transaction_id"].(string)
 }
-func (this JuHePay) RealMoney(m map[string]interface{}) float64 {
+func (this YiPay) RealMoney(m map[string]interface{}) float64 {
 	float, _ := strconv.ParseFloat(m["amount"].(string), 10)
 	return float
 }
-func (this JuHePay) PayTime(m map[string]interface{}) int64 {
+func (this YiPay) PayTime(m map[string]interface{}) int64 {
 	return time.Now().Unix()
 }
-func (this JuHePay) Success() string {
-	return "ok"
+func (this YiPay) Success() string {
+	return `{"code":200,"msg":"ok"}`
 }
-func (this *JuHePay) Error() string {
+func (this YiPay) Error() string {
 	if this.error == "" {
 		this.error = "未知错误"
 	}

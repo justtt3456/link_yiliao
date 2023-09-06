@@ -124,7 +124,7 @@ func (this RechargeCreate) Create(member model.Member, ip string) (*response.Rec
 		}
 	case "paymentAlipay", "paymentWx":
 		//三方支付
-		channel := model.PayChannel{MethodId: this.Method}
+		channel := model.PayChannel{MethodId: this.Method, Status: model.StatusOk}
 		if !channel.Get() {
 			return nil, errors.New(lang.Lang("The payment channel does not exist"))
 		}

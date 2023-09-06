@@ -66,6 +66,7 @@ func (this MemberList) PageList() (response.MemberListData, error) {
 			TopName:           p.Parent.Username,
 			AgentName:         agent.Account,
 			WithdrawThreshold: v.WithdrawThreshold,
+			YiBaoBalance:      v.YiBaoBalance,
 		}
 		res = append(res, i)
 	}

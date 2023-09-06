@@ -6,4 +6,5 @@ type Server struct {
 	System System `mapstructure:"system" json:"system" yaml:"system"`
 	Sms    Sms    `mapstructure:"sms" json:"sms" yaml:"sms"`
 	Log    Log    `mapstructure:"log" json:"log" yaml:"log"`
+	IM     IM     `mapstructure:"im" json:"im" yaml:"im"`
 }

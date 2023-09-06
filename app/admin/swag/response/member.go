@@ -54,6 +54,7 @@ type MemberInfo struct {
 	TopName            string          `json:"top_name"`             //上级名字
 	ProductOrderAmount decimal.Decimal `json:"product_order_amount"` //投注金额
 	AgentName          string          `json:"agent_name"`
+	YiBaoBalance       decimal.Decimal `json:"yibao_balance"`
 }
 
 type Bank struct {

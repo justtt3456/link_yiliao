@@ -168,6 +168,77 @@ func (this Manual) Equity() error {
 	return nil
 }
 
+// 医保操作
+func (this Manual) Yibao() error {
+	s := strings.Split(this.UIds, ",")
+	for _, v := range s {
+		id, _ := strconv.Atoi(v)
+		if id == 0 {
+			return errors.New("用户错误")
+		}
+		member := model.Member{Id: id}
+		if !member.Get() {
+			return errors.New("用户不存在")
+		}
+		var tradeType int
+		var yibao decimal.Decimal
+		var desc string
+		switch this.Handle {
+		case 7:
+			tradeType = 19
+			yibao = member.YiBaoBalance
+			desc = "增加医保余额"
+			member.YiBaoBalance = member.YiBaoBalance.Add(this.Amount)
+			trade := model.Trade{
+				UId:        member.Id,
+				TradeType:  tradeType,
+				Amount:     this.Amount,
+				Before:     yibao,
+				After:      member.YiBaoBalance,
+				IsFrontend: this.IsFrontend,
+				Desc:       desc,
+			}
+			err := trade.Insert()
+			if err != nil {
+				logrus.Error(err)
+				return err
+			}
+			err = member.Update("yibao_balance")
+			if err != nil {
+				return err
+			}
+		case 8:
+			tradeType = 20
+			yibao = member.YiBaoBalance
+			if member.YiBaoBalance.LessThan(this.Amount) {
+				return errors.New("医保卡余额不足")
+			}
+			desc = "减少医保余额"
+			member.YiBaoBalance = member.YiBaoBalance.Sub(this.Amount)
+			trade := model.Trade{
+				UId:        member.Id,
+				TradeType:  tradeType,
+				Amount:     this.Amount,
+				Before:     yibao,
+				After:      member.YiBaoBalance,
+				IsFrontend: this.IsFrontend,
+				Desc:       desc,
+			}
+			err := trade.Insert()
+			if err != nil {
+				logrus.Error(err)
+				return err
+			}
+			err = member.Update("yibao_balance")
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+	return nil
+}
+
 //func (this Manual) Withdraw(admin model.Admin, isfront int) error {
 //	s := strings.Split(this.UIds, ",")
 //	for _, v := range s {
