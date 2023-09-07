@@ -8,16 +8,18 @@ type ReportResponse struct {
 	Data ReportData `json:"data"`
 }
 type ReportData struct {
-	RechargeAmount      decimal.Decimal `json:"recharge_amount"`       //今日充值
-	RechargeAmountTotal decimal.Decimal `json:"recharge_amount_total"` //总充值
-	WithdrawAmount      decimal.Decimal `json:"withdraw_amount"`       //今日提现
-	WithdrawAmountTotal decimal.Decimal `json:"withdraw_amount_total"` //总提现
-	RegCount            int64           `json:"reg_count"`             //今日注册
-	RegCountTotal       int64           `json:"reg_count_total"`       //总注册
-	RegBuyCount         int64           `json:"reg_buy_count"`         //今日有效会员
-	RegBuyCountTotal    int64           `json:"reg_buy_count_total"`   //总有效会员
-	SendMoney           decimal.Decimal `json:"send_money"`            //今日用户总收益
-	SendMoneyTotal      decimal.Decimal `json:"send_money_total"`      //用户总收益
+	RechargeAmount          decimal.Decimal `json:"recharge_amount"`            //今日充值
+	RechargeAmountTotal     decimal.Decimal `json:"recharge_amount_total"`      //总充值
+	UsdtRechargeAmount      decimal.Decimal `json:"usdt_recharge_amount"`       //今日充值
+	UsdtRechargeAmountTotal decimal.Decimal `json:"usdt_recharge_amount_total"` //总充值
+	WithdrawAmount          decimal.Decimal `json:"withdraw_amount"`            //今日提现
+	WithdrawAmountTotal     decimal.Decimal `json:"withdraw_amount_total"`      //总提现
+	RegCount                int64           `json:"reg_count"`                  //今日注册
+	RegCountTotal           int64           `json:"reg_count_total"`            //总注册
+	RegBuyCount             int64           `json:"reg_buy_count"`              //今日有效会员
+	RegBuyCountTotal        int64           `json:"reg_buy_count_total"`        //总有效会员
+	SendMoney               decimal.Decimal `json:"send_money"`                 //今日用户总收益
+	SendMoneyTotal          decimal.Decimal `json:"send_money_total"`           //用户总收益
 }
 
 type MemberReportResponse struct {

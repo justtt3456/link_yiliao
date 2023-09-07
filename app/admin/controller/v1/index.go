@@ -26,16 +26,18 @@ func (this IndexController) Report(c *gin.Context) {
 	m := model.Member{}
 	t := model.Trade{}
 	res := response.ReportData{
-		RechargeAmount:      decimal.NewFromFloat(r.Sum("create_time >= ? and status = ?", []interface{}{zero, model.StatusAccept}, "amount")),
-		RechargeAmountTotal: decimal.NewFromFloat(r.Sum("status = ?", []interface{}{model.StatusAccept}, "amount")),
-		WithdrawAmount:      decimal.NewFromFloat(w.Sum("create_time >= ? and status = ?", []interface{}{zero, model.StatusAccept}, "amount")),
-		WithdrawAmountTotal: decimal.NewFromFloat(w.Sum("status = ?", []interface{}{model.StatusAccept}, "amount")),
-		RegCount:            m.Count("reg_time >= ? and status = ?", []interface{}{zero, model.StatusOk}),
-		RegCountTotal:       m.Count("status = ?", []interface{}{model.StatusOk}),
-		RegBuyCount:         m.Count("reg_time >= ? and status = ? and is_buy = ?", []interface{}{zero, model.StatusOk, model.StatusOk}),
-		RegBuyCountTotal:    m.Count("status = ? and is_buy = ? ", []interface{}{model.StatusOk, model.StatusOk}),
-		SendMoney:           decimal.NewFromFloat(t.Sum("create_time >= ? and trade_type in (?)", []interface{}{zero, []int{7, 8, 16, 17}}, "amount")),
-		SendMoneyTotal:      decimal.NewFromFloat(t.Sum("trade_type in (?)", []interface{}{[]int{7, 8, 16, 17}}, "amount")),
+		RechargeAmount:          decimal.NewFromFloat(r.Sum("create_time >= ? and status = ?", []interface{}{zero, model.StatusAccept}, "amount")),
+		RechargeAmountTotal:     decimal.NewFromFloat(r.Sum("status = ?", []interface{}{model.StatusAccept}, "amount")),
+		UsdtRechargeAmount:      decimal.NewFromFloat(r.Sum("create_time >= ? and status = ? and type = 4", []interface{}{zero, model.StatusAccept}, "amount")),
+		UsdtRechargeAmountTotal: decimal.NewFromFloat(r.Sum("status = ? and type = 4", []interface{}{model.StatusAccept}, "amount")),
+		WithdrawAmount:          decimal.NewFromFloat(w.Sum("create_time >= ? and status = ?", []interface{}{zero, model.StatusAccept}, "amount")),
+		WithdrawAmountTotal:     decimal.NewFromFloat(w.Sum("status = ?", []interface{}{model.StatusAccept}, "amount")),
+		RegCount:                m.Count("reg_time >= ? and status = ?", []interface{}{zero, model.StatusOk}),
+		RegCountTotal:           m.Count("status = ?", []interface{}{model.StatusOk}),
+		RegBuyCount:             m.Count("reg_time >= ? and status = ? and is_buy = ?", []interface{}{zero, model.StatusOk, model.StatusOk}),
+		RegBuyCountTotal:        m.Count("status = ? and is_buy = ? ", []interface{}{model.StatusOk, model.StatusOk}),
+		SendMoney:               decimal.NewFromFloat(t.Sum("create_time >= ? and trade_type in (?)", []interface{}{zero, []int{7, 8, 16, 17}}, "amount")),
+		SendMoneyTotal:          decimal.NewFromFloat(t.Sum("trade_type in (?)", []interface{}{[]int{7, 8, 16, 17}}, "amount")),
 	}
 	this.Json(c, 0, "ok", res)
 	return

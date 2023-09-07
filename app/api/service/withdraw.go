@@ -32,6 +32,9 @@ func (this WithdrawList) PageList(member model.Member) response.WithdrawData {
 	list, page := m.GetPageList(where, args, this.Page, this.PageSize)
 	res := make([]response.Withdraw, 0)
 	for _, v := range list {
+		if v.WithdrawMethod.Code == "usdt" {
+			v.Amount = v.UsdtAmount
+		}
 		i := response.Withdraw{
 			Id:          v.Id,
 			OrderSn:     v.OrderSn,
@@ -117,7 +120,8 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	if !method.Get() {
 		return errors.New(lang.Lang("Wrong withdrawal method"))
 	}
-
+	config := model.SetBase{}
+	config.Get()
 	//提现时间 金额验证
 	c := model.SetFunds{}
 	if c.Get() {
@@ -128,16 +132,23 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		if now > common.TimeToUnix(c.WithdrawEndTime) {
 			return errors.New(fmt.Sprintf(lang.Lang("Please withdraw before %s"), c.WithdrawEndTime))
 		}
-		if this.TotalAmount.LessThan(c.WithdrawMinAmount) {
-			return errors.New(fmt.Sprintf(lang.Lang("Minimum withdraw %v"), c.WithdrawMinAmount))
-		}
-		if c.WithdrawMaxAmount.LessThan(this.TotalAmount) {
-			return errors.New(fmt.Sprintf(lang.Lang("Maximum withdraw %v"), c.WithdrawMaxAmount))
+		if method.Code == "bank" {
+			if this.TotalAmount.LessThan(c.WithdrawMinAmount) {
+				return errors.New(fmt.Sprintf(lang.Lang("Minimum withdraw %v"), c.WithdrawMinAmount))
+			}
+			if c.WithdrawMaxAmount.LessThan(this.TotalAmount) {
+				return errors.New(fmt.Sprintf(lang.Lang("Maximum withdraw %v"), c.WithdrawMaxAmount))
+			}
+		} else if method.Code == "usdt" {
+			if this.TotalAmount.Div(config.UsdtBuyRate).LessThan(c.WithdrawMinAmount) {
+				return errors.New(fmt.Sprintf(lang.Lang("Minimum withdraw %v"), c.WithdrawMinAmount.Div(config.UsdtBuyRate).Round(2)))
+			}
+			if c.WithdrawMaxAmount.Div(config.UsdtBuyRate).LessThan(this.TotalAmount) {
+				return errors.New(fmt.Sprintf(lang.Lang("Maximum withdraw %v"), c.WithdrawMaxAmount.Div(config.UsdtBuyRate).Round(2)))
+			}
 		}
 	}
 
-	config := model.SetBase{}
-	config.Get()
 	//股权分开启 验证额度
 	if time.Now().Unix() >= config.EquityStartDate {
 		equityScore := model.EquityScoreOrder{}
@@ -234,6 +245,8 @@ func (this WithdrawCreate) Create(member model.Member) error {
 		bankName = usdt.Protocol
 		cardNumber = usdt.Address
 		totalAmount = this.TotalAmount.Mul(config.UsdtBuyRate)
+		realAmount = this.TotalAmount.Sub(fee)
+		usdtAmount = this.TotalAmount
 		//usdtAmount = this.TotalAmount.Sub(fee).Div(config.UsdtRate).Round(2)
 		//realAmount = this.TotalAmount.Div(config.UsdtRate).Round(2)
 	}
