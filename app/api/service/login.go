@@ -98,7 +98,9 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	if this.InviteCode == "" {
 		return nil, errors.New(lang.Lang("Invitation code cannot be empty"))
 	}
-
+	if this.Code == "" {
+		return nil, errors.New("验证码不能为空")
+	}
 	//验证码
 	if this.Code != global.REDIS.Get(this.Username).Val() {
 		return nil, errors.New(lang.Lang("Verification code error"))

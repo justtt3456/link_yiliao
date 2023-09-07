@@ -24,37 +24,39 @@ type MemberListData struct {
 	MonthRechargeAmount decimal.Decimal `json:"month_recharge_amount"` //当月团队充值金额
 }
 type MemberInfo struct {
-	Id                 int             `json:"id"`                   //
-	Username           string          `json:"username"`             //手机号
-	Balance            decimal.Decimal `json:"balance"`              //可用余额
-	WithdrawBalance    decimal.Decimal `json:"withdraw_balance"`     //可提余额
-	WithdrawThreshold  decimal.Decimal `json:"withdraw_threshold"`   //可提现额度
-	Freeze             decimal.Decimal `json:"freeze"`               //冻结金额
-	ParentId           int             `json:"parent_id"`            //推荐人id
-	AgentId            int             `json:"agent_id"`             //代理id
-	IsReal             int             `json:"is_real"`              //是否实名
-	RealName           string          `json:"real_name"`            //真实姓名
-	InvestFreeze       decimal.Decimal `json:"invest_freeze"`        //余额宝冻结金额
-	InvestAmount       decimal.Decimal `json:"invest_amount"`        //余额宝有效金额
-	InvestIncome       decimal.Decimal `json:"invest_income"`        //余额宝总收益
-	Avatar             string          `json:"avatar"`               //头像
-	Status             int             `json:"status"`               //帐号启用状态，1启用2禁用
-	FundsStatus        int             `json:"funds_status"`         //帐1启用2禁用
-	Level              int             `json:"level"`                //等级
-	Score              int             `json:"score"`                //信誉分
-	LastLoginTime      int64           `json:"last_login_time"`      //最后登录时间
-	LastLoginIP        string          `json:"last_login_ip"`        //最后登录ip
-	RegTime            int64           `json:"reg_time"`             //注册时间
-	RegisterIP         string          `json:"register_ip"`          //注册ip
-	DisableLoginTime   int64           `json:"disable_login_time"`   //禁止登录时间
-	DisableBetTime     int64           `json:"disable_bet_time"`     //禁止投注时间
-	Code               string          `json:"code"`                 //邀请码
-	IsBuy              int             `json:"is_buy"`               //1=有效 2=无效
-	TopId              int             `json:"top_id"`               //上级Id
-	TopName            string          `json:"top_name"`             //上级名字
-	ProductOrderAmount decimal.Decimal `json:"product_order_amount"` //投注金额
-	AgentName          string          `json:"agent_name"`
-	YiBaoBalance       decimal.Decimal `json:"yibao_balance"`
+	Id                  int             `json:"id"`                    //
+	Username            string          `json:"username"`              //手机号
+	Balance             decimal.Decimal `json:"balance"`               //可用余额
+	UsdtBalance         decimal.Decimal `json:"usdt_balance"`          //可用余额
+	WithdrawBalance     decimal.Decimal `json:"withdraw_balance"`      //可提余额
+	UsdtWithdrawBalance decimal.Decimal `json:"usdt_withdraw_balance"` //可提余额
+	WithdrawThreshold   decimal.Decimal `json:"withdraw_threshold"`    //可提现额度
+	Freeze              decimal.Decimal `json:"freeze"`                //冻结金额
+	ParentId            int             `json:"parent_id"`             //推荐人id
+	AgentId             int             `json:"agent_id"`              //代理id
+	IsReal              int             `json:"is_real"`               //是否实名
+	RealName            string          `json:"real_name"`             //真实姓名
+	InvestFreeze        decimal.Decimal `json:"invest_freeze"`         //余额宝冻结金额
+	InvestAmount        decimal.Decimal `json:"invest_amount"`         //余额宝有效金额
+	InvestIncome        decimal.Decimal `json:"invest_income"`         //余额宝总收益
+	Avatar              string          `json:"avatar"`                //头像
+	Status              int             `json:"status"`                //帐号启用状态，1启用2禁用
+	FundsStatus         int             `json:"funds_status"`          //帐1启用2禁用
+	Level               int             `json:"level"`                 //等级
+	Score               int             `json:"score"`                 //信誉分
+	LastLoginTime       int64           `json:"last_login_time"`       //最后登录时间
+	LastLoginIP         string          `json:"last_login_ip"`         //最后登录ip
+	RegTime             int64           `json:"reg_time"`              //注册时间
+	RegisterIP          string          `json:"register_ip"`           //注册ip
+	DisableLoginTime    int64           `json:"disable_login_time"`    //禁止登录时间
+	DisableBetTime      int64           `json:"disable_bet_time"`      //禁止投注时间
+	Code                string          `json:"code"`                  //邀请码
+	IsBuy               int             `json:"is_buy"`                //1=有效 2=无效
+	TopId               int             `json:"top_id"`                //上级Id
+	TopName             string          `json:"top_name"`              //上级名字
+	ProductOrderAmount  decimal.Decimal `json:"product_order_amount"`  //投注金额
+	AgentName           string          `json:"agent_name"`
+	YiBaoBalance        decimal.Decimal `json:"yibao_balance"`
 }
 
 type Bank struct {
