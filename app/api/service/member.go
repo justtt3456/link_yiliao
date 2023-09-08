@@ -353,8 +353,8 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 			return errors.New("usdt账户余额不足")
 		}
 		amount := this.Amount.Mul(c.UsdtSellRate)
-		member.WithdrawBalance = member.Balance.Add(amount)
-		member.UsdtWithdrawBalance = member.UsdtBalance.Sub(this.Amount)
+		member.WithdrawBalance = member.WithdrawBalance.Add(amount)
+		member.UsdtWithdrawBalance = member.UsdtWithdrawBalance.Sub(this.Amount)
 		err := member.Update("withdraw_balance", "usdt_withdraw_balance")
 		if err != nil {
 			return err
