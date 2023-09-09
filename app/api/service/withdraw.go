@@ -140,7 +140,7 @@ func (this WithdrawCreate) Create(member model.Member) error {
 				return errors.New(fmt.Sprintf(lang.Lang("Maximum withdraw %v"), c.WithdrawMaxAmount))
 			}
 		} else if method.Code == "usdt" {
-			if this.TotalAmount.Div(config.UsdtBuyRate).LessThan(c.WithdrawMinAmount) {
+			if this.TotalAmount.LessThan(c.WithdrawMinAmount.Div(config.UsdtBuyRate)) {
 				return errors.New(fmt.Sprintf(lang.Lang("Minimum withdraw %v"), c.WithdrawMinAmount.Div(config.UsdtBuyRate).Round(2)))
 			}
 			if c.WithdrawMaxAmount.Div(config.UsdtBuyRate).LessThan(this.TotalAmount) {
