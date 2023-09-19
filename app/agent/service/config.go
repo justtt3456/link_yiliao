@@ -419,9 +419,9 @@ func (this ConfigUsdtCreate) Create() error {
 	if this.Address == "" {
 		return errors.New("usdt收款地址不能为空")
 	}
-	if this.Proto != 1 && this.Proto != 2 {
-		return errors.New("usdt收地址址协议错误")
-	}
+	//if this.Proto != 1 && this.Proto != 2 {
+	//	return errors.New("usdt收地址址协议错误")
+	//}
 	m := model.SetUsdt{
 		Address: this.Address,
 		Status:  this.Status,
@@ -441,9 +441,9 @@ func (this ConfigUsdtUpdate) Update() error {
 	if this.Address == "" {
 		return errors.New("usdt收款地址不能为空")
 	}
-	if this.Proto != 1 && this.Proto != 2 {
-		return errors.New("usdt收地址址协议错误")
-	}
+	//if this.Proto != 1 && this.Proto != 2 {
+	//	return errors.New("usdt收地址址协议错误")
+	//}
 	m := model.SetUsdt{
 		Id: this.Id,
 	}

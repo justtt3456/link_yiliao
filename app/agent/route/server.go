@@ -2,7 +2,7 @@ package route
 
 import (
 	"china-russia/app/agent/controller/v1"
-	_ "china-russia/app/agent/docs"
+	//_ "china-russia/app/agent/docs"
 	"china-russia/app/agent/middleware"
 	"china-russia/global"
 	"fmt"
@@ -34,6 +34,7 @@ func Run() {
 	//用户
 	member := v1.MemberController{}
 	ga.GET("member/page_list", member.PageList)
+	ga.POST("member/team", member.Team)
 	ga.POST("logout", member.Logout)
 	//用户银行卡
 	ga.GET("member/bankcard/list", member.BankCardList)

@@ -35,7 +35,7 @@ func (this IMController) Link(c *gin.Context) {
 					this.Json(c, 10001, err.Error(), nil)
 					return
 				}
-				this.Json(c, 10001, err.Error(), nil)
+				this.Json(c, 0, "ok", s)
 				return
 			}
 		}
@@ -47,13 +47,16 @@ func (this IMController) Link(c *gin.Context) {
 }
 
 func RegisterIMUser(user model.Member) error {
+	if user.RealName == "" {
+		return errors.New("请先完成实名认证")
+	}
 	resp, err := http.PostForm(global.CONFIG.IM.Api, url.Values{
 		"api_secret_key": {global.CONFIG.IM.Key},
 		"add":            {"site_users"},
-		"full_name":      {user.Username},
-		"username":       {user.Username},
+		"full_name":      {user.RealName},
+		"username":       {user.RealName},
 		"email_address":  {user.Username + "@email.com"},
-		"password":       {user.Password},
+		"password":       {"123456"},
 	})
 	//resp, err := client.Get(urlPath)
 	if err != nil {
@@ -82,10 +85,13 @@ func RegisterIMUser(user model.Member) error {
 	return errors.New(m["error_message"].(string))
 }
 func LoginImUser(user model.Member) (error, string) {
+	if user.RealName == "" {
+		return errors.New("请先完成实名认证"), ""
+	}
 	resp, err := http.PostForm(global.CONFIG.IM.Api, url.Values{
 		"api_secret_key": {global.CONFIG.IM.Key},
 		"add":            {"login_session"},
-		"username":       {user.Username},
+		"username":       {user.RealName},
 		"email_address":  {user.Username + "@email.com"},
 	})
 	//resp, err := client.Get(urlPath)

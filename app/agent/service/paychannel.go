@@ -45,12 +45,12 @@ func (this PayChannelListService) PageList() *response.PayChannelData {
 			Code:        v.Code,
 			//Min:         float64(v.Min) ,
 			//Max:         float64(v.Max) ,
-			Status:     v.Status,
-			Category:   v.Category,
-			Sort:       v.Sort,
-			Icon:       v.Icon,
-			Fee:        v.Fee,
-			Lang:       v.Lang,
+			Status: v.Status,
+			//Category:   v.Category,
+			Sort: v.Sort,
+			Icon: v.Icon,
+			Fee:  v.Fee,
+			//Lang:       v.Lang,
 			CreateTime: v.CreateTime,
 			UpdateTime: v.UpdateTime,
 		}
@@ -89,7 +89,7 @@ func (this PayChannelCreateService) Create() error {
 		//Max:       int64(this.Max),
 		Icon: this.Icon,
 		Fee:  this.Fee,
-		Lang: this.Lang,
+		//Lang: this.Lang,
 	}
 	return m.Insert()
 }
@@ -131,8 +131,8 @@ func (this PayChannelUpdateService) Update() error {
 	//m.Max = int64(this.Max)
 	m.Icon = this.Icon
 	m.Fee = this.Fee
-	m.Lang = this.Lang
-	return m.Update("name", "payment_id", "code", "min", "max", "icon", "fee", "lang")
+	//m.Lang = this.Lang
+	return m.Update("name", "payment_id", "code", "min", "max", "icon", "fee")
 }
 func (this PayChannelRemoveService) Remove() error {
 	if this.Id == 0 {

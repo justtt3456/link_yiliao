@@ -98,7 +98,7 @@ type ConfigUsdt struct {
 	Id         int    `json:"id"`          //
 	Address    string `json:"address"`     //
 	Status     int    `json:"status"`      //
-	Proto      int    `json:"proto"`       //协议 1 ERC20 2 TRC20
+	Proto      string `json:"proto"`       //协议 1 ERC20 2 TRC20
 	CreateTime int64  `json:"create_time"` //
 	UpdateTime int64  `json:"update_time"` //
 }

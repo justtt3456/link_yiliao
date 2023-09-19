@@ -23,7 +23,7 @@ type PayChannel struct {
 	Category    int             `json:"category"`     //分类(所属支付方式)
 	Sort        int             `json:"sort"`         //排序值
 	Icon        string          `json:"icon"`         //图标
-	Fee         int             `json:"fee"`          //手续费
+	Fee         decimal.Decimal `json:"fee"`          //手续费
 	Lang        string          `json:"lang"`
 	CreateTime  int64           `json:"create_time"`
 	UpdateTime  int64           `json:"update_time"`

@@ -18,7 +18,7 @@ type PayChannelCreateRequest struct {
 	Category  int             `json:"category"`   //分类(所属支付方式)
 	Sort      int             `json:"sort"`       //排序值
 	Icon      string          `json:"icon"`       //图标
-	Fee       int             `json:"fee"`        //手续费
+	Fee       decimal.Decimal `json:"fee"`        //手续费
 	Lang      string          `json:"lang"`
 }
 type PayChannelUpdateRequest struct {
@@ -32,7 +32,7 @@ type PayChannelUpdateRequest struct {
 	Category  int             `json:"category"`   //分类(所属支付方式)
 	Sort      int             `json:"sort"`       //排序值
 	Icon      string          `json:"icon"`       //图标
-	Fee       int             `json:"fee"`        //手续费
+	Fee       decimal.Decimal `json:"fee"`        //手续费
 	Lang      string          `json:"lang"`
 }
 type PayChannelUpdateStatusRequest struct {

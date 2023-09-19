@@ -177,7 +177,7 @@ func (RechargeHandle) Recharge(member model.Member, recharge model.Recharge, amo
 		IsFrontend: isfront,
 	}
 	switch method.Code {
-	case "bank":
+	case "bank", "paymentAlipay", "paymentWx":
 		trade.Before = member.Balance
 		trade.After = member.Balance.Add(amount)
 		//上分

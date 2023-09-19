@@ -48,7 +48,7 @@ func (this PaymentListService) PageList() *response.PaymentData {
 			WithdrawStatus: v.WithdrawStatus,
 			CreateTime:     v.CreateTime,
 			UpdateTime:     v.UpdateTime,
-			Type:           v.Type,
+			//Type:           v.Type,
 		}
 		res = append(res, i)
 	}
@@ -90,7 +90,7 @@ func (this PaymentAddService) Add() error {
 		PubKey:         this.PubKey,
 		ClassName:      this.ClassName,
 		WithdrawStatus: this.WithdrawStatus,
-		Type:           this.Type,
+		//Type:           this.Type,
 	}
 	return m.Insert()
 }
@@ -131,8 +131,8 @@ func (this PaymentUpdateService) Update() error {
 	m.PriKey = this.PriKey
 	m.PubKey = this.PubKey
 	m.ClassName = this.ClassName
-	m.Type = this.Type
-	return m.Update("pay_name", "type", "recharge_url", "withdraw_url", "notify_url", "merchant_no", "secret", "pri_key", "pub_key", "class_name", "withdraw_status")
+	//m.Type = this.Type
+	return m.Update("pay_name", "recharge_url", "withdraw_url", "notify_url", "merchant_no", "secret", "pri_key", "pub_key", "class_name", "withdraw_status")
 }
 func (this PaymentRemoveService) Remove() error {
 	if this.Id == 0 {
