@@ -54,7 +54,7 @@ func RegisterIMUser(user model.Member) error {
 		"api_secret_key": {global.CONFIG.IM.Key},
 		"add":            {"site_users"},
 		"full_name":      {user.RealName},
-		"username":       {user.RealName},
+		"username":       {user.Username},
 		"email_address":  {user.Username + "@email.com"},
 		"password":       {"123456"},
 	})
@@ -91,7 +91,7 @@ func LoginImUser(user model.Member) (error, string) {
 	resp, err := http.PostForm(global.CONFIG.IM.Api, url.Values{
 		"api_secret_key": {global.CONFIG.IM.Key},
 		"add":            {"login_session"},
-		"username":       {user.RealName},
+		"username":       {user.Username},
 		"email_address":  {user.Username + "@email.com"},
 	})
 	//resp, err := client.Get(urlPath)

@@ -78,11 +78,11 @@ func (this RegisterService) Insert(c *gin.Context) (*response.Member, error) {
 	}
 	defer redisLock.Unlock(lockKey)
 	//同一ip注册数量限制
-	ex := model.Member{}
+	//ex := model.Member{}
 	log.Println("当前ip:", c.ClientIP())
-	if ex.Count("register_ip = ?", []interface{}{c.ClientIP()}) >= 3 {
-		return nil, errors.New("同一ip注册数量不能超过3个")
-	}
+	//if ex.Count("register_ip = ?", []interface{}{c.ClientIP()}) >= 3 {
+	//	return nil, errors.New("同一ip注册数量不能超过3个")
+	//}
 	if !common.IsMobile(this.Username, global.Language) {
 		return nil, errors.New("手机格式不正确")
 	}

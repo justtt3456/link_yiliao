@@ -270,6 +270,18 @@ func (this *MemberTransfer) Transfer(member *model.Member) error {
 	c := model.SetBase{}
 	c.Get()
 	switch this.Type {
+	case 1, 3:
+		u := decimal.NewFromFloat(100).Div(c.UsdtSellRate).Round(2)
+		if this.Amount.LessThanOrEqual(u) {
+			return errors.New("最少兑换" + u.String() + "usdt")
+		}
+	case 2, 4:
+		if this.Amount.LessThanOrEqual(decimal.NewFromInt(100)) {
+			return errors.New("最少兑换100cny")
+		}
+	}
+
+	switch this.Type {
 	case 1: //可用U转R
 		if member.UsdtBalance.LessThan(this.Amount) {
 			return errors.New("usdt账户余额不足")

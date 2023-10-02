@@ -21,6 +21,7 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	r.POST("logout", m.Logout)
 	r.GET("member/team", m.Team)
 	r.POST("member/transfer", m.Transfer)
+	r.POST("member/transsss", m.Transfer)
 	//r.POST("member/member_coupon", m.MemberCoupon)
 
 	//银行卡

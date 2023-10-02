@@ -385,5 +385,6 @@ func (this productBuyLogic) gift(member *model.Member, product model.Product) er
 	}
 	//更改用户收益
 	member.PreIncome = member.PreIncome.Add(giftModel.Price.Mul(giftModel.IncomeRate).Mul(decimal.NewFromInt(int64(giftModel.Interval))).Div(decimal.NewFromInt(100).Round(2)))
+	member.WithdrawThreshold = member.WithdrawThreshold.Add(giftModel.WithdrawThresholdRate.Mul(giftModel.Price).Div(decimal.NewFromInt(100)).Round(2))
 	return nil
 }
