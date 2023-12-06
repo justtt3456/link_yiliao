@@ -7,6 +7,7 @@ import (
 	"china-russia/global"
 	"china-russia/model"
 	"errors"
+	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -95,8 +96,18 @@ func (this RechargeUpdate) Update(admin model.Admin) error {
 	if this.Ids == "" {
 		return errors.New("参数错误")
 	}
+	r := model.Redis{}
 	ids := strings.Split(this.Ids, ",")
 	for _, v := range ids {
+		if v == "" {
+			continue
+		}
+		key := fmt.Sprintf("recharge_update:%s", v)
+		err := r.Lock(key)
+		if err != nil {
+			return err
+		}
+		defer r.Unlock(key)
 		id, _ := strconv.Atoi(v)
 		m := model.Recharge{
 			Id: id,
@@ -122,7 +133,10 @@ func (this RechargeUpdate) Update(admin model.Admin) error {
 		m.Description = this.Description
 		m.Operator = admin.Id
 		//更新状态 说明 操作者
-		m.Update("status", "description", "operator")
+		err = m.Update("status", "description", "operator")
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

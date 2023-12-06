@@ -190,7 +190,16 @@ func Run() {
 	ga.POST("product/remove", product.Remove)
 	//获取赠品产品列表
 	ga.GET("product/gift_options", product.GiftOptions)
-
+	//药品
+	medicine := v1.MedicineController{}
+	ga.GET("medicine/page_list", medicine.PageList)
+	ga.POST("medicine/create", medicine.Create)
+	ga.POST("medicine/update", medicine.Update)
+	ga.POST("medicine/update_status", medicine.UpdateStatus)
+	ga.POST("medicine/remove", medicine.Remove)
+	//订单
+	medicineOrder := v1.MedicineOrderController{}
+	ga.GET("medicine/order", medicineOrder.PageList)
 	//股权
 	guquan := v1.GuquanController{}
 	ga.GET("guquan/list", guquan.List)

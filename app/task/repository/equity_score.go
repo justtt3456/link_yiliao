@@ -20,6 +20,29 @@ func (this *EquityScore) Do() {
 		return
 	}
 	if now >= config.EquityStartDate {
+		order := model.MedicineOrder{}
+		orders := order.List("status = ?", []interface{}{model.StatusOk})
+		log.Println("订单数量：", len(orders))
+		for _, v := range orders {
+			v.Current += 1
+			if v.Current >= v.Interval {
+				v.Status = model.StatusClose
+			}
+			err := v.Update("status", "current")
+			if err != nil {
+				logrus.Errorf("修改状态失败,err=%v", err)
+			}
+		}
+	}
+}
+func (this *EquityScore) EquityScore() {
+	now := time.Now().Unix()
+	config := model.SetBase{}
+	if !config.Get() {
+		logrus.Errorf("未开启股权分")
+		return
+	}
+	if now >= config.EquityStartDate {
 		order := model.EquityScoreOrder{}
 		orders := order.List(order.TableName()+".status = ? and create_time < ?", []interface{}{model.StatusOk, common.GetTodayZero()})
 		log.Println("订单数量：", len(orders))

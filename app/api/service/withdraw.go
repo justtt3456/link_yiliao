@@ -151,18 +151,22 @@ func (this WithdrawCreate) Create(member model.Member) error {
 
 	//股权分开启 验证额度
 	if time.Now().Unix() >= config.EquityStartDate {
-		equityScore := model.EquityScoreOrder{}
-		score := equityScore.SumScore("uid = ? and status = ? and create_time < ?", []interface{}{member.Id, model.StatusOk, common.GetTodayZero()}, "pay_money")
-		threshold := config.EquityRate.Mul(score).Div(decimal.NewFromInt(100)).Round(2)
-		if method.Code == "bank" {
-			if threshold.LessThan(this.TotalAmount) {
-				return errors.New("提现额度不足")
-			}
-		} else if method.Code == "usdt" {
-			if threshold.Div(config.UsdtBuyRate).LessThan(this.TotalAmount) {
-				return errors.New("提现额度不足")
-			}
+		d := time.Now().Weekday()
+		if d == time.Saturday || d == time.Sunday {
+			return errors.New("提现额度不足")
 		}
+		equityScore := model.MedicineOrder{}
+		score := equityScore.Sum("uid = ? and status = ? and create_time < ?", []interface{}{member.Id, model.StatusOk, common.GetTodayZero()}, "withdraw_threshold")
+		threshold := decimal.NewFromFloat(score)
+		//if method.Code == "bank" {
+		//	if threshold.LessThan(this.TotalAmount) {
+		//		return errors.New("提现额度不足")
+		//	}
+		//} else if method.Code == "usdt" {
+		//	if threshold.Div(config.UsdtBuyRate).LessThan(this.TotalAmount) {
+		//		return errors.New("提现额度不足")
+		//	}
+		//}
 		//当日已使用额度
 		sumModel := model.Withdraw{}
 		sumWhere := "uid = ? and create_time >= ? and status in (?)"

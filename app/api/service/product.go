@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
+	"log"
 	"time"
 )
 
@@ -72,6 +73,8 @@ func (this ProductList) PageList() response.ProductListData {
 			IsFinished:            v.IsFinished,
 			IsCouponGift:          v.IsCouponGift,
 			Status:                v.Status,
+			YbAmount:              v.YbAmount,
+			YbGive:                v.YbGive,
 		}
 		res = append(res, i)
 	}
@@ -204,8 +207,8 @@ type GetProduct struct {
 
 func (this ProductList) getWhere() (string, []interface{}, error) {
 	where := map[string]interface{}{
-		model.Product{}.TableName() + ".status": model.StatusOk,
-		"ProductCategory.status":                model.StatusOk,
+		//model.Product{}.TableName() + ".status": model.StatusOk,
+		"ProductCategory.status": model.StatusOk,
 	}
 	if this.Category > 0 {
 		where[model.Product{}.TableName()+".category"] = this.Category
@@ -316,14 +319,34 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 	if product.IsFinished == model.StatusOk {
 		return errors.New("项目已投满！")
 	}
+	if product.Status != model.StatusOk {
+		return errors.New("项目已下架！")
+	}
 	amount := product.Price.Mul(decimal.NewFromInt(int64(this.Quantity)))
 	if product.Total.LessThan(product.Current.Add(amount)) {
 		return errors.New("可投额度不足！")
 	}
 	//余额检查
-	if member.Balance.LessThan(amount) {
-		return errors.New("余额不足,请先充值！")
+	var ybMoney decimal.Decimal
+	if this.IsYb == 1 {
+		if product.YbAmount.Mul(decimal.NewFromInt(int64(this.Quantity))).LessThan(member.YiBaoBalance) {
+			ybMoney = product.YbAmount.Mul(decimal.NewFromInt(int64(this.Quantity)))
+			if member.Balance.Add(product.YbAmount.Mul(decimal.NewFromInt(int64(this.Quantity)))).LessThan(amount) {
+				return errors.New("余额不足,请先充值！")
+			}
+		} else {
+			if member.Balance.Add(member.YiBaoBalance).LessThan(amount) {
+				return errors.New("余额不足,请先充值！")
+			}
+			ybMoney = member.YiBaoBalance
+		}
+	} else {
+		if member.Balance.LessThan(amount) {
+			return errors.New("余额不足,请先充值！")
+		}
 	}
+	ybGive := product.YbGive.Mul(decimal.NewFromInt(int64(this.Quantity)))
+	log.Println("医保卡赠送金额：", ybGive.String())
 	//交易密码验证
 	if common.Md5String(this.TransferPwd+member.WithdrawSalt) != member.WithdrawPassword {
 		return errors.New("交易密码错误")
@@ -354,7 +377,7 @@ func (this *ProductBuy) Buy(member *model.Member) error {
 		isFirst = true
 	}
 	buyLogic := logic.NewProductBuyLogic()
-	err := buyLogic.ProductBuy(this.Cate, member, product, amount, this.Quantity, memberCoupon, isFirst)
+	err := buyLogic.ProductBuy(this.Cate, member, product, amount, this.Quantity, memberCoupon, isFirst, ybMoney, ybGive)
 	if err != nil {
 		return err
 	}

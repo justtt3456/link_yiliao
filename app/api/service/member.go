@@ -217,7 +217,7 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 		//用户返佣金额
 		var childRebateAmount decimal.Decimal
 		var payAmount float64
-		global.DB.Model(model.OrderProduct{}).Select("pay_money").Where("uid = ?", v.Uid).Scan(&payAmount)
+		global.DB.Model(model.OrderProduct{}).Select("COALESCE(sum(pay_money),0)").Where("uid = ?", v.Uid).Scan(&payAmount)
 		switch v.Level {
 		case 1:
 			childRebateAmount = decimal.NewFromFloat(payAmount).Mul(config.OneSend).Div(decimal.NewFromInt(100)).Round(2)
@@ -245,6 +245,9 @@ func (this MemberTeam) GetTeam(member model.Member) (*response.MyTeamList, error
 }
 
 func (this MemberTeam) parseMobileNumber(mobile string) string {
+	if len(mobile) < 5 {
+		return ""
+	}
 	numbers := []rune(mobile)
 	length := len(numbers)
 	return string(numbers[0:3]) + "****" + string(numbers[length-4:length])

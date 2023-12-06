@@ -5,6 +5,8 @@ import "github.com/shopspring/decimal"
 type OrderListRequest struct {
 	ProductName string `form:"product_name" json:"product_name"` //产品名字
 	Username    string `form:"username" json:"username"`         //用户名字
+	RealName    string `form:"real_name" json:"real_name"`       //用户名字
+	AgentName   string `form:"agent_name" json:"agent_name"`     //用户名字
 	Uid         int    `form:"uid" json:"uid"`                   //用户Id
 	StartTime   string `form:"start_time" json:"start_time"`
 	EndTime     string `form:"end_time" json:"end_time"`

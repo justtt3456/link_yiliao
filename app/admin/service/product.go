@@ -49,6 +49,8 @@ func (this ProductList) PageList() response.ProductData {
 			Sort:                  v.Sort,
 			Status:                v.Status,
 			CreateTime:            v.CreateTime,
+			YbAmount:              v.YbAmount,
+			YbGive:                v.YbGive,
 		}
 		res = append(res, i)
 	}
@@ -122,6 +124,9 @@ func (this ProductCreate) Create() error {
 	if this.Status == 0 {
 		return errors.New("状态不能为空")
 	}
+	if this.Price.LessThan(this.YbAmount) {
+		return errors.New("医保抵扣金额不能大于总价")
+	}
 	//if this.Type == 2 {
 	//	if this.DelayTime <= 0 {
 	//		return errors.New("延期时间必须大于0")
@@ -161,6 +166,8 @@ func (this ProductCreate) Create() error {
 		IsCouponGift:          this.IsCouponGift,
 		Sort:                  this.Sort,
 		Status:                this.Status,
+		YbAmount:              this.YbAmount,
+		YbGive:                this.YbGive,
 	}
 	return m.Insert()
 }
@@ -218,6 +225,9 @@ func (this ProductUpdate) Update() error {
 	if this.Status == 0 {
 		return errors.New("状态不能为空")
 	}
+	if this.Price.LessThan(this.YbAmount) {
+		return errors.New("医保抵扣金额不能大于总价")
+	}
 	//if this.Type == 2 {
 	//	if this.DelayTime <= 0 {
 	//		return errors.New("延期时间必须大于0")
@@ -262,7 +272,9 @@ func (this ProductUpdate) Update() error {
 	m.IsCouponGift = this.IsCouponGift
 	m.Sort = this.Sort
 	m.Status = this.Status
-	return m.Update("name", "category", "type", "price", "interval", "img", "income_rate", "limit_buy", "total", "current", "desc", "delay_time", "gift_id", "withdraw_threshold_rate", "is_hot", "is_finished", "is_coupon_gift", "sort", "status")
+	m.YbAmount = this.YbAmount
+	m.YbGive = this.YbGive
+	return m.Update("name", "category", "type", "price", "interval", "img", "income_rate", "limit_buy", "total", "current", "desc", "delay_time", "gift_id", "withdraw_threshold_rate", "is_hot", "is_finished", "is_coupon_gift", "sort", "status", "yb_amount", "yb_give")
 }
 
 type ProductUpdateStatus struct {

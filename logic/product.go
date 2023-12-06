@@ -24,7 +24,7 @@ func NewProductBuyLogic() *productBuyLogic {
 		config: &config,
 	}
 }
-func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product model.Product, amount decimal.Decimal, quantity int, mc model.MemberCoupon, isFirst bool) error {
+func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product model.Product, amount decimal.Decimal, quantity int, mc model.MemberCoupon, isFirst bool, ybMoney decimal.Decimal, ybGive decimal.Decimal) error {
 	if this.tx == nil {
 		this.tx = global.DB
 	}
@@ -45,7 +45,7 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 	switch pt {
 	case 1:
 		//订单入库
-		order, err := this.createOrder(member, product, amount, quantity)
+		order, err := this.createOrder(member, product, amount, quantity, ybMoney)
 		if err != nil {
 			return err
 		}
@@ -60,12 +60,14 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 			logrus.Errorf("购买产品减去可投余额失败%v", err)
 		}
 		//账变记录
-		err = this.createTrade(member, order, amount, mc)
+		err = this.createTrade(member, order, amount, mc, ybMoney)
 		if err != nil {
 			return err
 		}
+		//医保余额修改
+		member.YiBaoBalance = member.YiBaoBalance.Add(ybGive)
 		//扣减可用余额 记录已购状态
-		member.Balance = member.Balance.Sub(amount.Sub(mc.Coupon.Price))
+		member.Balance = member.Balance.Sub(amount.Sub(mc.Coupon.Price).Sub(ybMoney))
 		member.TotalBuy = member.TotalBuy.Add(amount)
 		member.IsBuy = 1
 		if mc.Id > 0 {
@@ -149,7 +151,9 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 		}
 		//用户可提额度增加
 		member.WithdrawThreshold = member.WithdrawThreshold.Add(product.WithdrawThresholdRate.Mul(amount).Div(decimal.NewFromInt(100)).Round(2))
-		err = this.tx.Select("balance", "withdraw_balance", "is_buy", "pre_income", "pre_capital", "withdraw_threshold", "total_buy").Updates(member).Error
+		//扣除医保卡余额
+		member.YiBaoBalance = member.YiBaoBalance.Sub(ybMoney)
+		err = this.tx.Select("balance", "withdraw_balance", "is_buy", "pre_income", "pre_capital", "withdraw_threshold", "total_buy", "yibao_balance").Updates(member).Error
 		if err != nil {
 			logrus.Errorf("更改会员余额信息失败%v", err)
 			return err
@@ -159,19 +163,20 @@ func (this productBuyLogic) ProductBuy(pt int, member *model.Member, product mod
 	}
 	return nil
 }
-func (this productBuyLogic) createOrder(member *model.Member, product model.Product, amount decimal.Decimal, quantity int) (*model.OrderProduct, error) {
+func (this productBuyLogic) createOrder(member *model.Member, product model.Product, amount decimal.Decimal, quantity int, ybMoney decimal.Decimal) (*model.OrderProduct, error) {
 	//购买
 	inc := &model.OrderProduct{
 		UId:          member.Id,
 		Pid:          product.Id,
 		PayMoney:     amount,
 		IsReturnTop:  1,
-		AfterBalance: member.Balance.Sub(amount),
+		AfterBalance: member.Balance.Sub(amount.Sub(ybMoney)),
 		CreateTime:   time.Now().Unix(),
 		UpdateTime:   time.Now().Unix(),
 		IncomeRate:   product.IncomeRate,
 		EndTime:      time.Now().Unix() + int64(product.Interval*86400),
 		Quantity:     quantity,
+		YbAmount:     ybMoney,
 	}
 	err := this.tx.Create(&inc).Error
 	if err != nil {
@@ -179,15 +184,15 @@ func (this productBuyLogic) createOrder(member *model.Member, product model.Prod
 	}
 	return inc, nil
 }
-func (this productBuyLogic) createTrade(member *model.Member, order *model.OrderProduct, amount decimal.Decimal, mc model.MemberCoupon) error {
+func (this productBuyLogic) createTrade(member *model.Member, order *model.OrderProduct, amount decimal.Decimal, mc model.MemberCoupon, ybMoney decimal.Decimal) error {
 	//加入账变记录
 	trade := model.Trade{
 		UId:        member.Id,
 		TradeType:  1,
 		ItemId:     order.Id,
-		Amount:     amount.Sub(mc.Coupon.Price),
+		Amount:     amount.Sub(mc.Coupon.Price).Sub(ybMoney),
 		Before:     member.Balance,
-		After:      member.Balance.Sub(amount.Sub(mc.Coupon.Price)),
+		After:      member.Balance.Sub(amount.Sub(mc.Coupon.Price).Sub(ybMoney)),
 		Desc:       "购买产品",
 		CreateTime: time.Now().Unix(),
 		UpdateTime: time.Now().Unix(),

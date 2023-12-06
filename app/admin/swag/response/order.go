@@ -36,12 +36,15 @@ type OrderInfo struct {
 }
 
 type BuyList struct {
-	Username string          `json:"username"` //用户名
-	Uid      int             `json:"uid"`      //用户Id
-	Name     string          `json:"name"`     //产品名字
-	Status   int             `json:"status"`   //状态 1=进行中  2=结束
-	BuyTime  int             `json:"buy_time"` //投资时间
-	Amount   decimal.Decimal `json:"amount"`   //金额
+	Username  string          `json:"username"`  //用户名
+	Uid       int             `json:"uid"`       //用户Id
+	Name      string          `json:"name"`      //产品名字
+	Status    int             `json:"status"`    //状态 1=进行中  2=结束
+	BuyTime   int             `json:"buy_time"`  //投资时间
+	Amount    decimal.Decimal `json:"amount"`    //金额
+	YbAmount  decimal.Decimal `json:"yb_amount"` //医保卡金额
+	RealName  string          `json:"real_name"`
+	AgentName string          `json:"agent_name"`
 }
 
 type BuyListResp struct {

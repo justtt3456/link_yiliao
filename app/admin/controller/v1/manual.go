@@ -69,7 +69,13 @@ func (this ManualController) Handle(c *gin.Context) {
 		}
 		this.Json(c, 0, "ok", nil)
 		return
-
+	case 9, 10:
+		if err = s.WithdrawThreshold(); err != nil {
+			this.Json(c, 10001, err.Error(), nil)
+			return
+		}
+		this.Json(c, 0, "ok", nil)
+		return
 	}
 	this.Json(c, 10001, "参数错误", nil)
 	return

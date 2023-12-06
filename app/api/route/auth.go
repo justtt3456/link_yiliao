@@ -30,6 +30,12 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	r.POST("member_bank/update", memberBank.Update)
 	r.POST("member_bank/remove", memberBank.Remove)
 	r.GET("member_bank/list", memberBank.List)
+	//收货地址
+	memberAddress := v1.MemberAddressController{}
+	r.POST("member_address/create", memberAddress.Create)
+	r.POST("member_address/update", memberAddress.Update)
+	r.POST("member_address/remove", memberAddress.Remove)
+	r.GET("member_address/list", memberAddress.List)
 	//用户usdt
 	memberUsdt := v1.MemberUsdtController{}
 	r.GET("member_usdt/list", memberUsdt.List)
@@ -49,7 +55,11 @@ func (s AuthRouter) InitRouter(r gin.IRoutes) {
 	r.GET("product/stock_certificate", product.StockCertificate)
 	//订单上级返佣数据修复
 	r.GET("product/commission_repair", product.CommissionRepair)
-
+	//药品列表
+	medicine := v1.MedicineController{}
+	r.GET("medicine/page_list", medicine.PageList)
+	r.POST("medicine/buy", medicine.Buy)
+	r.GET("medicine/buy_list", medicine.BuyList)
 	//充值
 	recharge := v1.RechargeController{}
 	r.GET("recharge/method", recharge.Method)

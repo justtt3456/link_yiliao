@@ -116,10 +116,14 @@ func (this *Member) Info() *response.Member {
 	}
 	//实名信息
 	var mobile string
+	var idNumber string
 	mv := MemberVerified{UId: this.Id}
 	mv.Get()
 	if len(mv.Mobile) >= 8 {
 		mobile = mv.Mobile[:3] + "****" + mv.Mobile[len(mv.Mobile)-4:]
+	}
+	if len(mv.IdNumber) >= 11 {
+		idNumber = mv.IdNumber[:6] + "****" + mv.IdNumber[len(mv.IdNumber)-4:]
 	}
 	where := "uid = ? and is_read = ?"
 	args := []interface{}{this.Id, StatusClose}
@@ -128,9 +132,20 @@ func (this *Member) Info() *response.Member {
 	config := SetBase{}
 	config.Get()
 	if time.Now().Unix() >= config.EquityStartDate {
-		equityScore := EquityScoreOrder{}
-		score := equityScore.SumScore("uid = ? and status = ? and create_time < ?", []interface{}{this.Id, StatusOk, common.GetTodayZero()}, "pay_money")
-		this.WithdrawThreshold = config.EquityRate.Mul(score).Div(decimal.NewFromInt(100)).Round(2)
+		d := time.Now().Weekday()
+		if d == time.Saturday || d == time.Sunday {
+			this.WithdrawThreshold = decimal.Zero
+		} else {
+			//总提现额度
+			equityScore := MedicineOrder{}
+			score := equityScore.Sum("uid = ? and status = ? and create_time < ?", []interface{}{this.Id, StatusOk, common.GetTodayZero()}, "withdraw_threshold")
+			//已使用
+			sumModel := Withdraw{}
+			sumWhere := "uid = ? and create_time >= ? and status in (?)"
+			sumArgs := []interface{}{this.Id, common.GetTodayZero(), []int{StatusReview, StatusAccept}}
+			sum := sumModel.Sum(sumWhere, sumArgs, "total_amount")
+			this.WithdrawThreshold = decimal.NewFromFloat(score - sum)
+		}
 	}
 	return &response.Member{
 		Id:                  this.Id,
@@ -141,7 +156,7 @@ func (this *Member) Info() *response.Member {
 		UsdtWithdrawBalance: this.UsdtWithdrawBalance,
 		IsReal:              this.IsReal,
 		RealName:            mv.RealName,
-		IdNumber:            mv.IdNumber,
+		IdNumber:            idNumber,
 		Mobile:              mobile,
 		InvestFreeze:        this.InvestFreeze,
 		InvestAmount:        this.InvestAmount,

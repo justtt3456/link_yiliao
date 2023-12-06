@@ -9,6 +9,7 @@ type WithdrawListRequest struct {
 	Status    int    `json:"status" form:"status"` //1为未审核，2为已审核，3为已拒绝
 	Page      int    `json:"page" form:"page"`
 	PageSize  int    `json:"page_size" form:"page_size"`
+	Password  string `json:"password" form:"password"`
 }
 type WithdrawUpdateRequest struct {
 	Ids         string `json:"ids"`

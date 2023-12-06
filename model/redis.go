@@ -87,13 +87,13 @@ type Redis struct {
 }
 
 func (Redis) Lock(key string) error {
-	ch := time.After(time.Second * 5)
+	ch := time.After(time.Second * 15)
 	for {
 		select {
 		case <-ch:
 			return errors.New("请求超时,请重试")
 		default:
-			if global.REDIS.SetNX(key, 1, time.Second*5).Val() {
+			if global.REDIS.SetNX(key, 1, time.Second*15).Val() {
 				return nil
 			}
 		}

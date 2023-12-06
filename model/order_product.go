@@ -23,6 +23,7 @@ type OrderProduct struct {
 	IncomeRate      decimal.Decimal `gorm:"column:income_rate"`                //收益率
 	EndTime         int64           `gorm:"column:end_time"`                   //结束时间
 	Quantity        int             `gorm:"column:quantity"`
+	YbAmount        decimal.Decimal `gorm:"column:yb_amount"`
 	Member          Member          `gorm:"foreignKey:UId;"` //BeLongsTo 关联用户 自身外键UId
 	Product         Product         `gorm:"foreignKey:Pid;"` //BeLongsTo 关联商品 自身外键Pid
 }

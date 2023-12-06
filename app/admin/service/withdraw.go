@@ -7,6 +7,7 @@ import (
 	"china-russia/global"
 	"china-russia/model"
 	"errors"
+	"fmt"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 	"strconv"
@@ -21,7 +22,10 @@ type WithdrawUpdateService struct {
 	request.WithdrawUpdateRequest
 }
 
-func (this WithdrawListService) PageList() *response.WithdrawData {
+func (this WithdrawListService) PageList() (error, *response.WithdrawData) {
+	if this.Password != global.CONFIG.System.WithdrawPassword {
+		return errors.New("密码错误"), nil
+	}
 	if this.Page < 1 {
 		this.Page = 1
 	}
@@ -35,7 +39,7 @@ func (this WithdrawListService) PageList() *response.WithdrawData {
 	var total int64
 	err := db2.Count(&total).Error
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 	page := common.Page{
 		Page: this.Page,
@@ -44,7 +48,7 @@ func (this WithdrawListService) PageList() *response.WithdrawData {
 	list := make([]model.Withdraw, 0)
 	err = db.Order(model.Withdraw{}.TableName() + ".id desc").Limit(this.PageSize).Offset(offset).Find(&list).Error
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 	res := make([]response.WithdrawInfo, 0)
 	var totalAmount decimal.Decimal
@@ -86,7 +90,7 @@ func (this WithdrawListService) PageList() *response.WithdrawData {
 		res = append(res, i)
 		totalAmount = totalAmount.Add(v.TotalAmount)
 	}
-	return &response.WithdrawData{
+	return nil, &response.WithdrawData{
 		List:        res,
 		Page:        FormatPage(page),
 		TotalAmount: totalAmount,
@@ -97,8 +101,18 @@ func (this WithdrawUpdateService) Update() error {
 	if this.Ids == "" {
 		return errors.New("参数错误")
 	}
+	r := model.Redis{}
 	ids := strings.Split(this.Ids, ",")
 	for _, v := range ids {
+		if v == "" {
+			continue
+		}
+		key := fmt.Sprintf("withdraw_update:%s", v)
+		err := r.Lock(key)
+		if err != nil {
+			return err
+		}
+		defer r.Unlock(key)
 		id, _ := strconv.Atoi(v)
 		m := model.Withdraw{
 			Id: id,
@@ -145,7 +159,7 @@ func (this WithdrawUpdateService) Update() error {
 		m.Operator1 = this.Operator
 		m.Description = this.Description
 		//更新状态 说明 操作者
-		err := m.Update("status", "description", "operator")
+		err = m.Update("status", "description", "operator")
 		if err != nil {
 			return err
 		}

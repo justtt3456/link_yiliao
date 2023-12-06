@@ -32,13 +32,20 @@ func (this OrderListService) PageList() *response.BuyListResp {
 		if v.IsReturnCapital == 1 {
 			orderStatus = 2
 		}
+		agent := model.Agent{Id: v.Member.AgentId}
+		if v.Member.AgentId > 0 {
+			agent.Get()
+		}
 		items = append(items, response.BuyList{
-			Username: v.Member.Username,
-			Uid:      v.Member.Id,
-			Name:     v.Product.Name,
-			BuyTime:  int(v.CreateTime),
-			Amount:   v.PayMoney,
-			Status:   orderStatus,
+			Username:  v.Member.Username,
+			Uid:       v.Member.Id,
+			Name:      v.Product.Name,
+			BuyTime:   int(v.CreateTime),
+			Amount:    v.PayMoney,
+			Status:    orderStatus,
+			RealName:  v.Member.RealName,
+			AgentName: agent.Account,
+			YbAmount:  v.YbAmount,
 		})
 		totalAmount = totalAmount.Add(v.PayMoney)
 	}
@@ -46,11 +53,20 @@ func (this OrderListService) PageList() *response.BuyListResp {
 }
 func (this OrderListService) getWhere() (string, []interface{}) {
 	where := map[string]interface{}{}
+	if this.AgentName != "" {
+		agent := model.Agent{Account: this.AgentName}
+		if agent.Get() {
+			where["Member.agent_id"] = agent.Id
+		}
+	}
 	if this.ProductName != "" {
 		where["Product.name"] = this.ProductName
 	}
 	if this.Username != "" {
 		where["Member.username"] = this.Username
+	}
+	if this.RealName != "" {
+		where["Member.real_name"] = this.RealName
 	}
 	if this.Uid != 0 {
 		where["Member.id"] = this.Uid

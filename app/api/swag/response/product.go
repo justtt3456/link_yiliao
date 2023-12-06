@@ -36,7 +36,9 @@ type Product struct {
 	IsFinished            int             `json:"is_finished"`             //是否投满
 	IsCouponGift          int             `json:"is_coupon_gift"`          //是否赠送优惠券
 	//Sort                  int             `json:"sort"`                    //排序值
-	Status int `json:"status"` //是否开启，1为开启，2为关闭
+	Status   int             `json:"status"`    //是否开启，1为开启，2为关闭
+	YbAmount decimal.Decimal `json:"yb_amount"` //医保卡抵扣金额
+	YbGive   decimal.Decimal `json:"yb_give"`   //医保卡抵扣金额
 	//CreateTime            int64           `json:"create_time"`             //创建时间
 }
 type ManSongActive struct {

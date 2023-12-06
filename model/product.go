@@ -32,6 +32,8 @@ type Product struct {
 	IsCouponGift          int             `gorm:"column:is_coupon_gift"`             //是否赠送优惠券
 	Sort                  int             `gorm:"column:sort"`                       //排序值
 	Status                int             `gorm:"column:status"`                     //是否开启，1为开启，2为关闭
+	YbAmount              decimal.Decimal `gorm:"column:yb_amount"`                  //医保卡抵扣金额
+	YbGive                decimal.Decimal `gorm:"column:yb_give"`                    //医保卡赠送金额
 	CreateTime            int64           `gorm:"column:create_time;autoCreateTime"` //创建时间
 	ProductCategory       ProductCategory `gorm:"foreignKey:Category"`
 }

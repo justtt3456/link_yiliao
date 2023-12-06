@@ -11,5 +11,6 @@ type BuyReq struct {
 	Id          int    `json:"id"`   //产品Id
 	Quantity    int    `json:"quantity"`
 	UseId       int64  `json:"use_id"`       //使用优惠券传的id
+	IsYb        int    `json:"is_yb"`        //是否使用医保卡抵扣
 	TransferPwd string `json:"transfer_pwd"` //交易密码
 }

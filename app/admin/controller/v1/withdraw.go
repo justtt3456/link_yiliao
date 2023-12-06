@@ -22,7 +22,12 @@ func (this WithdrawController) PageList(c *gin.Context) {
 		this.Json(c, 10001, err.Error(), nil)
 		return
 	}
-	this.Json(c, 0, "ok", s.PageList())
+	err, data := s.PageList()
+	if err != nil {
+		this.Json(c, 10001, err.Error(), nil)
+		return
+	}
+	this.Json(c, 0, "ok", data)
 	return
 }
 

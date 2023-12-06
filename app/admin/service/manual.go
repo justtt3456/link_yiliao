@@ -239,6 +239,77 @@ func (this Manual) Yibao() error {
 	return nil
 }
 
+// 提现额度
+func (this Manual) WithdrawThreshold() error {
+	s := strings.Split(this.UIds, ",")
+	for _, v := range s {
+		id, _ := strconv.Atoi(v)
+		if id == 0 {
+			return errors.New("用户错误")
+		}
+		member := model.Member{Id: id}
+		if !member.Get() {
+			return errors.New("用户不存在")
+		}
+		var tradeType int
+		var before decimal.Decimal
+		var desc string
+		switch this.Handle {
+		case 9:
+			tradeType = 21
+			before = member.WithdrawThreshold
+			desc = "增加提现额度"
+			member.WithdrawThreshold = member.WithdrawThreshold.Add(this.Amount)
+			trade := model.Trade{
+				UId:        member.Id,
+				TradeType:  tradeType,
+				Amount:     this.Amount,
+				Before:     before,
+				After:      member.WithdrawThreshold,
+				IsFrontend: this.IsFrontend,
+				Desc:       desc,
+			}
+			err := trade.Insert()
+			if err != nil {
+				logrus.Error(err)
+				return err
+			}
+			err = member.Update("withdraw_threshold")
+			if err != nil {
+				return err
+			}
+		case 10:
+			tradeType = 22
+			before = member.WithdrawThreshold
+			if member.WithdrawThreshold.LessThan(this.Amount) {
+				return errors.New("提现余额不足")
+			}
+			desc = "减少提现额度"
+			member.WithdrawThreshold = member.WithdrawThreshold.Sub(this.Amount)
+			trade := model.Trade{
+				UId:        member.Id,
+				TradeType:  tradeType,
+				Amount:     this.Amount,
+				Before:     before,
+				After:      member.WithdrawThreshold,
+				IsFrontend: this.IsFrontend,
+				Desc:       desc,
+			}
+			err := trade.Insert()
+			if err != nil {
+				logrus.Error(err)
+				return err
+			}
+			err = member.Update("withdraw_threshold")
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+	return nil
+}
+
 //func (this Manual) Withdraw(admin model.Admin, isfront int) error {
 //	s := strings.Split(this.UIds, ",")
 //	for _, v := range s {

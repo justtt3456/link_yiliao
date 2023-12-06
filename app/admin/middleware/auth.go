@@ -14,6 +14,7 @@ import (
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
+		fmt.Println("token:", token)
 		if token == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"code": 10000,
