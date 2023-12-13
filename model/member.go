@@ -132,20 +132,20 @@ func (this *Member) Info() *response.Member {
 	config := SetBase{}
 	config.Get()
 	if time.Now().Unix() >= config.EquityStartDate {
-		d := time.Now().Weekday()
-		if d == time.Saturday || d == time.Sunday {
-			this.WithdrawThreshold = decimal.Zero
-		} else {
-			//总提现额度
-			equityScore := MedicineOrder{}
-			score := equityScore.Sum("uid = ? and status = ? and create_time < ?", []interface{}{this.Id, StatusOk, common.GetTodayZero()}, "withdraw_threshold")
-			//已使用
-			sumModel := Withdraw{}
-			sumWhere := "uid = ? and create_time >= ? and status in (?)"
-			sumArgs := []interface{}{this.Id, common.GetTodayZero(), []int{StatusReview, StatusAccept}}
-			sum := sumModel.Sum(sumWhere, sumArgs, "total_amount")
-			this.WithdrawThreshold = decimal.NewFromFloat(score - sum)
-		}
+		//d := time.Now().Weekday()
+		//if d == time.Saturday || d == time.Sunday {
+		//	this.WithdrawThreshold = decimal.Zero
+		//} else {
+		//总提现额度
+		equityScore := MedicineOrder{}
+		score := equityScore.Sum("uid = ? and status = ? and create_time < ?", []interface{}{this.Id, StatusOk, common.GetTodayZero()}, "withdraw_threshold")
+		//已使用
+		sumModel := Withdraw{}
+		sumWhere := "uid = ? and create_time >= ? and status in (?)"
+		sumArgs := []interface{}{this.Id, common.GetTodayZero(), []int{StatusReview, StatusAccept}}
+		sum := sumModel.Sum(sumWhere, sumArgs, "total_amount")
+		this.WithdrawThreshold = decimal.NewFromFloat(score - sum)
+		//}
 	}
 	return &response.Member{
 		Id:                  this.Id,

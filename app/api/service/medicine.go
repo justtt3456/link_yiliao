@@ -45,7 +45,9 @@ func (this MedicineList) PageList() response.MedicineListData {
 }
 
 func (this MedicineList) getWhere() (string, []interface{}, error) {
-	where := map[string]interface{}{}
+	where := map[string]interface{}{
+		"status": model.StatusOk,
+	}
 	if this.Name != "" {
 		where[model.Medicine{}.TableName()+".name"] = this.Name
 	}
