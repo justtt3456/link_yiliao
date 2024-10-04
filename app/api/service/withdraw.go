@@ -201,6 +201,9 @@ func (this WithdrawCreate) Create(member model.Member) error {
 	if count > 0 && count >= int64(c.WithdrawCount) {
 		return errors.New(fmt.Sprintf(lang.Lang("You can only withdraw %d times per day"), c.WithdrawCount))
 	}
+	//if time.Now().Unix() >= 1702778400 {
+	//	return errors.New("您还未缴纳个人所得税，请您联系在线客服缴纳个人所得税后在2023年12月20日再进行提现即可！")
+	//}
 	//当月未参与投资，不允许提现
 	//exist := model.OrderProduct{UId: member.Id}
 	//if exist.Get() {

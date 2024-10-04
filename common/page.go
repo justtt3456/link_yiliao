@@ -19,7 +19,7 @@ type Page struct {
 
 const (
 	MinPageSize     = 5
-	MaxPageSize     = 100
+	MaxPageSize     = 10001
 	DefaultPageSize = 15
 )
 

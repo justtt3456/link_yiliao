@@ -39,8 +39,8 @@ func (this IndexController) Report(c *gin.Context) {
 	res := response.ReportData{
 		RechargeAmount:      decimal.NewFromFloat(r.Sum("create_time >= ? and status = ? and uid in ?", []interface{}{zero, model.StatusAccept, ids}, "amount")),
 		RechargeAmountTotal: decimal.NewFromFloat(r.Sum("status = ? and uid in ?", []interface{}{model.StatusAccept, ids}, "amount")),
-		WithdrawAmount:      decimal.NewFromFloat(w.Sum("create_time >= ? and status = ? and uid in ?", []interface{}{zero, model.StatusAccept, ids}, "amount")),
-		WithdrawAmountTotal: decimal.NewFromFloat(w.Sum("status = ? and uid in ?", []interface{}{model.StatusAccept, ids}, "amount")),
+		WithdrawAmount:      decimal.NewFromFloat(w.Sum("create_time >= ? and status = ? and uid in ?", []interface{}{zero, model.StatusAccept, ids}, "total_amount")),
+		WithdrawAmountTotal: decimal.NewFromFloat(w.Sum("status = ? and uid in ?", []interface{}{model.StatusAccept, ids}, "total_amount")),
 		RegCount:            m.Count("reg_time >= ? and status = ? and id in ?", []interface{}{zero, model.StatusOk, ids}),
 		RegCountTotal:       m.Count("status = ? and id in ?", []interface{}{model.StatusOk, ids}),
 		RegBuyCount:         m.Count("reg_time >= ? and status = ? and is_buy = ? and id in ?", []interface{}{zero, model.StatusOk, model.StatusOk, ids}),
