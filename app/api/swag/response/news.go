@@ -10,12 +10,15 @@ type NewsData struct {
 	Page Page   `json:"page"`
 }
 type News struct {
-	Id         int    `json:"id"`          //
-	Title      string `json:"title"`       // 标题
-	Content    string `json:"content"`     // 内容
-	Sort       int    `json:"sort"`        //
-	Intro      string `json:"intro"`       //简介
-	Cover      string `json:"cover"`       //封面图
+	Id         int    `json:"id"`      //
+	Title      string `json:"title"`   // 标题
+	Content    string `json:"content"` // 内容
+	Sort       int    `json:"sort"`    //
+	Intro      string `json:"intro"`   //简介
+	Cover      string `json:"cover"`   //封面图
+	Category   int    `json:"category"`
 	CreateTime int64  `json:"create_time"` //
 	UpdateTime int64  `json:"update_time"` //
+	Source     string `json:"source"`
+	DateTime   string `json:"date_time"`
 }

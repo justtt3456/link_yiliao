@@ -39,3 +39,10 @@ func IsEmail(email string) bool {
 		return false
 	}
 }
+func ReplaceStringByRegex(str, rule, replace string) string {
+	reg, err := regexp.Compile(rule)
+	if reg == nil || err != nil {
+		return ""
+	}
+	return reg.ReplaceAllString(str, replace)
+}

@@ -8,21 +8,23 @@ type NewsList struct {
 }
 
 type NewsCreate struct {
-	Title   string `json:"title"`   //
-	Content string `json:"content"` //
-	Status  int    `json:"status"`  //
-	Sort    int    `json:"sort"`    //
-	Intro   string `json:"intro"`   //
-	Cover   string `json:"cover"`   //封面图
+	Title    string `json:"title"`   //
+	Content  string `json:"content"` //
+	Status   int    `json:"status"`  //
+	Sort     int    `json:"sort"`    //
+	Intro    string `json:"intro"`   //
+	Cover    string `json:"cover"`   //封面图
+	Category int    `json:"category"`
 }
 type NewsUpdate struct {
-	Id      int    `json:"id"`
-	Title   string `json:"title"`   //
-	Content string `json:"content"` //
-	Status  int    `json:"status"`  //
-	Sort    int    `json:"sort"`    //
-	Intro   string `json:"intro"`   //
-	Cover   string `json:"cover"`   //封面图
+	Id       int    `json:"id"`
+	Title    string `json:"title"`   //
+	Content  string `json:"content"` //
+	Status   int    `json:"status"`  //
+	Sort     int    `json:"sort"`    //
+	Intro    string `json:"intro"`   //
+	Cover    string `json:"cover"`   //封面图
+	Category int    `json:"category"`
 }
 type NewsUpdateStatus struct {
 	Id     int `json:"id"`

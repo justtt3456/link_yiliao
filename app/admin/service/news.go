@@ -35,6 +35,7 @@ func (this NewsList) PageList() response.NewsData {
 			Intro:      v.Intro,
 			Cover:      v.Cover,
 			Status:     v.Status,
+			Category:   v.Category,
 		}
 		res = append(res, i)
 	}
@@ -69,13 +70,17 @@ func (this NewsCreate) Create() error {
 	//if this.Cover == "" {
 	//	return errors.New("封面不能为空")
 	//}
+	if this.Category <= 0 {
+		return errors.New("分类不能为空")
+	}
 	m := model.News{
-		Title:   this.Title,
-		Content: this.Content,
-		Status:  this.Status,
-		Sort:    this.Sort,
-		Intro:   this.Intro,
-		Cover:   this.Cover,
+		Title:    this.Title,
+		Content:  this.Content,
+		Status:   this.Status,
+		Sort:     this.Sort,
+		Intro:    this.Intro,
+		Cover:    this.Cover,
+		Category: this.Category,
 	}
 	return m.Insert()
 }
@@ -100,6 +105,9 @@ func (this NewsUpdate) Update() error {
 	//if this.Cover == "" {
 	//	return errors.New("封面不能为空")
 	//}
+	if this.Category <= 0 {
+		return errors.New("分类不能为空")
+	}
 	m := model.News{
 		Id: this.Id,
 	}
@@ -112,7 +120,8 @@ func (this NewsUpdate) Update() error {
 	m.Content = this.Content
 	m.Sort = this.Sort
 	m.Status = this.Status
-	return m.Update("title", "sort", "intro", "content", "cover")
+	m.Category = this.Category
+	return m.Update("title", "sort", "intro", "content", "cover", "category")
 }
 
 type NewsUpdateStatus struct {

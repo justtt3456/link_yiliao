@@ -8,13 +8,17 @@ import (
 )
 
 type News struct {
-	Id         int    `gorm:"column:id;primary_key"`             //
-	Title      string `gorm:"column:title"`                      //
-	Content    string `gorm:"column:content"`                    //
-	Status     int    `gorm:"column:status"`                     //
-	Sort       int    `gorm:"column:sort"`                       //
-	Intro      string `gorm:"column:intro"`                      //
-	Cover      string `gorm:"column:cover"`                      //封面图
+	Id         int    `gorm:"column:id;primary_key"` //
+	Title      string `gorm:"column:title"`          //
+	Content    string `gorm:"column:content"`        //
+	Status     int    `gorm:"column:status"`         //
+	Sort       int    `gorm:"column:sort"`           //
+	Intro      string `gorm:"column:intro"`          //
+	Cover      string `gorm:"column:cover"`          //封面图
+	Category   int    `gorm:"column:category"`
+	Source     string `gorm:"source"`
+	DateTime   string `gorm:"column:date_time"`
+	Url        string `gorm:"url"`
 	CreateTime int64  `gorm:"column:create_time;autoCreateTime"` //
 	UpdateTime int64  `gorm:"column:update_time;autoUpdateTime"` //
 }

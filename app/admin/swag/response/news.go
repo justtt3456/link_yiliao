@@ -19,4 +19,5 @@ type News struct {
 	Intro      string `json:"intro"`       //简介
 	Cover      string `json:"cover"`       //封面图
 	Status     int    `json:"status"`
+	Category   int    `json:"category"`
 }

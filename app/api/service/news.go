@@ -7,7 +7,7 @@ import (
 )
 
 type News struct {
-	request.Pagination
+	request.NewsPageListRequest
 }
 
 func (this News) PageList() response.NewsData {
@@ -20,6 +20,10 @@ func (this News) PageList() response.NewsData {
 	m := model.News{}
 	where := ""
 	args := []interface{}{}
+	if this.Category > 0 {
+		where = "category = ?"
+		args = []interface{}{this.Category}
+	}
 	list, page := m.PageList(where, args, this.Page, this.PageSize)
 	res := make([]response.News, 0)
 	for _, v := range list {
@@ -32,6 +36,9 @@ func (this News) PageList() response.NewsData {
 			Sort:       v.Sort,
 			Intro:      v.Intro,
 			Cover:      v.Cover,
+			Category:   v.Category,
+			Source:     v.Source,
+			DateTime:   v.DateTime,
 		}
 		res = append(res, item)
 	}
